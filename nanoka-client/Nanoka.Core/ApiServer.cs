@@ -223,7 +223,9 @@ namespace Nanoka.Core
 
             handler.Context = context;
 
-            await handler.RunAsync(cancellationToken);
+            var response = await handler.RunAsync(cancellationToken) ?? ApiResponse.Ok;
+
+            await response.ExecuteAsync(context, _serializer);
         }
 
         static async Task RespondAsync(HttpListenerContext context, HttpStatusCode status, string message)

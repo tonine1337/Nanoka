@@ -10,6 +10,9 @@ namespace Nanoka.Core
         [JsonIgnore]
         public HttpListenerContext Context { get; internal set; }
 
-        public abstract Task RunAsync(CancellationToken cancellationToken = default);
+        public abstract Task<ApiResponse> RunAsync(CancellationToken cancellationToken = default);
+
+        protected ApiResponse Ok() => ApiResponse.Ok;
+        protected ApiResponse Ok(object obj) => new ObjectResponse(obj);
     }
 }
