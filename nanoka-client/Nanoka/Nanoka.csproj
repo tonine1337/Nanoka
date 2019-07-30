@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -7,6 +7,12 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Nanoka.Core\Nanoka.Core.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Ipfs.Http.Client" Version="0.30.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.6"/>
+        <PackageReference Include="Unosquare.Swan" Version="1.2.4"/>
     </ItemGroup>
 
 </Project>

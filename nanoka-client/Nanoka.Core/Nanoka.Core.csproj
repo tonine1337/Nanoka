@@ -4,4 +4,10 @@
         <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="EmbedIO" Version="2.9.2"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.6"/>
+        <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="1.1.14"/>
+    </ItemGroup>
+
 </Project>
