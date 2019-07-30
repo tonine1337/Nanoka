@@ -1,7 +1,5 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Ipfs.Http;
-using Unosquare.Labs.EmbedIO;
 
 namespace Nanoka.Core
 {
