@@ -14,19 +14,6 @@ namespace Nanoka.Core
         {
             // IPFS client
             var ipfsClient = await IpfsManager.StartDaemonAsync(options, cancellationToken);
-
-            // Web server
-            using (var server = new WebServer($"http://{options.NanokaEndpoint}/"))
-            {
-                try
-                {
-                    // run server
-                    await server.RunAsync(cancellationToken);
-                }
-
-                // cancellation triggered
-                catch (TaskCanceledException) { }
-            }
         }
     }
 }

@@ -5,13 +5,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="EmbedIO" Version="2.9.2"/>
         <PackageReference Include="Ipfs.Http.Client" Version="0.30.0"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.6"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.6"/>
         <PackageReference Include="Newtonsoft.Json" Version="12.0.2"/>
         <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="1.1.14"/>
-        <PackageReference Include="Unosquare.Swan" Version="1.2.4"/>
     </ItemGroup>
 
 </Project>
