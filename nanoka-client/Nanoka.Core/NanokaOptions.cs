@@ -34,6 +34,7 @@ namespace Nanoka.Core
         }
 
         public string NanokaEndpoint { get; set; } = "localhost:7230";
+        public int NanokaServerListeners { get; set; } = 10;
 
         public string IpfsApiEndpoint { get; set; } = "localhost:5001";
         public string IpfsGatewayEndpoint { get; set; } = "localhost:8080";

@@ -12,6 +12,15 @@ namespace Nanoka.Core
         {
             // IPFS client
             var ipfsClient = await IpfsManager.StartDaemonAsync(options, cancellationToken);
+
+            using (var server = new ApiServer(options))
+            {
+                // dependencies
+                server.AddService(ipfsClient);
+
+                // async hosting
+                await server.RunAsync(cancellationToken);
+            }
         }
     }
 }
