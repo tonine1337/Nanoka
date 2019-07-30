@@ -153,23 +153,47 @@ namespace Nanoka.Core
             switch (request.HttpMethod.ToUpperInvariant())
             {
                 // index page
-                case "GET" when path == "/": break;
+                case "GET" when path == "/":
+                    await HandleStaticFileAsync(context, "index.html", cancellationToken);
+                    break;
 
                 // static assets
-                case "GET" when path.StartsWith("/static/"): break;
+                case "GET" when path.StartsWith("/static/"):
+                    await HandleStaticFileAsync(context, path.Substring(1), cancellationToken);
+                    break;
 
                 // ipfs access
                 case "GET" when path.StartsWith("/api/fs/"): break;
 
                 // api callback
                 case "POST" when path.StartsWith("/api/"):
-                    await HandleApiCallback(context, cancellationToken);
+                    await HandleApiCallbackAsync(context, path.Substring("/api/".Length), cancellationToken);
                     break;
 
                 default:
                     await RespondAsync(context, HttpStatusCode.NotFound, $"No handler for path '{path}'.");
                     break;
             }
+        }
+
+        static async Task HandleStaticFileAsync(HttpListenerContext context,
+                                                string path,
+                                                CancellationToken cancellationToken = default)
+        {
+            // make absolute
+            var fullPath = Path.Combine(Environment.CurrentDirectory, "www", path);
+
+            if (!File.Exists(fullPath))
+            {
+                await RespondAsync(context, HttpStatusCode.NotFound, $"File '{path}' not found.");
+                return;
+            }
+
+            context.Response.StatusCode = 200;
+
+            using (var source = File.OpenRead(fullPath))
+            using (var destination = context.Response.OutputStream)
+                await source.CopyToAsync(destination, 81920, cancellationToken);
         }
 
         struct ApiHandlerInfo
@@ -194,22 +218,20 @@ namespace Nanoka.Core
             typeof(NanokaCore).Assembly
                               .GetTypes()
                               .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(ApiRequest)))
-                              .ToDictionary(GetApiHandlerPath, t => new ApiHandlerInfo(t));
+                              .ToDictionary(t => t.Name.ToLowerInvariant().Replace("request", ""),
+                                            t => new ApiHandlerInfo(t));
 
-        static string GetApiHandlerPath(Type type) => $"/api/{type.Name.ToLowerInvariant().Replace("request", "")}";
-
-        async Task HandleApiCallback(HttpListenerContext context, CancellationToken cancellationToken = default)
+        async Task HandleApiCallbackAsync(HttpListenerContext context,
+                                          string path,
+                                          CancellationToken cancellationToken = default)
         {
-            var request = context.Request;
-            var path    = request.Url.AbsolutePath;
-
             if (!_apiHandlers.TryGetValue(path, out var handlerInfo))
             {
                 await RespondAsync(context, HttpStatusCode.NotFound, $"No API handler for path '{path}'.");
                 return;
             }
 
-            if (request.ContentType != "application/json")
+            if (context.Request.ContentType != "application/json")
             {
                 await RespondAsync(context, HttpStatusCode.UnsupportedMediaType, "API request must be JSON.");
                 return;
@@ -217,7 +239,7 @@ namespace Nanoka.Core
 
             var handler = (ApiRequest) handlerInfo.Constructor.Invoke(ResolveServices(handlerInfo.ParamTypes));
 
-            using (var reader = new StreamReader(request.InputStream))
+            using (var reader = new StreamReader(context.Request.InputStream))
             using (var bufferedReader = new StringReader(await reader.ReadToEndAsync()))
                 _serializer.Populate(bufferedReader, handler);
 
