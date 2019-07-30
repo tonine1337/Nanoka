@@ -9,7 +9,4 @@
         <ProjectReference Include="..\Nanoka.Core\Nanoka.Core.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-    </ItemGroup>
-
 </Project>

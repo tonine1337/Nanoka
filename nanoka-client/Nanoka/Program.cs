@@ -1,15 +1,19 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Nanoka.Core;
+using Newtonsoft.Json;
 
 namespace Nanoka
 {
     static class Program
     {
-        static void Main(string[] args)
+        static async Task Main()
         {
             NanokaCore.Initialize();
 
-            Console.WriteLine("Hello World!");
+            var options = await NanokaOptions.LoadAsync(JsonSerializer.CreateDefault());
+
+            await NanokaCore.RunAsync(options);
         }
     }
 }
