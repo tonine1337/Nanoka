@@ -7,14 +7,20 @@ namespace Nanoka.Core
     {
         readonly Stopwatch _watch = Stopwatch.StartNew();
 
-        public MeasureContext(out Func<double> time)
+        public TimeSpan Elapsed
         {
-            time = () =>
+            get
             {
                 _watch.Stop();
-                return _watch.Elapsed.TotalSeconds;
-            };
+                return _watch.Elapsed;
+            }
         }
+
+        public double Minutes => Elapsed.TotalMinutes;
+        public double Seconds => Elapsed.TotalSeconds;
+        public double Milliseconds => Elapsed.TotalMilliseconds;
+
+        public override string ToString() => Elapsed.ToString();
 
         public void Dispose() => _watch.Stop();
     }
