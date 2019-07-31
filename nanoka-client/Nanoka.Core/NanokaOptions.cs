@@ -1,16 +1,23 @@
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NLog;
 
 namespace Nanoka.Core
 {
     public class NanokaOptions
     {
+        static readonly Logger _log = LogManager.GetCurrentClassLogger();
+
         public static async Task<NanokaOptions> LoadAsync(JsonSerializer serializer,
                                                           string path = "nanoka.json")
         {
             if (!File.Exists(path))
+            {
+                _log.Info($"Configuration file '{path}' not found. Using default values.");
+
                 return new NanokaOptions();
+            }
 
             using (var stream = File.OpenRead(path))
             using (var reader = new StreamReader(stream))
@@ -30,6 +37,8 @@ namespace Nanoka.Core
                 serializer.Serialize(buffer, options);
 
                 await writer.WriteAsync(buffer.ToString());
+
+                _log.Info($"Saved configuration at '{path}'.");
             }
         }
 
