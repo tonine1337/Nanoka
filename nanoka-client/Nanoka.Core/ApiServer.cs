@@ -92,17 +92,26 @@ namespace Nanoka.Core
             // start listener
             _listener.Start();
 
-            var listeners = new HashSet<Task>();
+            _log.Info("Started API server.");
+
+            var listeners     = new HashSet<Task>();
+            var listenerCount = 0;
 
             async Task listenAsync()
             {
                 try
                 {
+                    var id = Interlocked.Increment(ref listenerCount);
+
+                    _log.Trace($"Starting listener {id}.");
+
                     // asynchronously wait to get a context
                     var context = await _listener.GetContextAsync();
 
                     // start a new listener
                     _ = Task.Run(listenAsync, cancellationToken);
+
+                    _log.Trace($"Listener {id} processing request {context.Request.RequestTraceIdentifier}");
 
                     try
                     {
@@ -245,9 +254,18 @@ namespace Nanoka.Core
 
             handler.Context = context;
 
-            var response = await handler.RunAsync(cancellationToken) ?? ApiResponse.Ok;
+            try
+            {
+                var response = await handler.RunAsync(cancellationToken) ?? ApiResponse.Ok;
 
-            await response.ExecuteAsync(context, _serializer);
+                await response.ExecuteAsync(context, _serializer);
+            }
+            catch (Exception e)
+            {
+                _log.Warn(e);
+
+                await RespondAsync(context, HttpStatusCode.InternalServerError, e.ToString());
+            }
         }
 
         static async Task RespondAsync(HttpListenerContext context, HttpStatusCode status, string message)
