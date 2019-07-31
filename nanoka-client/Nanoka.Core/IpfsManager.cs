@@ -66,13 +66,19 @@ namespace Nanoka.Core
                 var address   = endpoint.Substring(0, delimiter);
                 var port      = ushort.Parse(endpoint.Substring(delimiter + 1));
 
+                // IPAddress.Parse does not handle localhost
+                if (address == "localhost")
+                    address = "127.0.0.1";
+
                 switch (IPAddress.Parse(address).AddressFamily)
                 {
-                    case AddressFamily.InterNetwork:   return $"/ip4/{address}/tcp/{port}";
-                    case AddressFamily.InterNetworkV6: return $"/ip6/{address}/tcp/{port}";
+                    case AddressFamily.InterNetwork:   return format(4);
+                    case AddressFamily.InterNetworkV6: return format(6);
 
                     default: throw new NotSupportedException();
                 }
+
+                string format(int v) => $"/ip{v}/{address}/tcp/{port}";
             }
             catch (Exception e)
             {
@@ -141,13 +147,11 @@ namespace Nanoka.Core
             // this file has the content "ipfs"
             const string ping = "QmejvEPop4D7YUadeGqYWmZxHhLc4JBUCzJJHWMzdcMe2y";
 
-            using (var stream = await fs.GetAsync(ping, false, cancellationToken))
-            using (var reader = new StreamReader(stream))
-            {
-                if (await reader.ReadToEndAsync() != "ipfs")
-                    throw new IpfsManagerException("Daemon returned garbage. " +
-                                                   "Ensure that you are running a legitimate IPFS daemon.");
-            }
+            var response = await fs.ReadAllTextAsync(ping, cancellationToken);
+
+            if (response != "ipfs")
+                throw new IpfsManagerException("Daemon returned garbage. " +
+                                               "Ensure that you are running a legitimate IPFS daemon.");
         }
     }
 
