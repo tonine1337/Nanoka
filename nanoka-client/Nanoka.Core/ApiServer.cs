@@ -181,17 +181,17 @@ namespace Nanoka.Core
 
             switch (request.HttpMethod.ToUpperInvariant())
             {
-                // static assets
-                case "GET" when path.Length == 0 || path.StartsWith("static/"):
-                    await HandleStaticFileAsync(context, path, cancellationToken);
+                // api callback
+                case "POST" when path.StartsWith("api/"):
+                    await HandleApiCallbackAsync(context, path.Substring("api/".Length), cancellationToken);
                     break;
 
                 // ipfs access
                 case "GET" when path.StartsWith("api/fs/"): break;
 
-                // api callback
-                case "POST" when path.StartsWith("api/"):
-                    await HandleApiCallbackAsync(context, path.Substring("api/".Length), cancellationToken);
+                // static assets
+                case "GET":
+                    await HandleStaticFileAsync(context, path, cancellationToken);
                     break;
 
                 default:
