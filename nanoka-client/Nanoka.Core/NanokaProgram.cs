@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Nanoka.Core.Database;
 using Newtonsoft.Json;
 using NLog;
 using NLog.Config;
@@ -10,6 +12,8 @@ namespace Nanoka.Core
 {
     public class NanokaProgram : IDisposable
     {
+        static readonly Logger _log = LogManager.GetCurrentClassLogger();
+
         static NanokaProgram()
         {
             // initialize logging
@@ -37,21 +41,41 @@ namespace Nanoka.Core
 
         public async Task RunAsync(CancellationToken cancellationToken = default)
         {
-            // load config
-            var options = await NanokaOptions.LoadAsync(_serializer);
-
-            // ipfs client
-            var ipfsClient = await IpfsManager.StartDaemonAsync(options, cancellationToken);
-
-            // api server
-            using (var server = new ApiServer(options))
+            using (var server = new ApiServer(await NanokaOptions.LoadAsync(_serializer)))
             {
-                // dependency registration
-                server.AddService(_serializer)
-                      .AddService(ipfsClient);
+                // services
+                await ConfigureServicesAsync(server, cancellationToken);
 
+                // migrate database
+                using (var db = server.ResolveService<NanokaDbContext>())
+                {
+                    _log.Info("Migrating database...");
+
+                    await db.Database.MigrateAsync(cancellationToken);
+                }
+
+                // run server
                 await server.RunAsync(cancellationToken);
             }
+        }
+
+        async Task ConfigureServicesAsync(ApiServer server, CancellationToken cancellationToken = default)
+        {
+            var options = server.ResolveService<NanokaOptions>();
+
+            // json serializer
+            server.AddService(_serializer);
+
+            // ipfs client
+            server.AddService(await IpfsManager.StartDaemonAsync(options, cancellationToken));
+
+            // database
+            server.AddService(() =>
+            {
+                var builder = new DbContextOptionsBuilder().UseSqlite(options.LocalConnectionString);
+
+                return new NanokaDbContext(builder.Options);
+            });
         }
 
         public void Dispose() { }
