@@ -107,7 +107,7 @@ namespace Nanoka.Core
             return this;
         }
 
-        T ResolveService<T>(bool required = true)
+        public T ResolveService<T>(bool required = true)
         {
             if (_services.TryGetValue(typeof(T), out var descriptor))
                 return (T) descriptor.Factory();
