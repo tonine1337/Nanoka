@@ -24,18 +24,21 @@ namespace Nanoka.Core
 
         readonly NanokaOptions _options;
         readonly HttpListener _listener;
-        readonly JsonSerializer _serializer = JsonSerializer.CreateDefault();
 
         public ApiServer(NanokaOptions options)
         {
             _options = options;
 
+            // http
             _listener = new HttpListener();
             _listener.Prefixes.Add($"http://{options.NanokaEndpoint}/");
 
+            // always available services
             AddService(this);
             AddService(_listener);
-            AddService(_serializer);
+
+            // default services that can be overridden
+            AddService(JsonSerializer.CreateDefault());
         }
 
         readonly Dictionary<Type, Func<object>> _services = new Dictionary<Type, Func<object>>();
@@ -81,6 +84,17 @@ namespace Nanoka.Core
             _log.Debug($"Transient service registered: {typeof(T)}");
 
             return this;
+        }
+
+        T ResolveService<T>(bool required = true)
+        {
+            if (_services.TryGetValue(typeof(T), out var factory))
+                return (T) factory();
+
+            if (!required)
+                return default;
+
+            throw new NotSupportedException($"Service '{typeof(T)}' could not be resolved.");
         }
 
         object[] ResolveServices(IEnumerable<Type> types, Func<Type, object> func = null, bool required = true)
@@ -244,7 +258,7 @@ namespace Nanoka.Core
                                          string path,
                                          CancellationToken cancellationToken = default)
         {
-            var client = (IpfsClient) ResolveServices(new[] { typeof(IpfsClient) }, required: false)[0];
+            var client = ResolveService<IpfsClient>(false);
 
             if (client == null)
             {
@@ -301,16 +315,18 @@ namespace Nanoka.Core
         }
 
         static readonly IReadOnlyDictionary<string, ApiHandlerInfo> _apiHandlers =
-            typeof(NanokaCore).Assembly
-                              .GetTypes()
-                              .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(ApiRequest)))
-                              .ToDictionary(t => t.Name.ToLowerInvariant().Replace("request", ""),
-                                            t => new ApiHandlerInfo(t));
+            typeof(NanokaProgram).Assembly
+                                 .GetTypes()
+                                 .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(ApiRequest)))
+                                 .ToDictionary(t => t.Name.ToLowerInvariant().Replace("request", ""),
+                                               t => new ApiHandlerInfo(t));
 
         async Task HandleApiCallbackAsync(HttpListenerContext context,
                                           string path,
                                           CancellationToken cancellationToken = default)
         {
+            var serializer = ResolveService<JsonSerializer>();
+
             if (!_apiHandlers.TryGetValue(path, out var handlerInfo))
             {
                 await RespondAsync(context, HttpStatusCode.NotFound, $"No API handler for path '{path}'.");
@@ -347,13 +363,13 @@ namespace Nanoka.Core
 
                 using (var reader = new StreamReader(context.Request.InputStream))
                 using (var bufferedReader = new StringReader(await reader.ReadToEndAsync()))
-                    _serializer.Populate(bufferedReader, handler);
+                    serializer.Populate(bufferedReader, handler);
 
                 handler.Context = context;
 
                 var response = await handler.RunAsync(cancellationToken) ?? ApiResponse.Ok;
 
-                await response.ExecuteAsync(context, _serializer);
+                await response.ExecuteAsync(context, serializer);
             }
             catch (Exception e)
             {
@@ -364,7 +380,7 @@ namespace Nanoka.Core
         }
 
         Task RespondAsync(HttpListenerContext context, HttpStatusCode status, string message)
-            => new StatusCodeResponse(status, message).ExecuteAsync(context, _serializer);
+            => new StatusCodeResponse(status, message).ExecuteAsync(context, ResolveService<JsonSerializer>());
 
         public void Dispose() { }
     }
