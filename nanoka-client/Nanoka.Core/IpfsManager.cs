@@ -149,21 +149,7 @@ namespace Nanoka.Core
             // create client
             var client = new IpfsClient($"http://{options.IpfsApiEndpoint}/");
 
-            try
-            {
-                // test send request to daemon
-                await TestDaemonAsync(client.FileSystem, cancellationToken);
-
-                // success, so daemon was already running
-                _log.Info($"IPFS daemon connected in {watch.Elapsed.TotalSeconds:F} seconds.");
-
-                return client;
-            }
-            catch
-            {
-                // daemon is not running, so start it
-            }
-
+            // start daemon process
             using (var process = StartIpfs($"daemon {options.IpfsDaemonFlags}"))
             {
                 while (!process.HasExited)
