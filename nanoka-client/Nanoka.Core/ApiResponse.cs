@@ -35,6 +35,7 @@ namespace Nanoka.Core
         {
             context.Response.StatusCode        = Status;
             context.Response.StatusDescription = Message;
+            context.Response.ContentType       = "application/json";
 
             var buffer = new StringWriter();
 
@@ -59,7 +60,8 @@ namespace Nanoka.Core
 
         public override async Task ExecuteAsync(HttpListenerContext context, JsonSerializer serializer)
         {
-            context.Response.StatusCode = 200;
+            context.Response.StatusCode  = 200;
+            context.Response.ContentType = "application/json";
 
             var buffer = new StringWriter();
 
