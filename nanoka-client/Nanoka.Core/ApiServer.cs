@@ -28,7 +28,7 @@ namespace Nanoka.Core
             _options = options;
 
             _listener = new HttpListener();
-            _listener.Prefixes.Add($"http://{options.NanokaEndpoint}");
+            _listener.Prefixes.Add($"http://{options.NanokaEndpoint}/");
         }
 
         readonly Dictionary<Type, Func<object>> _services = new Dictionary<Type, Func<object>>();
