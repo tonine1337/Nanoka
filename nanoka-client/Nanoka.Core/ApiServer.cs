@@ -177,26 +177,21 @@ namespace Nanoka.Core
         async Task HandleContextAsync(HttpListenerContext context, CancellationToken cancellationToken = default)
         {
             var request = context.Request;
-            var path    = request.Url.AbsolutePath;
+            var path    = request.Url.AbsolutePath.Substring(1); // trim first slash
 
             switch (request.HttpMethod.ToUpperInvariant())
             {
-                // index page
-                case "GET" when path == "/":
-                    await HandleStaticFileAsync(context, "index.html", cancellationToken);
-                    break;
-
                 // static assets
-                case "GET" when path.StartsWith("/static/"):
-                    await HandleStaticFileAsync(context, path.Substring(1), cancellationToken);
+                case "GET" when path.Length == 0 || path.StartsWith("static/"):
+                    await HandleStaticFileAsync(context, path, cancellationToken);
                     break;
 
                 // ipfs access
-                case "GET" when path.StartsWith("/api/fs/"): break;
+                case "GET" when path.StartsWith("api/fs/"): break;
 
                 // api callback
-                case "POST" when path.StartsWith("/api/"):
-                    await HandleApiCallbackAsync(context, path.Substring("/api/".Length), cancellationToken);
+                case "POST" when path.StartsWith("api/"):
+                    await HandleApiCallbackAsync(context, path.Substring("api/".Length), cancellationToken);
                     break;
 
                 default:
@@ -209,6 +204,10 @@ namespace Nanoka.Core
                                          string path,
                                          CancellationToken cancellationToken = default)
         {
+            // use index.html
+            if (path.Length == 0 || path.EndsWith("/"))
+                path += "index.html";
+
             // make absolute
             var fullPath = Path.Combine(Environment.CurrentDirectory, "www", path);
 
