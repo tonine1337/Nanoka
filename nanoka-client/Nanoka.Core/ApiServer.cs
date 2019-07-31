@@ -288,14 +288,8 @@ namespace Nanoka.Core
             }
         }
 
-        static async Task RespondAsync(HttpListenerContext context, HttpStatusCode status, string message)
-        {
-            context.Response.StatusCode        = (int) status;
-            context.Response.StatusDescription = status.ToString();
-
-            using (var writer = new StreamWriter(context.Response.OutputStream))
-                await writer.WriteAsync(message);
-        }
+        Task RespondAsync(HttpListenerContext context, HttpStatusCode status, string message)
+            => new StatusCodeResponse(status, message).ExecuteAsync(context, _serializer);
 
         public void Dispose() { }
     }
