@@ -47,11 +47,14 @@ namespace Nanoka.Core
                 await ConfigureServicesAsync(server, cancellationToken);
 
                 // migrate database
+                using (var measure = new MeasureContext())
                 using (var db = server.ResolveService<NanokaDbContext>())
                 {
                     _log.Info("Migrating database...");
 
                     await db.Database.MigrateAsync(cancellationToken);
+
+                    _log.Info($"Successfully migrated the database in {measure.Milliseconds:F}ms.");
                 }
 
                 // run server
