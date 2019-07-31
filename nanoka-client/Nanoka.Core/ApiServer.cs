@@ -7,6 +7,7 @@ using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using MimeTypes;
 using Newtonsoft.Json;
 using NLog;
 
@@ -217,7 +218,8 @@ namespace Nanoka.Core
                 return;
             }
 
-            context.Response.StatusCode = 200;
+            context.Response.StatusCode  = 200;
+            context.Response.ContentType = MimeTypeMap.GetMimeType(Path.GetExtension(path));
 
             using (var source = File.OpenRead(fullPath))
             using (var destination = context.Response.OutputStream)
