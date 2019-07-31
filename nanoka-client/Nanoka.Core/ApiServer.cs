@@ -42,11 +42,29 @@ namespace Nanoka.Core
             AddService(JsonSerializer.CreateDefault());
         }
 
-        readonly Dictionary<Type, Func<object>> _services = new Dictionary<Type, Func<object>>();
+        readonly Dictionary<Type, ServiceDescriptor> _services = new Dictionary<Type, ServiceDescriptor>();
+
+        enum ServiceType
+        {
+            Singleton,
+            Transient
+        }
+
+        struct ServiceDescriptor
+        {
+            public readonly Func<object> Factory;
+            public readonly ServiceType Type;
+
+            public ServiceDescriptor(Func<object> factory, ServiceType type)
+            {
+                Factory = factory;
+                Type    = type;
+            }
+        }
 
         public ApiServer AddService(object obj)
         {
-            _services[obj.GetType()] = () => obj;
+            _services[obj.GetType()] = new ServiceDescriptor(() => obj, ServiceType.Singleton);
 
             _log.Debug($"Service registered: {obj.GetType()}");
 
@@ -55,7 +73,7 @@ namespace Nanoka.Core
 
         public ApiServer AddService<T>(T obj)
         {
-            _services[typeof(T)] = () => obj;
+            _services[typeof(T)] = new ServiceDescriptor(() => obj, ServiceType.Singleton);
 
             _log.Debug($"Service registered: {obj.GetType()} as {typeof(T)}");
 
@@ -73,14 +91,16 @@ namespace Nanoka.Core
 
             var paramTypes = ctor.GetParameters().Select(c => c.ParameterType).ToArray();
 
-            _services[typeof(T)] = delegate
-            {
-                var obj = (T) ctor.Invoke(ResolveServices(paramTypes));
+            _services[typeof(T)] = new ServiceDescriptor(
+                () =>
+                {
+                    var obj = (T) ctor.Invoke(ResolveServices(paramTypes));
 
-                _log.Debug($"Transient service constructed: {typeof(T)}");
+                    _log.Debug($"Transient service constructed: {typeof(T)}");
 
-                return obj;
-            };
+                    return obj;
+                },
+                ServiceType.Transient);
 
             _log.Debug($"Transient service registered: {typeof(T)}");
 
@@ -89,8 +109,8 @@ namespace Nanoka.Core
 
         T ResolveService<T>(bool required = true)
         {
-            if (_services.TryGetValue(typeof(T), out var factory))
-                return (T) factory();
+            if (_services.TryGetValue(typeof(T), out var descriptor))
+                return (T) descriptor.Factory();
 
             if (!required)
                 return default;
@@ -112,9 +132,9 @@ namespace Nanoka.Core
                     continue;
                 }
 
-                if (_services.TryGetValue(type, out var factory))
+                if (_services.TryGetValue(type, out var descriptor))
                 {
-                    services.Add(factory());
+                    services.Add(descriptor.Factory());
                     continue;
                 }
 
@@ -383,6 +403,19 @@ namespace Nanoka.Core
         Task RespondAsync(HttpListenerContext context, HttpStatusCode status, string message)
             => new StatusCodeResponse(status, message).ExecuteAsync(context, ResolveService<JsonSerializer>());
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+            // dispose services
+            foreach (var descriptor in _services.Values)
+            {
+                if (descriptor.Type != ServiceType.Singleton)
+                    continue;
+
+                var service = descriptor.Factory();
+
+                if (service is IDisposable disposable)
+                    disposable.Dispose();
+            }
+        }
     }
 }
