@@ -160,7 +160,7 @@ namespace Nanoka.Core
                         await TestDaemonAsync(client.FileSystem, cancellationToken);
 
                         // success
-                        _log.Info($"Initialized IPFS daemon in {watch.Elapsed.TotalSeconds:F} seconds.");
+                        _log.Info($"Initialized IPFS daemon in {watch.Elapsed.TotalSeconds:F}s.");
 
                         return client;
                     }

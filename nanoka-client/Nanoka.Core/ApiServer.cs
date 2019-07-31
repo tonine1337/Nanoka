@@ -206,7 +206,7 @@ namespace Nanoka.Core
                             // always close response
                             context.Response.Close();
 
-                            _log.Trace($"Request {id} finished processing in {measure.Seconds:F} seconds.");
+                            _log.Trace($"Request {id} finished processing in {measure.Milliseconds:F}ms.");
                         }
                     }
                 }
