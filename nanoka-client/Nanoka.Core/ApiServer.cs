@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -195,19 +194,20 @@ namespace Nanoka.Core
 
                     _log.Trace($"Listener {id} processing request {context.Request.RequestTraceIdentifier}");
 
-                    var watch = Stopwatch.StartNew();
-
-                    try
+                    using (var measure = new MeasureContext())
                     {
-                        // enter pipeline
-                        await HandleContextAsync(context, cancellationToken);
-                    }
-                    finally
-                    {
-                        // always close response
-                        context.Response.Close();
+                        try
+                        {
+                            // enter pipeline
+                            await HandleContextAsync(context, cancellationToken);
+                        }
+                        finally
+                        {
+                            // always close response
+                            context.Response.Close();
 
-                        _log.Trace($"Request {id} finished processing in {watch.Elapsed.Seconds:F} seconds.");
+                            _log.Trace($"Request {id} finished processing in {measure.Seconds:F} seconds.");
+                        }
                     }
                 }
                 catch (TaskCanceledException)
