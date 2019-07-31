@@ -14,10 +14,10 @@ using NLog;
 
 namespace Nanoka.Core
 {
-    /// <inheritdoc />
     /// <summary>
     /// Super lightweight HTTP API server.
     /// </summary>
+    // ReSharper disable once InheritdocConsiderUsage
     public class ApiServer : IDisposable
     {
         static readonly Logger _log = LogManager.GetCurrentClassLogger();
