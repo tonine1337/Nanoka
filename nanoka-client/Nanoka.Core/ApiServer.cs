@@ -36,6 +36,7 @@ namespace Nanoka.Core
             // always available services
             AddService(this);
             AddService(_listener);
+            AddService(options);
 
             // default services that can be overridden
             AddService(JsonSerializer.CreateDefault());

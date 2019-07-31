@@ -1,14 +1,16 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
 
 namespace Nanoka.Core
 {
-    public static class NanokaCore
+    public class NanokaProgram : IDisposable
     {
-        public static void Initialize()
+        static NanokaProgram()
         {
             // initialize logging
             var config = new LoggingConfiguration();
@@ -26,19 +28,32 @@ namespace Nanoka.Core
             SQLitePCL.Batteries_V2.Init();
         }
 
-        public static async Task RunAsync(NanokaOptions options, CancellationToken cancellationToken = default)
+        readonly JsonSerializer _serializer;
+
+        public NanokaProgram(JsonSerializer serializer = null)
         {
-            // IPFS client
+            _serializer = serializer ?? JsonSerializer.CreateDefault();
+        }
+
+        public async Task RunAsync(CancellationToken cancellationToken = default)
+        {
+            // load config
+            var options = await NanokaOptions.LoadAsync(_serializer);
+
+            // ipfs client
             var ipfsClient = await IpfsManager.StartDaemonAsync(options, cancellationToken);
 
+            // api server
             using (var server = new ApiServer(options))
             {
-                // dependencies
-                server.AddService(ipfsClient);
+                // dependency registration
+                server.AddService(_serializer)
+                      .AddService(ipfsClient);
 
-                // async hosting
                 await server.RunAsync(cancellationToken);
             }
         }
+
+        public void Dispose() { }
     }
 }

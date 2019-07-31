@@ -1,7 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Nanoka.Core;
-using Newtonsoft.Json;
 
 namespace Nanoka
 {
@@ -9,11 +7,8 @@ namespace Nanoka
     {
         static async Task Main()
         {
-            NanokaCore.Initialize();
-
-            var options = await NanokaOptions.LoadAsync(JsonSerializer.CreateDefault());
-
-            await NanokaCore.RunAsync(options);
+            using (var program = new NanokaProgram())
+                await program.RunAsync();
         }
     }
 }
