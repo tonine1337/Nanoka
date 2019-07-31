@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -36,12 +37,18 @@ namespace Nanoka.Core
         public ApiServer AddService(object obj)
         {
             _services[obj.GetType()] = () => obj;
+
+            _log.Debug($"Service registered: {obj.GetType()}");
+
             return this;
         }
 
         public ApiServer AddService<T>(T obj)
         {
             _services[typeof(T)] = () => obj;
+
+            _log.Debug($"Service registered: {obj.GetType()} as {typeof(T)}");
+
             return this;
         }
 
@@ -56,7 +63,16 @@ namespace Nanoka.Core
 
             var paramTypes = ctor.GetParameters().Select(c => c.ParameterType).ToArray();
 
-            _services[typeof(T)] = () => (T) ctor.Invoke(ResolveServices(paramTypes));
+            _services[typeof(T)] = delegate
+            {
+                var obj = (T) ctor.Invoke(ResolveServices(paramTypes));
+
+                _log.Debug($"Transient service constructed: {typeof(T)}");
+
+                return obj;
+            };
+
+            _log.Debug($"Transient service registered: {typeof(T)}");
 
             return this;
         }
@@ -81,7 +97,7 @@ namespace Nanoka.Core
                     continue;
                 }
 
-                throw new NotSupportedException($"Service '{type.Name}' could not be resolved.");
+                throw new NotSupportedException($"Service '{type}' could not be resolved.");
             }
 
             return services.ToArray();
@@ -103,7 +119,7 @@ namespace Nanoka.Core
                 {
                     var id = Interlocked.Increment(ref listenerCount);
 
-                    _log.Trace($"Starting listener {id}.");
+                    _log.Trace($"Starting listener {id}");
 
                     // asynchronously wait to get a context
                     var context = await _listener.GetContextAsync();
@@ -112,6 +128,8 @@ namespace Nanoka.Core
                     _ = Task.Run(listenAsync, cancellationToken);
 
                     _log.Trace($"Listener {id} processing request {context.Request.RequestTraceIdentifier}");
+
+                    var watch = Stopwatch.StartNew();
 
                     try
                     {
@@ -122,6 +140,8 @@ namespace Nanoka.Core
                     {
                         // always close response
                         context.Response.Close();
+
+                        _log.Trace($"Request {id} finished processing in {watch.Elapsed.Seconds:F} seconds.");
                     }
                 }
                 catch (TaskCanceledException)
