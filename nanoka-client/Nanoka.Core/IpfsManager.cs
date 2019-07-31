@@ -33,6 +33,11 @@ namespace Nanoka.Core
             return filename;
         }
 
+        /// <summary>
+        /// Gets the path to IPFS repository directory.
+        /// </summary>
+        static string GetIpfsRepoPath() => Path.Combine(Environment.CurrentDirectory, "data");
+
         static Process StartIpfs(string args)
         {
             var process = new ProcessStartInfo
@@ -40,14 +45,28 @@ namespace Nanoka.Core
                 FileName        = GetIpfsPath(),
                 Arguments       = args,
                 CreateNoWindow  = true,
-                UseShellExecute = false
+                UseShellExecute = false,
+                EnvironmentVariables =
+                {
+                    { "IPFS_PATH", GetIpfsRepoPath() }
+                }
             };
 
             return Process.Start(process);
         }
 
+        static void InitRepo()
+        {
+            using (var process = StartIpfs("init"))
+                process.WaitForExit();
+        }
+
         static void SetConfig(string key, string value)
         {
+            // we want to modify config without using the daemon
+            // delete the api file
+            File.Delete(Path.Combine(GetIpfsRepoPath(), "api"));
+
             using (var process = StartIpfs($"config \"{key}\" \"{value}\""))
             {
                 process.WaitForExit();
@@ -89,6 +108,9 @@ namespace Nanoka.Core
         public static async Task<IpfsClient> StartDaemonAsync(NanokaOptions options,
                                                               CancellationToken cancellationToken = default)
         {
+            // initialize repository
+            InitRepo();
+
             // update configuration
             SetConfig("Addresses.API", EndpointToMultiAddr(options.IpfsApiEndpoint));
             SetConfig("Addresses.Gateway", EndpointToMultiAddr(options.IpfsGatewayEndpoint));
@@ -96,7 +118,19 @@ namespace Nanoka.Core
             // create client
             var client = new IpfsClient($"http://{options.IpfsApiEndpoint}/");
 
-            // start daemon process
+            try
+            {
+                // test send request to daemon
+                await TestDaemonAsync(client.FileSystem, cancellationToken);
+
+                // success, so daemon was already running
+                return client;
+            }
+            catch
+            {
+                // daemon is not running, so start it
+            }
+
             using (var process = StartIpfs($"daemon {options.IpfsDaemonFlags}"))
             {
                 var watch = Stopwatch.StartNew();
