@@ -54,7 +54,7 @@ namespace Nanoka.Core
 
                     await db.Database.MigrateAsync(cancellationToken);
 
-                    _log.Info($"Successfully migrated the database in {measure.Milliseconds:F}ms.");
+                    _log.Info($"Successfully migrated the database in {measure}.");
                 }
 
                 // run server
