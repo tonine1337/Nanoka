@@ -30,8 +30,12 @@ namespace Nanoka.Core
             _options = options;
 
             // http
+            var prefix = $"http://{options.NanokaEndpoint}/";
+
             _listener = new HttpListener();
-            _listener.Prefixes.Add($"http://{options.NanokaEndpoint}/");
+            _listener.Prefixes.Add(prefix);
+
+            _log.Info($"Listening prefix: {prefix}");
 
             // always available services
             AddService(this);
