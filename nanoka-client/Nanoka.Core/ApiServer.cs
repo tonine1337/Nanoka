@@ -98,11 +98,29 @@ namespace Nanoka.Core
             _services[typeof(T)] = new ServiceDescriptor(
                 () =>
                 {
-                    var obj = (T) ctor.Invoke(ResolveServices(paramTypes));
+                    var service = (T) ctor.Invoke(ResolveServices(paramTypes));
 
-                    _log.Debug($"Transient service constructed: {typeof(T)}");
+                    _log.Debug($"Transient service constructed: {service.GetType()}");
 
-                    return obj;
+                    return service;
+                },
+                ServiceType.Transient);
+
+            _log.Debug($"Transient service registered: {typeof(T)}");
+
+            return this;
+        }
+
+        public ApiServer AddService<T>(Func<T> factory)
+        {
+            _services[typeof(T)] = new ServiceDescriptor(
+                () =>
+                {
+                    var service = factory();
+
+                    _log.Debug($"Transient service acquired: {service.GetType()}");
+
+                    return service;
                 },
                 ServiceType.Transient);
 
