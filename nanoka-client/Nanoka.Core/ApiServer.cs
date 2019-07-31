@@ -7,6 +7,7 @@ using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Ipfs.Http;
 using MimeTypes;
 using Newtonsoft.Json;
 using NLog;
@@ -31,6 +32,10 @@ namespace Nanoka.Core
 
             _listener = new HttpListener();
             _listener.Prefixes.Add($"http://{options.NanokaEndpoint}/");
+
+            AddService(this);
+            AddService(_listener);
+            AddService(_serializer);
         }
 
         readonly Dictionary<Type, Func<object>> _services = new Dictionary<Type, Func<object>>();
@@ -78,7 +83,7 @@ namespace Nanoka.Core
             return this;
         }
 
-        object[] ResolveServices(IEnumerable<Type> types, Func<Type, object> func = null)
+        object[] ResolveServices(IEnumerable<Type> types, Func<Type, object> func = null, bool required = true)
         {
             var services = new List<object>();
 
@@ -98,7 +103,10 @@ namespace Nanoka.Core
                     continue;
                 }
 
-                throw new NotSupportedException($"Service '{type}' could not be resolved.");
+                if (required)
+                    throw new NotSupportedException($"Service '{type}' could not be resolved.");
+
+                services.Add(null);
             }
 
             return services.ToArray();
@@ -151,7 +159,7 @@ namespace Nanoka.Core
                 }
                 catch (Exception e)
                 {
-                    _log.Debug(e, "Unhandled exception while handling HTTP request.");
+                    _log.Warn(e, "Unhandled exception while handling HTTP request.");
                 }
             }
 
@@ -175,6 +183,9 @@ namespace Nanoka.Core
             }
         }
 
+        const string _apiBase = "api/";
+        const string _apiFsBase = "api/fs/";
+
         async Task HandleContextAsync(HttpListenerContext context, CancellationToken cancellationToken = default)
         {
             var request = context.Request;
@@ -183,12 +194,14 @@ namespace Nanoka.Core
             switch (request.HttpMethod.ToUpperInvariant())
             {
                 // api callback
-                case "POST" when path.StartsWith("api/"):
-                    await HandleApiCallbackAsync(context, path.Substring("api/".Length), cancellationToken);
+                case "POST" when path.StartsWith(_apiBase):
+                    await HandleApiCallbackAsync(context, path.Substring(_apiBase.Length), cancellationToken);
                     break;
 
                 // ipfs access
-                case "GET" when path.StartsWith("api/fs/"): break;
+                case "GET" when path.StartsWith(_apiFsBase):
+                    await HandleIpfsAccessAsync(context, path.Substring(_apiFsBase.Length), cancellationToken);
+                    break;
 
                 // static assets
                 case "GET":
@@ -200,6 +213,8 @@ namespace Nanoka.Core
                     break;
             }
         }
+
+        const int _streamCopyBufferSize = 81920;
 
         async Task HandleStaticFileAsync(HttpListenerContext context,
                                          string path,
@@ -221,26 +236,67 @@ namespace Nanoka.Core
             context.Response.StatusCode  = 200;
             context.Response.ContentType = MimeTypeMap.GetMimeType(Path.GetExtension(path));
 
-            using (var source = File.OpenRead(fullPath))
-            using (var destination = context.Response.OutputStream)
-                await source.CopyToAsync(destination, 81920, cancellationToken);
+            using (var stream = File.OpenRead(fullPath))
+                await stream.CopyToAsync(context.Response.OutputStream, _streamCopyBufferSize, cancellationToken);
+        }
+
+        async Task HandleIpfsAccessAsync(HttpListenerContext context,
+                                         string path,
+                                         CancellationToken cancellationToken = default)
+        {
+            var client = (IpfsClient) ResolveServices(new[] { typeof(IpfsClient) }, required: false)[0];
+
+            if (client == null)
+            {
+                await RespondAsync(context, HttpStatusCode.ServiceUnavailable, "IPFS service is unavailable.");
+                return;
+            }
+
+            // split name and ext
+            var extension   = Path.GetExtension(path) ?? "";
+            var contentType = MimeTypeMap.GetMimeType(extension);
+
+            if (!path.Contains("/"))
+                path = path.Substring(0, path.Length - extension.Length);
+
+            Stream stream;
+
+            try
+            {
+                stream = await client.FileSystem.ReadFileAsync(path, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                _log.Info(e, "Exception while reading IPFS file.");
+
+                await RespondAsync(context, HttpStatusCode.BadRequest, $"IPFS exception: {e.Message}");
+                return;
+            }
+
+            using (stream)
+            {
+                context.Response.StatusCode  = 200;
+                context.Response.ContentType = contentType;
+
+                await stream.CopyToAsync(context.Response.OutputStream, _streamCopyBufferSize, cancellationToken);
+            }
         }
 
         struct ApiHandlerInfo
         {
-            public readonly ConstructorInfo Constructor;
-            public readonly Type[] ParamTypes;
+            public readonly ConstructorInfo Ctor;
+            public readonly Type[] Params;
 
             public ApiHandlerInfo(Type type)
             {
-                Constructor = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance)
-                                  .OrderByDescending(c => c.GetParameters().Length)
-                                  .FirstOrDefault();
+                Ctor = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance)
+                           .OrderByDescending(c => c.GetParameters().Length)
+                           .FirstOrDefault();
 
-                if (Constructor == null)
+                if (Ctor == null)
                     throw new NotSupportedException($"API handler '{type}' does not define a constructor.");
 
-                ParamTypes = Constructor.GetParameters().Select(p => p.ParameterType).ToArray();
+                Params = Ctor.GetParameters().Select(p => p.ParameterType).ToArray();
             }
         }
 
@@ -267,16 +323,34 @@ namespace Nanoka.Core
                 return;
             }
 
-            var handler = (ApiRequest) handlerInfo.Constructor.Invoke(ResolveServices(handlerInfo.ParamTypes));
-
-            using (var reader = new StreamReader(context.Request.InputStream))
-            using (var bufferedReader = new StringReader(await reader.ReadToEndAsync()))
-                _serializer.Populate(bufferedReader, handler);
-
-            handler.Context = context;
-
             try
             {
+                // scoped dependencies
+                object getDependency(Type type)
+                {
+                    // ReSharper disable ConvertIfStatementToReturnStatement
+                    if (type == typeof(HttpListenerContext))
+                        return context;
+
+                    if (type == typeof(HttpListenerRequest))
+                        return context.Request;
+
+                    if (type == typeof(HttpListenerResponse))
+                        return context.Response;
+
+                    // ReSharper restore ConvertIfStatementToReturnStatement
+                    return null;
+                }
+
+                // create handler with dependency injection
+                var handler = (ApiRequest) handlerInfo.Ctor.Invoke(ResolveServices(handlerInfo.Params, getDependency));
+
+                using (var reader = new StreamReader(context.Request.InputStream))
+                using (var bufferedReader = new StringReader(await reader.ReadToEndAsync()))
+                    _serializer.Populate(bufferedReader, handler);
+
+                handler.Context = context;
+
                 var response = await handler.RunAsync(cancellationToken) ?? ApiResponse.Ok;
 
                 await response.ExecuteAsync(context, _serializer);
