@@ -205,9 +205,9 @@ namespace Nanoka.Core
             }
         }
 
-        static async Task HandleStaticFileAsync(HttpListenerContext context,
-                                                string path,
-                                                CancellationToken cancellationToken = default)
+        async Task HandleStaticFileAsync(HttpListenerContext context,
+                                         string path,
+                                         CancellationToken cancellationToken = default)
         {
             // make absolute
             var fullPath = Path.Combine(Environment.CurrentDirectory, "www", path);
