@@ -39,7 +39,14 @@ namespace Nanoka.Core
         /// <summary>
         /// Gets the path to IPFS repository directory.
         /// </summary>
-        static string GetIpfsRepoPath() => Path.Combine(Environment.CurrentDirectory, "data");
+        static string GetIpfsRepoPath()
+        {
+            var path = Path.Combine(Environment.CurrentDirectory, "data");
+
+            Directory.CreateDirectory(path);
+
+            return path;
+        }
 
         static Process StartIpfs(string args)
         {
