@@ -221,7 +221,7 @@ namespace Nanoka.Core
             }
 
             // start initial listeners
-            for (var i = 0; i < _options.NanokaServerListeners; i++)
+            for (var i = 0; i < _options.HttpListenConcurrency; i++)
             {
                 lock (listeners)
                     listeners.Add(listenAsync());
