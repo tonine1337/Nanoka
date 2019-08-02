@@ -10,13 +10,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ipfs.CoreApi;
 using Ipfs.Http;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Nanoka.Core
 {
     public static class IpfsManager
     {
-        static readonly Logger _log = LogManager.GetCurrentClassLogger();
+        static readonly ILogger _log;
 
         /// <summary>
         /// Gets the path to IPFS executable, ensuring that the file exists.
@@ -62,7 +62,7 @@ namespace Nanoka.Core
                 }
             };
 
-            _log.Debug($"Executing IPFS with args: {args}");
+            _log.LogDebug($"Executing IPFS with args: {args}");
 
             return Process.Start(process);
         }
@@ -76,7 +76,7 @@ namespace Nanoka.Core
 
                 if (process.ExitCode == 0)
                 {
-                    _log.Info("Existing daemon has been shut down.");
+                    _log.LogInformation("Existing daemon has been shut down.");
                     return;
                 }
             }
@@ -90,7 +90,7 @@ namespace Nanoka.Core
                 process.WaitForExit();
 
                 if (process.ExitCode == 0)
-                    _log.Info($"IPFS repository initialized: {GetIpfsRepoPath()}");
+                    _log.LogInformation($"IPFS repository initialized: {GetIpfsRepoPath()}");
             }
         }
 
@@ -134,7 +134,7 @@ namespace Nanoka.Core
             }
         }
 
-        public static async Task<IpfsClient> StartDaemonAsync(NanokaOptions options,
+        public static async Task<IpfsClient> StartDaemonAsync(IpfsOptions options,
                                                               CancellationToken cancellationToken = default)
         {
             var watch = Stopwatch.StartNew();
@@ -143,14 +143,14 @@ namespace Nanoka.Core
             InitRepo();
 
             // update configuration
-            SetConfig("Addresses.API", EndpointToMultiAddr(options.IpfsApiEndpoint));
-            SetConfig("Addresses.Gateway", EndpointToMultiAddr(options.IpfsGatewayEndpoint));
+            SetConfig("Addresses.API", EndpointToMultiAddr(options.ApiEndpoint));
+            SetConfig("Addresses.Gateway", EndpointToMultiAddr(options.GatewayEndpoint));
 
             // create client
-            var client = new IpfsClient($"http://{options.IpfsApiEndpoint}/");
+            var client = new IpfsClient($"http://{options.ApiEndpoint}/");
 
             // start daemon process
-            using (var process = StartIpfs($"daemon {options.IpfsDaemonFlags}"))
+            using (var process = StartIpfs($"daemon {options.DaemonFlags}"))
             {
                 while (!process.HasExited)
                 {
@@ -160,14 +160,14 @@ namespace Nanoka.Core
                         await TestDaemonAsync(client.FileSystem, cancellationToken);
 
                         // success
-                        _log.Info($"Initialized IPFS daemon in {watch.Elapsed.TotalSeconds:F}s.");
+                        _log.LogInformation($"Initialized IPFS daemon in {watch.Elapsed.TotalSeconds:F}s.");
 
                         return client;
                     }
                     catch (HttpRequestException)
                     {
                         // request could not be sent, so wait
-                        if (watch.Elapsed.Seconds < options.IpfsDaemonWaitTimeout)
+                        if (watch.Elapsed.Seconds < options.DaemonWaitTimeout)
                         {
                             await Task.Yield();
                             continue;
@@ -186,7 +186,7 @@ namespace Nanoka.Core
                         }
 
                         throw new IpfsManagerException("IPFS daemon failed to respond in " +
-                                                       $"{options.IpfsDaemonWaitTimeout} seconds.",
+                                                       $"{options.DaemonWaitTimeout} seconds.",
                                                        exception);
                     }
                 }
@@ -200,7 +200,7 @@ namespace Nanoka.Core
             // this file has the content "ipfs"
             const string ping = "QmejvEPop4D7YUadeGqYWmZxHhLc4JBUCzJJHWMzdcMe2y";
 
-            _log.Debug("Test sending request to daemon...");
+            _log.LogDebug("Test sending request to daemon...");
 
             var response = await fs.ReadAllTextAsync(ping, cancellationToken);
 
@@ -208,7 +208,7 @@ namespace Nanoka.Core
                 throw new IpfsManagerException("Daemon returned garbage. " +
                                                "Ensure that you are running a legitimate IPFS daemon.");
 
-            _log.Debug("Daemon responded.");
+            _log.LogDebug("Daemon responded.");
         }
     }
 

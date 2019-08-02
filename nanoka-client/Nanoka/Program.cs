@@ -3,12 +3,8 @@ using Nanoka.Core;
 
 namespace Nanoka
 {
-    static class Program
+    public static class Program
     {
-        static async Task Main()
-        {
-            using (var program = new NanokaProgram())
-                await program.RunAsync();
-        }
+        public static Task Main() => NanokaStartup.RunAsync();
     }
 }
