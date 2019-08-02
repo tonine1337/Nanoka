@@ -11,8 +11,8 @@ namespace Nanoka.Core.Models
         [JsonProperty("update")]
         public DateTime UpdateTime { get; set; }
 
-        [JsonProperty("metas")]
-        public BooruMeta[] Metas { get; set; }
+        [JsonProperty("tags")]
+        public BooruTag[] Tags { get; set; }
 
         [JsonProperty("rate")]
         public BooruRating Rating { get; set; }

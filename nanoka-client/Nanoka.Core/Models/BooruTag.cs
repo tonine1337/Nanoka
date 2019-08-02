@@ -2,10 +2,10 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
 {
-    public class BooruMeta
+    public class BooruTag
     {
         [JsonProperty("t")]
-        public BooruMetaType Type { get; set; }
+        public BooruTagType Type { get; set; }
 
         [JsonProperty("v")]
         public string Value { get; set; }

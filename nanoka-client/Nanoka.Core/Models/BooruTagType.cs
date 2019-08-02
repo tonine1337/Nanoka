@@ -1,6 +1,6 @@
 namespace Nanoka.Core.Models
 {
-    public enum BooruMetaType
+    public enum BooruTagType
     {
         Artist,
         Character,
