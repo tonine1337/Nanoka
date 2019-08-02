@@ -5,15 +5,15 @@ namespace Nanoka.Core
 {
     public sealed class MeasureContext : IDisposable
     {
-        readonly Stopwatch _watch = Stopwatch.StartNew();
+        public readonly Stopwatch Watch = Stopwatch.StartNew();
 
         // ReSharper disable MemberCanBePrivate.Global
         public TimeSpan Elapsed
         {
             get
             {
-                _watch.Stop();
-                return _watch.Elapsed;
+                Watch.Stop();
+                return Watch.Elapsed;
             }
         }
 
@@ -44,6 +44,6 @@ namespace Nanoka.Core
             return elapsed.ToString();
         }
 
-        public void Dispose() => _watch.Stop();
+        public void Dispose() => Watch.Stop();
     }
 }
