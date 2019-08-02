@@ -1,5 +1,8 @@
 namespace Nanoka.Core.Models
 {
+    /// <summary>
+    /// Use bitwise complement to order by descending.
+    /// </summary>
     public enum BooruQuerySort
     {
         UploadTime,
