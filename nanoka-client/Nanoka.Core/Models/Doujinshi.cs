@@ -5,12 +5,6 @@ namespace Nanoka.Core.Models
 {
     public class Doujinshi
     {
-        /// <summary>
-        /// The CID that refers to this doujinshi object.
-        /// </summary>
-        [JsonIgnore]
-        public string Cid { get; set; }
-
         [JsonProperty("ut")]
         public DateTime UploadTime { get; set; }
 

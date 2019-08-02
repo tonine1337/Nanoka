@@ -4,9 +4,6 @@ namespace Nanoka.Core.Models
 {
     public class BooruImage
     {
-        /// <summary>
-        /// The CID of the image file of this page.
-        /// </summary>
         [JsonProperty("cid")]
         public string Cid { get; set; }
 

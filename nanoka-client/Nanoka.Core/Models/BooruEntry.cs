@@ -4,12 +4,6 @@ namespace Nanoka.Core.Models
 {
     public class BooruEntry
     {
-        /// <summary>
-        /// The CID that refers to this doujinshi object.
-        /// </summary>
-        [JsonIgnore]
-        public string Cid { get; set; }
-
         [JsonProperty("metas")]
         public BooruMeta[] Metas { get; set; }
 
