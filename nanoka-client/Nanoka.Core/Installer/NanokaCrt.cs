@@ -22,7 +22,8 @@ namespace Nanoka.Core.Installer
                 {
                     stream.CopyTo(memory);
 
-                    return new X509Certificate2(memory.ToArray());
+                    // our certificate password is "nanoka"
+                    return new X509Certificate2(memory.ToArray(), "nanoka");
                 }
             }
         }
