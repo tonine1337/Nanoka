@@ -5,25 +5,25 @@ namespace Nanoka.Core.Models
 {
     public class Doujinshi
     {
-        [JsonProperty("ut")]
+        [JsonProperty("upload")]
         public DateTime UploadTime { get; set; }
 
-        [JsonProperty("pt")]
-        public DateTime ProcessTime { get; set; }
+        [JsonProperty("update")]
+        public DateTime UpdateTime { get; set; }
 
-        [JsonProperty("on")]
+        [JsonProperty("name")]
         public string OriginalName { get; set; }
 
-        [JsonProperty("rn")]
+        [JsonProperty("roma_name")]
         public string RomanizedName { get; set; }
 
-        [JsonProperty("en")]
+        [JsonProperty("eng_name")]
         public string EnglishName { get; set; }
 
         [JsonProperty("src")]
         public string Source { get; set; }
 
-        [JsonProperty("sc")]
+        [JsonProperty("score")]
         public int Score { get; set; }
 
         [JsonProperty("metas")]
