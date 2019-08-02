@@ -5,7 +5,7 @@ namespace Nanoka.Core.Installer
 {
     public static class NanokaCrt
     {
-        public static X509Certificate2 Load(string name = "Nanoka.crt")
+        public static X509Certificate2 Load(string name = "Nanoka.pfx")
         {
             // prefer loading from current directory
             if (File.Exists(name))
