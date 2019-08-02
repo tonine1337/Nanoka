@@ -16,6 +16,8 @@ namespace Nanoka.Core
 {
     public class NanokaStartup : StartupBase
     {
+        const int _port = 7230;
+
         public static async Task RunAsync(CancellationToken cancellationToken = default)
         {
             var host = new WebHostBuilder()
@@ -23,7 +25,7 @@ namespace Nanoka.Core
                       .UseKestrel(kestrel =>
                        {
                            kestrel.Listen(IPAddress.Loopback,
-                                          7230,
+                                          _port,
                                           o => o.UseHttps(NanokaCrt.GetCertificate()));
                        })
                       .ConfigureAppConfiguration((hostingContext, config) =>
@@ -75,6 +77,10 @@ namespace Nanoka.Core
 
         public override void Configure(IApplicationBuilder app)
         {
+            var logger = app.ApplicationServices.GetService<ILogger<NanokaStartup>>();
+
+            logger.LogInformation($"Nanoka client server: https://nanoka.localhost.chiya.dev:{_port}");
+
             app.UseMvc();
         }
     }
