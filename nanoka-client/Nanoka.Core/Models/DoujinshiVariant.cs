@@ -4,9 +4,6 @@ namespace Nanoka.Core.Models
 {
     public class DoujinshiVariant
     {
-        [JsonProperty("cid")]
-        public string Cid { get; set; }
-
         [JsonProperty("metas")]
         public DoujinshiMeta[] Metas { get; set; }
 
