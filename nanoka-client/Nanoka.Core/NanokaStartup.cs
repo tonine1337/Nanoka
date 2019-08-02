@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nanoka.Core.Installer;
+using Newtonsoft.Json;
 
 namespace Nanoka.Core
 {
@@ -96,6 +97,9 @@ namespace Nanoka.Core
             // ipfs subsystem
             services.AddSingleton<IpfsClient>()
                     .AddSingleton<IpfsManager>();
+
+            // serializer
+            services.AddSingleton<JsonSerializer>();
         }
 
         public override void Configure(IApplicationBuilder app)
