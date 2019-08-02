@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
 {
-    public class BooruEntry
+    public class BooruPost
     {
         [JsonProperty("cid")]
         public string Cid { get; set; }
