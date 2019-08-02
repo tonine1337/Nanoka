@@ -169,6 +169,8 @@ namespace Nanoka.Core
 
                         // success
                         _logger.LogInformation($"Initialized IPFS daemon in {measure}.");
+
+                        return;
                     }
                     catch (HttpRequestException)
                     {
