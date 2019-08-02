@@ -25,5 +25,8 @@ namespace Nanoka.Core.Models
 
         [JsonProperty("img")]
         public BooruImage Image { get; set; }
+
+        [JsonProperty("sib")]
+        public string[] SiblingCids { get; set; }
     }
 }
