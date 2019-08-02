@@ -146,7 +146,7 @@ namespace Nanoka.Core
 
         public async Task StartDaemonAsync(CancellationToken cancellationToken)
         {
-            _client.ApiUri = new Uri(_options.ApiEndpoint);
+            _client.ApiUri = new Uri($"http://{_options.ApiEndpoint}");
 
             var measure = new MeasureContext();
 
