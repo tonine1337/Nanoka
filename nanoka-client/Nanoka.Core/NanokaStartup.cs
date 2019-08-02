@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Ipfs.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -18,37 +19,42 @@ namespace Nanoka.Core
     {
         public static async Task RunAsync(CancellationToken cancellationToken = default)
         {
-            var host = new WebHostBuilder()
-                      .UseContentRoot(Environment.CurrentDirectory)
-                      .UseKestrel(kestrel =>
-                       {
-                           kestrel.Listen(IPAddress.Loopback,
-                                          Localhost.Port,
-                                          o => o.UseHttps(NanokaCrt.GetCertificate()));
-                       })
-                      .ConfigureAppConfiguration((hostingContext, config) =>
-                       {
-                           var env = hostingContext.HostingEnvironment;
+            var builder = new WebHostBuilder()
+                         .UseContentRoot(Environment.CurrentDirectory)
+                         .UseKestrel(kestrel =>
+                          {
+                              kestrel.Listen(IPAddress.Loopback,
+                                             Localhost.Port,
+                                             o => o.UseHttps(NanokaCrt.GetCertificate()));
+                          })
+                         .ConfigureAppConfiguration((hostingContext, config) =>
+                          {
+                              var env = hostingContext.HostingEnvironment;
 
-                           config.AddJsonFile("appsettings.json", true, true)
-                                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true)
-                                 .AddJsonFile("appsettings.UserOverride.json", true, true)
-                                 .AddEnvironmentVariables();
-                       })
-                      .ConfigureLogging((hostingContext, logging) =>
-                       {
-                           logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"))
-                                  .AddConsole();
-                       })
-                      .UseDefaultServiceProvider((context, options) =>
-                       {
-                           options.ValidateScopes =
-                               context.HostingEnvironment.IsDevelopment();
-                       })
-                      .UseStartup<NanokaStartup>()
-                      .Build();
+                              config.AddJsonFile("settings.json", true, true)
+                                    .AddJsonFile($"settings.{env.EnvironmentName}.json", true, true)
+                                    .AddEnvironmentVariables();
+                          })
+                         .ConfigureLogging((hostingContext, logging) =>
+                          {
+                              logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"))
+                                     .AddConsole();
+                          })
+                         .UseDefaultServiceProvider((context, options) =>
+                          {
+                              options.ValidateScopes =
+                                  context.HostingEnvironment.IsDevelopment();
+                          })
+                         .UseStartup<NanokaStartup>();
 
-            await host.RunAsync(cancellationToken);
+            using (var host = builder.Build())
+            {
+                // start ipfs daemon
+                await host.Services.GetService<IpfsManager>().StartDaemonAsync(cancellationToken);
+
+                // run host
+                await host.RunAsync(cancellationToken);
+            }
         }
 
         readonly IConfiguration _configuration;
@@ -77,6 +83,10 @@ namespace Nanoka.Core
             // options
             services.Configure<NanokaOptions>(_configuration);
             services.Configure<IpfsOptions>(_configuration.GetSection("Ipfs"));
+
+            // ipfs subsystem
+            services.AddSingleton<IpfsClient>()
+                    .AddSingleton<IpfsManager>();
         }
 
         public override void Configure(IApplicationBuilder app)
