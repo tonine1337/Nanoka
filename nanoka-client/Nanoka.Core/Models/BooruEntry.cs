@@ -5,6 +5,9 @@ namespace Nanoka.Core.Models
 {
     public class BooruEntry
     {
+        [JsonProperty("cid")]
+        public string Cid { get; set; }
+
         [JsonProperty("upload")]
         public DateTime UploadTime { get; set; }
 

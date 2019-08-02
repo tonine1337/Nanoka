@@ -7,6 +7,9 @@ namespace Nanoka.Core.Models
         [JsonProperty("cid")]
         public string Cid { get; set; }
 
+        [JsonProperty("cid_file")]
+        public string FileCid { get; set; }
+
         [JsonProperty("id")]
         public int Index { get; set; }
 
@@ -21,5 +24,8 @@ namespace Nanoka.Core.Models
 
         [JsonProperty("s")]
         public int SizeInBytes { get; set; }
+
+        [JsonProperty("t")]
+        public string MediaType { get; set; }
     }
 }
