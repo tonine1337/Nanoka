@@ -29,6 +29,9 @@ namespace Nanoka.Core.Models
         [JsonProperty("src")]
         public string Source { get; set; }
 
+        [JsonProperty("sc")]
+        public int Score { get; set; }
+
         [JsonProperty("metas")]
         public DoujinshiMeta[] Metas { get; set; }
 

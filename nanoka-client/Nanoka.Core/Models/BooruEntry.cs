@@ -16,6 +16,9 @@ namespace Nanoka.Core.Models
         [JsonProperty("rate")]
         public BooruRating Rating { get; set; }
 
+        [JsonProperty("sc")]
+        public int Score { get; set; }
+
         [JsonProperty("img")]
         public BooruImage Image { get; set; }
     }
