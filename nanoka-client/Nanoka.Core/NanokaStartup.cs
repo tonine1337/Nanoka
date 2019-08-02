@@ -24,7 +24,7 @@ namespace Nanoka.Core
                        {
                            kestrel.Listen(IPAddress.Loopback,
                                           7230,
-                                          o => o.UseHttps(NanokaCrt.Load()));
+                                          o => o.UseHttps(NanokaCrt.GetCertificate()));
                        })
                       .ConfigureAppConfiguration((hostingContext, config) =>
                        {

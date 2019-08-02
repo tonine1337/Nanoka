@@ -5,7 +5,30 @@ namespace Nanoka.Core.Installer
 {
     public static class NanokaCrt
     {
-        public static X509Certificate2 Load(string name = "Nanoka.pfx")
+        static bool IsInstalled(string subject)
+        {
+            using (var store = new X509Store(StoreName.Root, StoreLocation.CurrentUser))
+            {
+                store.Open(OpenFlags.ReadOnly);
+
+                var certificates = store.Certificates.Find(X509FindType.FindBySubjectDistinguishedName,
+                                                           subject,
+                                                           false);
+
+                return certificates.Count != 0;
+            }
+        }
+
+        static void Install(X509Certificate2 certificate)
+        {
+            using (var store = new X509Store(StoreName.Root, StoreLocation.CurrentUser))
+            {
+                store.Open(OpenFlags.ReadWrite);
+                store.Add(certificate);
+            }
+        }
+
+        static X509Certificate2 Load(string name)
         {
             // prefer loading from current directory
             if (File.Exists(name))
@@ -26,6 +49,18 @@ namespace Nanoka.Core.Installer
                     return new X509Certificate2(memory.ToArray(), "nanoka");
                 }
             }
+        }
+
+        public static X509Certificate2 GetCertificate(string name = "Nanoka.pfx")
+        {
+            // load certificate
+            var certificate = Load(name);
+
+            // install certificate if not installed already
+            if (!IsInstalled(certificate.Subject))
+                Install(certificate);
+
+            return certificate;
         }
     }
 }
