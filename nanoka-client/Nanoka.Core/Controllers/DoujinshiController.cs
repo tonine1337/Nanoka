@@ -25,13 +25,7 @@ namespace Nanoka.Core.Controllers
         {
             using (var stream = await _ipfs.FileSystem.ReadFileAsync(cid))
             using (var reader = new StreamReader(stream))
-            {
-                var doujinshi = _serializer.Deserialize<Doujinshi>(reader);
-
-                doujinshi.Cid = cid;
-
-                return doujinshi;
-            }
+                return _serializer.Deserialize<Doujinshi>(reader);
         }
     }
 }
