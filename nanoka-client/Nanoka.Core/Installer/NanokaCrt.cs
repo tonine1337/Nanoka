@@ -5,17 +5,15 @@ namespace Nanoka.Core.Installer
 {
     public static class NanokaCrt
     {
-        const string _name = "Nanoka.crt";
-
-        public static X509Certificate Load()
+        public static X509Certificate2 Load(string name = "Nanoka.crt")
         {
             // prefer loading from current directory
-            if (File.Exists(_name))
-                return new X509Certificate(_name);
+            if (File.Exists(name))
+                return new X509Certificate2(name);
 
             var assembly = typeof(NanokaCrt).Assembly;
 
-            using (var stream = assembly.GetManifestResourceStream($"{typeof(NanokaCrt).Namespace}.{_name}"))
+            using (var stream = assembly.GetManifestResourceStream($"{typeof(NanokaCrt).Namespace}.{name}"))
             {
                 if (stream == null)
                     throw new FileNotFoundException("Self-signed certificate could not be loaded.");
@@ -24,7 +22,7 @@ namespace Nanoka.Core.Installer
                 {
                     stream.CopyTo(memory);
 
-                    return new X509Certificate(memory.ToArray());
+                    return new X509Certificate2(memory.ToArray());
                 }
             }
         }
