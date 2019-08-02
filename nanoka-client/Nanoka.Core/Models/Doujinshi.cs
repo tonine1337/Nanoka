@@ -31,5 +31,8 @@ namespace Nanoka.Core.Models
 
         [JsonProperty("metas")]
         public DoujinshiMeta[] Metas { get; set; }
+
+        [JsonProperty("pages")]
+        public DoujinshiPage[] Pages { get; set; }
     }
 }
