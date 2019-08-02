@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Ipfs.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Internal;
 using Microsoft.Extensions.Configuration;
@@ -72,7 +73,15 @@ namespace Nanoka.Core
             services.AddTransient<IConfigureOptions<KestrelServerOptions>, KestrelServerOptionsSetup>();
 
             // lightweight mvc
-            services.AddMvcCore()
+            services.AddMvcCore(options =>
+                     {
+                         // don't ever need browsers to cache our response
+                         options.Filters.Add(new ResponseCacheAttribute
+                         {
+                             NoStore  = true,
+                             Location = ResponseCacheLocation.None
+                         });
+                     })
                     .AddApiExplorer()
                     .AddJsonFormatters()
                     .AddControllersAsServices()
