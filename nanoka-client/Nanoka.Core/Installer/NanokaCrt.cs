@@ -5,17 +5,22 @@ namespace Nanoka.Core.Installer
 {
     public static class NanokaCrt
     {
-        static bool IsInstalled(string subject)
+        static bool IsInstalled(ref X509Certificate2 certificate)
         {
             using (var store = new X509Store(StoreName.Root, StoreLocation.CurrentUser))
             {
                 store.Open(OpenFlags.ReadOnly);
 
                 var certificates = store.Certificates.Find(X509FindType.FindBySubjectDistinguishedName,
-                                                           subject,
+                                                           certificate.Subject,
                                                            false);
 
-                return certificates.Count != 0;
+                if (certificates.Count == 0)
+                    return false;
+
+                certificate?.Dispose();
+                certificate = certificates[0];
+                return true;
             }
         }
 
@@ -57,7 +62,7 @@ namespace Nanoka.Core.Installer
             var certificate = Load(name);
 
             // install certificate if not installed already
-            if (!IsInstalled(certificate.Subject))
+            if (!IsInstalled(ref certificate))
                 Install(certificate);
 
             return certificate;
