@@ -1,3 +1,5 @@
+using System.Runtime.Serialization;
+
 namespace Nanoka.Core.Models
 {
     /// <summary>
@@ -5,18 +7,18 @@ namespace Nanoka.Core.Models
     /// </summary>
     public enum BooruQuerySort
     {
-        UploadTime,
-        UpdateTime,
-        Artist,
-        Character,
-        Copyright,
-        Metadata,
-        General,
-        Rating,
-        Score,
-        Source,
-        Width,
-        Height,
-        SizeInBytes
+        [EnumMember(Value = "upload")] UploadTime,
+        [EnumMember(Value = "update")] UpdateTime,
+        [EnumMember(Value = "artist")] Artist,
+        [EnumMember(Value = "character")] Character,
+        [EnumMember(Value = "copyright")] Copyright,
+        [EnumMember(Value = "metadata")] Metadata,
+        [EnumMember(Value = "general")] General,
+        [EnumMember(Value = "rating")] Rating,
+        [EnumMember(Value = "score")] Score,
+        [EnumMember(Value = "source")] Source,
+        [EnumMember(Value = "width")] Width,
+        [EnumMember(Value = "height")] Height,
+        [EnumMember(Value = "size")] SizeInBytes
     }
 }

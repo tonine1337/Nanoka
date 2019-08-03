@@ -1,13 +1,13 @@
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Nanoka.Core.Models
 {
-    public class BooruTag
+    public enum BooruTag
     {
-        [JsonProperty("t")]
-        public BooruTagType Type { get; set; }
-
-        [JsonProperty("v")]
-        public string Value { get; set; }
+        [EnumMember(Value = "artist")] Artist,
+        [EnumMember(Value = "character")] Character,
+        [EnumMember(Value = "copyright")] Copyright,
+        [EnumMember(Value = "metadata")] Metadata,
+        [EnumMember(Value = "general")] General
     }
 }

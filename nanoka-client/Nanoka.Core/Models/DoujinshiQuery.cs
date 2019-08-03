@@ -25,22 +25,22 @@ namespace Nanoka.Core.Models
         [JsonProperty("update")]
         public RangeQuery<DateTime> UpdateTime { get; set; }
 
-        [JsonProperty("name")]
+        [JsonProperty("name_original")]
         public TextQuery OriginalName { get; set; }
 
-        [JsonProperty("name_roma")]
+        [JsonProperty("name_romanized")]
         public TextQuery RomanizedName { get; set; }
 
-        [JsonProperty("name_eng")]
+        [JsonProperty("name_english")]
         public TextQuery EnglishName { get; set; }
 
         [JsonProperty("score")]
         public RangeQuery<int> Score { get; set; }
 
         [JsonProperty("metas")]
-        public IDictionary<DoujinshiMetaType, TextQuery> Metas { get; set; }
+        public IDictionary<DoujinshiMeta, TextQuery> Metas { get; set; }
 
-        [JsonProperty("src")]
+        [JsonProperty("source")]
         public TextQuery Source { get; set; }
 
         [JsonProperty("pages")]

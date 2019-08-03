@@ -1,9 +1,11 @@
+using System.Runtime.Serialization;
+
 namespace Nanoka.Core.Models.Query
 {
     public enum QueryStrictness
     {
-        Must = 0,
-        Should,
-        Filter
+        [EnumMember(Value = "must")] Must = 0,
+        [EnumMember(Value = "should")] Should,
+        [EnumMember(Value = "filter")] Filter
     }
 }

@@ -7,19 +7,19 @@ namespace Nanoka.Core.Models
         [JsonProperty("cid")]
         public string Cid { get; set; }
 
-        [JsonProperty("src")]
+        [JsonProperty("source")]
         public string Source { get; set; }
 
-        [JsonProperty("w")]
+        [JsonProperty("width")]
         public int Width { get; set; }
 
-        [JsonProperty("h")]
+        [JsonProperty("height")]
         public int Height { get; set; }
 
-        [JsonProperty("s")]
+        [JsonProperty("size")]
         public int SizeInBytes { get; set; }
 
-        [JsonProperty("t")]
+        [JsonProperty("type")]
         public string MediaType { get; set; }
     }
 }

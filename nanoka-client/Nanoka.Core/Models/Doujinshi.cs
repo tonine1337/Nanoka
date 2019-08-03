@@ -14,13 +14,13 @@ namespace Nanoka.Core.Models
         [JsonProperty("update")]
         public DateTime UpdateTime { get; set; }
 
-        [JsonProperty("name")]
+        [JsonProperty("name_original")]
         public string OriginalName { get; set; }
 
-        [JsonProperty("name_roma")]
+        [JsonProperty("name_romanized")]
         public string RomanizedName { get; set; }
 
-        [JsonProperty("name_eng")]
+        [JsonProperty("name_english")]
         public string EnglishName { get; set; }
 
         [JsonProperty("score")]

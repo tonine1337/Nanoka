@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
@@ -15,18 +16,18 @@ namespace Nanoka.Core.Models
         public DateTime UpdateTime { get; set; }
 
         [JsonProperty("tags")]
-        public BooruTag[] Tags { get; set; }
+        public IDictionary<BooruTag, string[]> Tags { get; set; }
 
-        [JsonProperty("rate")]
+        [JsonProperty("rating")]
         public BooruRating Rating { get; set; }
 
         [JsonProperty("score")]
         public int Score { get; set; }
 
-        [JsonProperty("img")]
+        [JsonProperty("image")]
         public BooruImage Image { get; set; }
 
-        [JsonProperty("sib")]
+        [JsonProperty("siblings")]
         public Guid[] SiblingIds { get; set; }
     }
 }

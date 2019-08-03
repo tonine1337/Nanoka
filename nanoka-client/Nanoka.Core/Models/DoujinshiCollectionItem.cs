@@ -4,10 +4,10 @@ namespace Nanoka.Core.Models
 {
     public class DoujinshiCollectionItem
     {
-        [JsonProperty("id")]
+        [JsonProperty("index")]
         public int Index { get; set; }
 
-        [JsonProperty("value")]
+        [JsonProperty("doujinshi")]
         public Doujinshi Doujinshi { get; set; }
     }
 }

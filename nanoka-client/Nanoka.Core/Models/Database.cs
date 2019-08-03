@@ -7,10 +7,10 @@ namespace Nanoka.Core.Models
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        [JsonProperty("desc")]
+        [JsonProperty("description")]
         public string Description { get; set; }
 
-        [JsonProperty("ep")]
+        [JsonProperty("endpoint")]
         public string Endpoint { get; set; }
     }
 }

@@ -1,13 +1,16 @@
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Nanoka.Core.Models
 {
-    public class DoujinshiMeta
+    public enum DoujinshiMeta
     {
-        [JsonProperty("t")]
-        public DoujinshiMetaType Type { get; set; }
-
-        [JsonProperty("v")]
-        public string Value { get; set; }
+        [EnumMember(Value = "artist")] Artist,
+        [EnumMember(Value = "group")] Group,
+        [EnumMember(Value = "parody")] Parody,
+        [EnumMember(Value = "character")] Character,
+        [EnumMember(Value = "category")] Category,
+        [EnumMember(Value = "language")] Language,
+        [EnumMember(Value = "tag")] Tag,
+        [EnumMember(Value = "convention")] Convention
     }
 }

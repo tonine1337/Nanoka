@@ -1,9 +1,11 @@
+using System.Runtime.Serialization;
+
 namespace Nanoka.Core.Models.Query
 {
     public enum QueryOperator
     {
-        All = 0,
-        Any,
-        None
+        [EnumMember(Value = "all")] All = 0,
+        [EnumMember(Value = "any")] Any,
+        [EnumMember(Value = "none")] None
     }
 }
