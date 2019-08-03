@@ -66,12 +66,24 @@ namespace Nanoka.Web.Database
             _logger.LogInformation("Created index '{0}'.", name);
         }
 
+#region Doujinshi
+
         public async Task<Doujinshi> GetDoujinshiAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var doc = await GetAsync<DbDoujinshi>(id.ToShortString(), cancellationToken);
 
             return doc.ApplyTo(new Doujinshi());
         }
+
+        public Task IndexAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
+            => IndexAsync(new DbDoujinshi().Apply(doujinshi), cancellationToken);
+
+        public Task DeleteAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
+            => DeleteAsync<DbDoujinshi>(doujinshi.Id.ToShortString(), cancellationToken);
+
+#endregion
+
+#region Booru
 
         public async Task<BooruPost> GetBooruPostAsync(Guid id, CancellationToken cancellationToken = default)
         {
@@ -80,12 +92,30 @@ namespace Nanoka.Web.Database
             return doc.ApplyTo(new BooruPost());
         }
 
+        public Task IndexAsync(BooruPost post, CancellationToken cancellationToken = default)
+            => IndexAsync(new DbBooruPost().Apply(post), cancellationToken);
+
+        public Task DeleteAsync(BooruPost post, CancellationToken cancellationToken = default)
+            => DeleteAsync<DbBooruPost>(post.Id.ToShortString(), cancellationToken);
+
+#endregion
+
+#region User
+
         public async Task<User> GetUserAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var doc = await GetAsync<DbUser>(id.ToShortString(), cancellationToken);
 
             return doc.ApplyTo(new User());
         }
+
+        public Task IndexAsync(User user, CancellationToken cancellationToken = default)
+            => IndexAsync(new DbUser().Apply(user), cancellationToken);
+
+        public Task DeleteAsync(User user, CancellationToken cancellationToken = default)
+            => DeleteAsync<DbUser>(user.Id.ToShortString(), cancellationToken);
+
+#endregion
 
         async Task<TDocument> GetAsync<TDocument>(DocumentPath<TDocument> id, CancellationToken cancellationToken)
             where TDocument : class
@@ -97,15 +127,6 @@ namespace Nanoka.Web.Database
             return response.Source;
         }
 
-        public Task IndexAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
-            => IndexAsync(new DbDoujinshi().Apply(doujinshi), cancellationToken);
-
-        public Task IndexAsync(BooruPost post, CancellationToken cancellationToken = default)
-            => IndexAsync(new DbBooruPost().Apply(post), cancellationToken);
-
-        public Task IndexAsync(User user, CancellationToken cancellationToken = default)
-            => IndexAsync(new DbUser().Apply(user), cancellationToken);
-
         async Task IndexAsync<TDocument>(TDocument doc, CancellationToken cancellationToken)
             where TDocument : class
         {
@@ -115,15 +136,6 @@ namespace Nanoka.Web.Database
 
             _logger.LogInformation($"Indexed {typeof(TDocument).Name}: {response.Id}");
         }
-
-        public Task DeleteAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
-            => DeleteAsync<DbDoujinshi>(doujinshi.Id.ToShortString(), cancellationToken);
-
-        public Task DeleteAsync(BooruPost post, CancellationToken cancellationToken = default)
-            => DeleteAsync<DbBooruPost>(post.Id.ToShortString(), cancellationToken);
-
-        public Task DeleteAsync(User user, CancellationToken cancellationToken = default)
-            => DeleteAsync<DbUser>(user.Id.ToShortString(), cancellationToken);
 
         async Task DeleteAsync<TDocument>(DocumentPath<TDocument> id, CancellationToken cancellationToken)
             where TDocument : class
