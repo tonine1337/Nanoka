@@ -1,9 +1,8 @@
+using System;
+
 namespace Nanoka.Core
 {
-    public class NanokaOptions
-    {
-        public string DatabaseEndpoint { get; set; } = "https://nanoka-idx.chiya.dev";
-    }
+    public class NanokaOptions { }
 
     public class IpfsOptions
     {
@@ -11,5 +10,11 @@ namespace Nanoka.Core
         public string GatewayEndpoint { get; set; } = "localhost:8080";
         public string DaemonFlags { get; set; } = "--init --migrate --enable-gc --writable";
         public double DaemonWaitTimeout { get; set; } = 10;
+    }
+
+    public class DatabaseOptions
+    {
+        public string Endpoint { get; set; } = "https://nanoka-idx.chiya.dev";
+        public Guid? Token { get; set; }
     }
 }

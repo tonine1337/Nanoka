@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Nanoka.Core.Client;
 using Nanoka.Core.Installer;
 using Newtonsoft.Json;
 
@@ -54,6 +55,9 @@ namespace Nanoka.Core
                 // start ipfs daemon
                 await host.Services.GetService<IpfsManager>().StartDaemonAsync(cancellationToken);
 
+                // connect to database
+                await host.Services.GetService<IDatabaseClient>().ConnectAsync(cancellationToken);
+
                 // run host
                 await host.RunAsync(cancellationToken);
             }
@@ -91,12 +95,16 @@ namespace Nanoka.Core
                                                                            .AllowAnyOrigin()));
 
             // options
-            services.Configure<NanokaOptions>(_configuration);
-            services.Configure<IpfsOptions>(_configuration.GetSection("Ipfs"));
+            services.Configure<NanokaOptions>(_configuration)
+                    .Configure<IpfsOptions>(_configuration.GetSection("Ipfs"))
+                    .Configure<DatabaseOptions>(_configuration.GetSection("Database"));
 
             // ipfs subsystem
             services.AddSingleton<IpfsClient>()
                     .AddSingleton<IpfsManager>();
+
+            // database
+            services.AddSingleton<IDatabaseClient, DatabaseClient>();
 
             // other stuff
             services.AddSingleton<JsonSerializer>()
