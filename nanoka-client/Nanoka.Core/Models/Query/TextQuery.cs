@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models.Query
 {
-    public struct TextQuery
+    public struct TextQuery : ISearchQuery
     {
         [JsonProperty("strictness")]
         public QueryStrictness Strictness { get; set; }
@@ -15,5 +15,7 @@ namespace Nanoka.Core.Models.Query
 
         [JsonProperty("values")]
         public string[] Values { get; set; }
+
+        public bool IsSpecified() => Values != null && Values.Length != 0;
     }
 }
