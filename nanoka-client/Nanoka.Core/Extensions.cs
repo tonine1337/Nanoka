@@ -8,6 +8,9 @@ namespace Nanoka.Core
 {
     public static class Extensions
     {
+        public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
+            => dict.TryGetValue(key, out var value) ? value : default;
+
         public static T2[] ToArray<T1, T2>(this IEnumerable<T1> enumerable, Func<T1, T2> selector)
             => enumerable.Select(selector).ToArray();
 
