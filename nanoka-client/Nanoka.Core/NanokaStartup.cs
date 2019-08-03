@@ -98,8 +98,9 @@ namespace Nanoka.Core
             services.AddSingleton<IpfsClient>()
                     .AddSingleton<IpfsManager>();
 
-            // serializer
-            services.AddSingleton<JsonSerializer>();
+            // other stuff
+            services.AddSingleton<JsonSerializer>()
+                    .AddHttpClient();
         }
 
         public override void Configure(IApplicationBuilder app)
