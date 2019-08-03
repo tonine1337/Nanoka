@@ -22,8 +22,8 @@ namespace Nanoka.Web.Database
             }
         }
 
-        public static SearchDescriptor<T> Query<T>(this SearchDescriptor<T> searchDesc,
-                                                   Func<QueryWrapper<T>, QueryWrapper<T>> query)
+        public static SearchDescriptor<T> MultiQuery<T>(this SearchDescriptor<T> searchDesc,
+                                                        Func<QueryWrapper<T>, QueryWrapper<T>> query)
             where T : class
             => searchDesc.Query(searchQuery => searchQuery.Bool(boolQuery =>
             {
