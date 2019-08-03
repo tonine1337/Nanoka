@@ -32,8 +32,11 @@ namespace Nanoka.Web.Database
         [Nested(Name = "var")]
         public List<DbDoujinshiVariant> Variations { get; set; }
 
-        public void Apply(Doujinshi doujinshi)
+        public DbDoujinshi Apply(Doujinshi doujinshi)
         {
+            if (doujinshi == null)
+                return null;
+
             Id            = doujinshi.Id.ToShortString();
             UploadTime    = doujinshi.UploadTime;
             UpdateTime    = doujinshi.UpdateTime;
@@ -42,17 +45,16 @@ namespace Nanoka.Web.Database
             EnglishName   = doujinshi.EnglishName ?? EnglishName;
             Score         = doujinshi.Score;
 
-            Variations = doujinshi.Variations?.ToList(v =>
-            {
-                var variant = new DbDoujinshiVariant();
-                variant.Apply(v);
+            Variations = doujinshi.Variations?.ToList(v => new DbDoujinshiVariant().Apply(v)) ?? Variations;
 
-                return variant;
-            }) ?? Variations;
+            return this;
         }
 
-        public void ApplyTo(Doujinshi doujinshi)
+        public Doujinshi ApplyTo(Doujinshi doujinshi)
         {
+            if (doujinshi == null)
+                return null;
+
             doujinshi.Id            = Id.ToGuid();
             doujinshi.UploadTime    = UploadTime;
             doujinshi.UpdateTime    = UpdateTime;
@@ -61,13 +63,9 @@ namespace Nanoka.Web.Database
             doujinshi.EnglishName   = EnglishName ?? doujinshi.EnglishName;
             doujinshi.Score         = Score;
 
-            doujinshi.Variations = Variations?.ToArray(v =>
-            {
-                var variant = new DoujinshiVariant();
-                v.ApplyTo(variant);
+            doujinshi.Variations = Variations?.ToArray(v => v.ApplyTo(new DoujinshiVariant())) ?? doujinshi.Variations;
 
-                return variant;
-            }) ?? doujinshi.Variations;
+            return doujinshi;
         }
     }
 }

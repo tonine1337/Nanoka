@@ -22,5 +22,39 @@ namespace Nanoka.Web.Database
 
         [Number(Name = "rep")]
         public double Reputation { get; set; }
+
+        public DbUser Apply(User user)
+        {
+            if (user == null)
+                return null;
+
+            Id           = user.Id.ToShortString();
+            Username     = user.Username ?? Username;
+            IsRestricted = user.IsRestricted;
+
+            DoujinshiScores = new DbUserScores().Apply(user.DoujinshiScores) ?? DoujinshiScores;
+            BooruScores     = new DbUserScores().Apply(user.BooruScores) ?? BooruScores;
+
+            Reputation = user.Reputation;
+
+            return this;
+        }
+
+        public User ApplyTo(User user)
+        {
+            if (user == null)
+                return null;
+
+            user.Id           = Id.ToGuid();
+            user.Username     = Username ?? user.Username;
+            user.IsRestricted = IsRestricted;
+
+            user.DoujinshiScores = DoujinshiScores?.ApplyTo(new UserScores()) ?? user.DoujinshiScores;
+            user.BooruScores     = BooruScores?.ApplyTo(new UserScores()) ?? user.BooruScores;
+
+            user.Reputation = Reputation;
+
+            return user;
+        }
     }
 }

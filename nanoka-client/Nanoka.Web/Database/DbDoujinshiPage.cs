@@ -27,8 +27,11 @@ namespace Nanoka.Web.Database
         [Text(Name = "t")]
         public string MediaType { get; set; }
 
-        public void Apply(DoujinshiPage page)
+        public DbDoujinshiPage Apply(DoujinshiPage page)
         {
+            if (page == null)
+                return null;
+
             Cid         = page.Cid ?? Cid;
             Index       = page.Index;
             Source      = page.Source ?? Source;
@@ -36,10 +39,15 @@ namespace Nanoka.Web.Database
             Height      = page.Height;
             SizeInBytes = page.SizeInBytes;
             MediaType   = page.MediaType ?? MediaType;
+
+            return this;
         }
 
-        public void ApplyTo(DoujinshiPage page)
+        public DoujinshiPage ApplyTo(DoujinshiPage page)
         {
+            if (page == null)
+                return null;
+
             page.Cid         = Cid ?? page.Cid;
             page.Index       = Index;
             page.Source      = Source ?? page.Source;
@@ -47,6 +55,8 @@ namespace Nanoka.Web.Database
             page.Height      = Height;
             page.SizeInBytes = SizeInBytes;
             page.MediaType   = MediaType ?? page.MediaType;
+
+            return page;
         }
     }
 }

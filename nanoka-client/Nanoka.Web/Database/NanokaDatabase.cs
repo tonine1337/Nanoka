@@ -70,20 +70,21 @@ namespace Nanoka.Web.Database
         {
             var doc = await GetAsync<DbDoujinshi>(id.ToShortString(), cancellationToken);
 
-            var doujinshi = new Doujinshi();
-            doc.ApplyTo(doujinshi);
-
-            return doujinshi;
+            return doc.ApplyTo(new Doujinshi());
         }
 
         public async Task<BooruPost> GetBooruPostAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var doc = await GetAsync<DbBooruPost>(id.ToShortString(), cancellationToken);
 
-            var post = new BooruPost();
-            doc.ApplyTo(post);
+            return doc.ApplyTo(new BooruPost());
+        }
 
-            return post;
+        public async Task<User> GetUserAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            var doc = await GetAsync<DbUser>(id.ToShortString(), cancellationToken);
+
+            return doc.ApplyTo(new User());
         }
 
         async Task<TDocument> GetAsync<TDocument>(DocumentPath<TDocument> id, CancellationToken cancellationToken)
@@ -97,20 +98,13 @@ namespace Nanoka.Web.Database
         }
 
         public Task IndexAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
-        {
-            var doc = new DbDoujinshi();
-            doc.Apply(doujinshi);
-
-            return IndexAsync(doc, cancellationToken);
-        }
+            => IndexAsync(new DbDoujinshi().Apply(doujinshi), cancellationToken);
 
         public Task IndexAsync(BooruPost post, CancellationToken cancellationToken = default)
-        {
-            var doc = new DbBooruPost();
-            doc.Apply(post);
+            => IndexAsync(new DbBooruPost().Apply(post), cancellationToken);
 
-            return IndexAsync(doc, cancellationToken);
-        }
+        public Task IndexAsync(User user, CancellationToken cancellationToken = default)
+            => IndexAsync(new DbUser().Apply(user), cancellationToken);
 
         async Task IndexAsync<TDocument>(TDocument doc, CancellationToken cancellationToken)
             where TDocument : class
@@ -127,6 +121,9 @@ namespace Nanoka.Web.Database
 
         public Task DeleteAsync(BooruPost post, CancellationToken cancellationToken = default)
             => DeleteAsync<DbBooruPost>(post.Id.ToShortString(), cancellationToken);
+
+        public Task DeleteAsync(User user, CancellationToken cancellationToken = default)
+            => DeleteAsync<DbUser>(user.Id.ToShortString(), cancellationToken);
 
         async Task DeleteAsync<TDocument>(DocumentPath<TDocument> id, CancellationToken cancellationToken)
             where TDocument : class

@@ -41,8 +41,11 @@ namespace Nanoka.Web.Database
         [Nested(Name = "pages")]
         public List<DbDoujinshiPage> Pages { get; set; }
 
-        public void Apply(DoujinshiVariant variant)
+        public DbDoujinshiVariant Apply(DoujinshiVariant variant)
         {
+            if (variant == null)
+                return null;
+
             UploaderId = variant.UploaderId.ToShortString();
             Artist     = variant.Metas?.GetOrDefault(DoujinshiMeta.Artist) ?? Artist;
             Group      = variant.Metas?.GetOrDefault(DoujinshiMeta.Group) ?? Group;
@@ -54,17 +57,16 @@ namespace Nanoka.Web.Database
             Convention = variant.Metas?.GetOrDefault(DoujinshiMeta.Convention) ?? Convention;
             Source     = variant.Source ?? Source;
 
-            Pages = variant.Pages?.ToList(p =>
-            {
-                var page = new DbDoujinshiPage();
-                page.Apply(p);
+            Pages = variant.Pages?.ToList(p => new DbDoujinshiPage().Apply(p)) ?? Pages;
 
-                return page;
-            }) ?? Pages;
+            return this;
         }
 
-        public void ApplyTo(DoujinshiVariant variant)
+        public DoujinshiVariant ApplyTo(DoujinshiVariant variant)
         {
+            if (variant == null)
+                return null;
+
             variant.UploaderId = UploaderId.ToGuid();
 
             variant.Metas = Extensions.BuildArrayDict(
@@ -79,13 +81,9 @@ namespace Nanoka.Web.Database
 
             variant.Source = Source ?? variant.Source;
 
-            variant.Pages = Pages?.ToArray(p =>
-            {
-                var page = new DoujinshiPage();
-                p.ApplyTo(page);
+            variant.Pages = Pages?.ToArray(p => p.ApplyTo(new DoujinshiPage())) ?? variant.Pages;
 
-                return page;
-            }) ?? variant.Pages;
+            return variant;
         }
     }
 }

@@ -1,3 +1,4 @@
+using Nanoka.Core.Models;
 using Nest;
 
 namespace Nanoka.Web.Database
@@ -22,5 +23,35 @@ namespace Nanoka.Web.Database
 
         [Number(Name = "vd")]
         public int DownvotedCount { get; set; }
+
+        public DbUserScores Apply(UserScores scores)
+        {
+            if (scores == null)
+                return null;
+
+            UploadCount         = scores.UploadCount;
+            UploadAcceptedCount = scores.UploadAcceptedCount;
+            EditCount           = scores.EditCount;
+            EditAcceptedCount   = scores.EditAcceptedCount;
+            UpvotedCount        = scores.UpvotedCount;
+            DownvotedCount      = scores.DownvotedCount;
+
+            return this;
+        }
+
+        public UserScores ApplyTo(UserScores scores)
+        {
+            if (scores == null)
+                return null;
+
+            scores.UploadCount         = UploadCount;
+            scores.UploadAcceptedCount = UploadAcceptedCount;
+            scores.EditCount           = EditCount;
+            scores.EditAcceptedCount   = EditAcceptedCount;
+            scores.UpvotedCount        = UpvotedCount;
+            scores.DownvotedCount      = DownvotedCount;
+
+            return scores;
+        }
     }
 }

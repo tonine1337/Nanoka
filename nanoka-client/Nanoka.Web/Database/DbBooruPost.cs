@@ -61,8 +61,11 @@ namespace Nanoka.Web.Database
         [Text(Name = "sib")]
         public string[] SiblingIds { get; set; }
 
-        public void Apply(BooruPost post)
+        public DbBooruPost Apply(BooruPost post)
         {
+            if (post == null)
+                return null;
+
             Id          = post.Id.ToShortString();
             UploaderId  = post.UploaderId.ToShortString();
             Cid         = post.Cid ?? Cid;
@@ -81,10 +84,15 @@ namespace Nanoka.Web.Database
             SizeInBytes = post.SizeInBytes;
             MediaType   = post.MediaType ?? MediaType;
             SiblingIds  = post.SiblingIds?.ToArray(x => x.ToShortString()) ?? SiblingIds;
+
+            return this;
         }
 
-        public void ApplyTo(BooruPost post)
+        public BooruPost ApplyTo(BooruPost post)
         {
+            if (post == null)
+                return null;
+
             post.Id         = Id.ToGuid();
             post.UploaderId = UploaderId.ToGuid();
             post.Cid        = Cid ?? post.Cid;
@@ -106,6 +114,8 @@ namespace Nanoka.Web.Database
             post.SizeInBytes = SizeInBytes;
             post.MediaType   = MediaType ?? post.MediaType;
             post.SiblingIds  = SiblingIds?.ToArray(x => x.ToGuid()) ?? post.SiblingIds;
+
+            return post;
         }
     }
 }
