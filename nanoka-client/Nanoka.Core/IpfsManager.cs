@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ipfs.CoreApi;
 using Ipfs.Http;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -20,12 +21,17 @@ namespace Nanoka.Core
         readonly ILogger<IpfsManager> _logger;
         readonly IpfsOptions _options;
         readonly IpfsClient _client;
+        readonly IHostingEnvironment _hostingEnvironment;
 
-        public IpfsManager(ILogger<IpfsManager> logger, IOptions<IpfsOptions> options, IpfsClient client)
+        public IpfsManager(ILogger<IpfsManager> logger,
+                           IOptions<IpfsOptions> options,
+                           IpfsClient client,
+                           IHostingEnvironment hostingEnvironment)
         {
-            _logger  = logger;
-            _options = options.Value;
-            _client  = client;
+            _logger             = logger;
+            _options            = options.Value;
+            _client             = client;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         /// <summary>
@@ -79,6 +85,11 @@ namespace Nanoka.Core
 
         void InitRepo()
         {
+            // start with a fresh repository in development
+            if (!_hostingEnvironment.IsProduction() &&
+                Directory.Exists(GetIpfsRepoPath()))
+                Directory.Delete(GetIpfsRepoPath(), true);
+
             // shutdown existing daemon
             using (var process = StartIpfs("shutdown"))
             {
