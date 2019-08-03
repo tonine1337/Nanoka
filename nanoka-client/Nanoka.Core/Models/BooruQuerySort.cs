@@ -7,6 +7,7 @@ namespace Nanoka.Core.Models
     /// </summary>
     public enum BooruQuerySort
     {
+        [EnumMember(Value = "relevance")] Relevance = 0,
         [EnumMember(Value = "upload")] UploadTime,
         [EnumMember(Value = "update")] UpdateTime,
         [EnumMember(Value = "artist")] Artist,
