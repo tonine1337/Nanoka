@@ -2,11 +2,8 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
 {
-    public class Index
+    public class Database
     {
-        [JsonProperty("id")]
-        public int Id { get; set; }
-
         [JsonProperty("name")]
         public string Name { get; set; }
 
@@ -15,8 +12,5 @@ namespace Nanoka.Core.Models
 
         [JsonProperty("ep")]
         public string Endpoint { get; set; }
-
-        [JsonProperty("type")]
-        public IndexType Type { get; set; }
     }
 }

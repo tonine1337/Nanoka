@@ -1,6 +1,9 @@
 namespace Nanoka.Core
 {
-    public class NanokaOptions { }
+    public class NanokaOptions
+    {
+        public string DatabaseEndpoint { get; set; } = "https://nanoka-idx.chiya.dev";
+    }
 
     public class IpfsOptions
     {
