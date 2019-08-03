@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Nanoka.Core;
 using Newtonsoft.Json;
 
 namespace Nanoka.Web.Controllers
