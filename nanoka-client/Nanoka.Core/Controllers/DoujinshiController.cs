@@ -1,9 +1,8 @@
-using System.IO;
+using System;
 using System.Threading.Tasks;
-using Ipfs.Http;
 using Microsoft.AspNetCore.Mvc;
+using Nanoka.Core.Client;
 using Nanoka.Core.Models;
-using Newtonsoft.Json;
 
 namespace Nanoka.Core.Controllers
 {
@@ -11,21 +10,14 @@ namespace Nanoka.Core.Controllers
     [Route("doujinshi")]
     public class DoujinshiController : ControllerBase
     {
-        readonly IpfsClient _ipfs;
-        readonly JsonSerializer _serializer;
+        readonly IDatabaseClient _client;
 
-        public DoujinshiController(IpfsClient ipfs, JsonSerializer serializer)
+        public DoujinshiController(IDatabaseClient client)
         {
-            _ipfs       = ipfs;
-            _serializer = serializer;
+            _client = client;
         }
 
-        [HttpGet("{cid}")]
-        public async Task<Result<Doujinshi>> GetAsync(string cid)
-        {
-            using (var stream = await _ipfs.FileSystem.ReadFileAsync(cid))
-            using (var reader = new StreamReader(stream))
-                return _serializer.Deserialize<Doujinshi>(reader);
-        }
+        [HttpGet("{id}")]
+        public async Task<Result<Doujinshi>> GetAsync(Guid id) => await _client.GetDoujinshiAsync(id);
     }
 }
