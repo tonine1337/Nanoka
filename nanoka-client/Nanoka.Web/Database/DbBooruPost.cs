@@ -10,6 +10,12 @@ namespace Nanoka.Web.Database
     {
         public string Id { get; set; }
 
+        [Text(Name = "cid")]
+        public string Cid { get; set; }
+
+        [Text(Name = "upu")]
+        public string UploaderId { get; set; }
+
         [Date(Name = "up")]
         public DateTime UploadTime { get; set; }
 
@@ -58,6 +64,8 @@ namespace Nanoka.Web.Database
         public void Apply(BooruPost post)
         {
             Id          = post.Id.ToShortString();
+            UploaderId  = post.UploaderId.ToShortString();
+            Cid         = post.Cid ?? Cid;
             UploadTime  = post.UploadTime;
             UpdateTime  = post.UpdateTime;
             Artist      = post.Tags?.GetOrDefault(BooruTag.Artist) ?? Artist;
@@ -78,6 +86,8 @@ namespace Nanoka.Web.Database
         public void ApplyTo(BooruPost post)
         {
             post.Id         = Id.ToGuid();
+            post.UploaderId = UploaderId.ToGuid();
+            post.Cid        = Cid ?? post.Cid;
             post.UploadTime = UploadTime;
             post.UpdateTime = UpdateTime;
 

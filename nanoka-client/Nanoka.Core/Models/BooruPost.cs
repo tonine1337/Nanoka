@@ -9,6 +9,9 @@ namespace Nanoka.Core.Models
         [JsonProperty("id")]
         public Guid Id { get; set; }
 
+        [JsonProperty("uploader")]
+        public Guid UploaderId { get; set; }
+
         [JsonProperty("cid")]
         public string Cid { get; set; }
 

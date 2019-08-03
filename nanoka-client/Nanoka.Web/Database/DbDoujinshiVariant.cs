@@ -8,6 +8,9 @@ namespace Nanoka.Web.Database
     // nested object of doujinshi
     public class DbDoujinshiVariant
     {
+        [Text(Name = "upu")]
+        public string UploaderId { get; set; }
+
         [Text(Name = "a")]
         public string[] Artist { get; set; }
 
@@ -40,6 +43,7 @@ namespace Nanoka.Web.Database
 
         public void Apply(DoujinshiVariant variant)
         {
+            UploaderId = variant.UploaderId.ToShortString();
             Artist     = variant.Metas?.GetOrDefault(DoujinshiMeta.Artist) ?? Artist;
             Group      = variant.Metas?.GetOrDefault(DoujinshiMeta.Group) ?? Group;
             Parody     = variant.Metas?.GetOrDefault(DoujinshiMeta.Parody) ?? Parody;
@@ -61,6 +65,8 @@ namespace Nanoka.Web.Database
 
         public void ApplyTo(DoujinshiVariant variant)
         {
+            variant.UploaderId = UploaderId.ToGuid();
+
             variant.Metas = Extensions.BuildArrayDict(
                                 (DoujinshiMeta.Artist, Artist),
                                 (DoujinshiMeta.Group, Group),
