@@ -1,8 +1,15 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nanoka.Web", "Nanoka.Web\Nanoka.Web.csproj", "{0DB4F6F3-29AF-42B6-90B3-568DDF5EFC55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0DB4F6F3-29AF-42B6-90B3-568DDF5EFC55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DB4F6F3-29AF-42B6-90B3-568DDF5EFC55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DB4F6F3-29AF-42B6-90B3-568DDF5EFC55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DB4F6F3-29AF-42B6-90B3-568DDF5EFC55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
