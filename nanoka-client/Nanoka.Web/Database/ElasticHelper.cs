@@ -273,9 +273,9 @@ namespace Nanoka.Web.Database
 
         public delegate Expression<Func<T, object>> AttributePathDelegate<T, in TAttribute>(TAttribute attribute);
 
-        public static SearchDescriptor<T> SortByFields<T, TAttribute>(this SearchDescriptor<T> searchDesc,
-                                                                      TAttribute[] attributes,
-                                                                      AttributePathDelegate<T, TAttribute> path)
+        public static SearchDescriptor<T> MultiSort<T, TAttribute>(this SearchDescriptor<T> searchDesc,
+                                                                   TAttribute[] attributes,
+                                                                   AttributePathDelegate<T, TAttribute> path)
             where T : class
             where TAttribute : struct
         {
