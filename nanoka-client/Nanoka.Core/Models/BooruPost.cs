@@ -5,8 +5,8 @@ namespace Nanoka.Core.Models
 {
     public class BooruPost
     {
-        [JsonProperty("cid")]
-        public string Cid { get; set; }
+        [JsonProperty("id")]
+        public Guid Id { get; set; }
 
         [JsonProperty("upload")]
         public DateTime UploadTime { get; set; }
@@ -27,6 +27,6 @@ namespace Nanoka.Core.Models
         public BooruImage Image { get; set; }
 
         [JsonProperty("sib")]
-        public string[] SiblingCids { get; set; }
+        public Guid[] SiblingIds { get; set; }
     }
 }

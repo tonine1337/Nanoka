@@ -5,8 +5,8 @@ namespace Nanoka.Core.Models
 {
     public class Doujinshi
     {
-        [JsonProperty("cid")]
-        public string Cid { get; set; }
+        [JsonProperty("id")]
+        public Guid Id { get; set; }
 
         [JsonProperty("upload")]
         public DateTime UploadTime { get; set; }

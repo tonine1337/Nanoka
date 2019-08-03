@@ -7,9 +7,6 @@ namespace Nanoka.Core.Models
         [JsonProperty("cid")]
         public string Cid { get; set; }
 
-        [JsonProperty("cid_file")]
-        public string FileCid { get; set; }
-
         [JsonProperty("src")]
         public string Source { get; set; }
 
