@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Nanoka.Core;
-using Newtonsoft.Json;
+using Nanoka.Core.Client;
 
 namespace Nanoka.Web.Controllers
 {
@@ -25,26 +25,8 @@ namespace Nanoka.Web.Controllers
             _db      = db;
         }
 
-        public class AuthRequest
-        {
-            [JsonProperty("token")]
-            public Guid Token { get; set; }
-        }
-
-        public class AuthResponse
-        {
-            [JsonProperty("accessToken")]
-            public string AccessToken { get; set; }
-
-            [JsonProperty("user")]
-            public object User { get; set; }
-
-            [JsonProperty("expiry")]
-            public DateTime Expiry { get; set; }
-        }
-
         [HttpPost("auth")]
-        public async Task<Result<AuthResponse>> AuthAsync(AuthRequest request)
+        public async Task<Result<AuthenticationResponse>> AuthAsync(AuthenticationRequest request)
         {
             var user = await _db.Users
                                 .AsNoTracking()
@@ -57,7 +39,7 @@ namespace Nanoka.Web.Controllers
             var expiry  = DateTime.UtcNow.AddMinutes(30);
             var handler = new JwtSecurityTokenHandler();
 
-            return new AuthResponse
+            return new AuthenticationResponse
             {
                 AccessToken = handler.WriteToken(handler.CreateToken(new SecurityTokenDescriptor
                 {
