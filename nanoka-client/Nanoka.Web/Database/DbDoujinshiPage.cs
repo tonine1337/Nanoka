@@ -1,3 +1,4 @@
+using Nanoka.Core.Models;
 using Nest;
 
 namespace Nanoka.Web.Database
@@ -25,5 +26,27 @@ namespace Nanoka.Web.Database
 
         [Text(Name = "t")]
         public string MediaType { get; set; }
+
+        public void Apply(DoujinshiPage page)
+        {
+            Cid         = page.Cid ?? Cid;
+            Index       = page.Index;
+            Source      = page.Source ?? Source;
+            Width       = page.Width;
+            Height      = page.Height;
+            SizeInBytes = page.SizeInBytes;
+            MediaType   = page.MediaType ?? MediaType;
+        }
+
+        public void ApplyTo(DoujinshiPage page)
+        {
+            page.Cid         = Cid ?? page.Cid;
+            page.Index       = Index;
+            page.Source      = Source ?? page.Source;
+            page.Width       = Width;
+            page.Height      = Height;
+            page.SizeInBytes = SizeInBytes;
+            page.MediaType   = MediaType ?? page.MediaType;
+        }
     }
 }
