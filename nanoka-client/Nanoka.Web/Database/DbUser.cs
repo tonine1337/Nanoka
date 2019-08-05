@@ -23,9 +23,6 @@ namespace Nanoka.Web.Database
         [Nested(Name = "sc_bo")]
         public DbUserScores BooruScores { get; set; }
 
-        [Number(Name = "rep")]
-        public double Reputation { get; set; }
-
         public DbUser Apply(User user)
         {
             if (user == null)
@@ -38,8 +35,6 @@ namespace Nanoka.Web.Database
 
             DoujinshiScores = new DbUserScores().Apply(user.DoujinshiScores) ?? DoujinshiScores;
             BooruScores     = new DbUserScores().Apply(user.BooruScores) ?? BooruScores;
-
-            Reputation = user.Reputation;
 
             return this;
         }
@@ -57,7 +52,7 @@ namespace Nanoka.Web.Database
             user.DoujinshiScores = DoujinshiScores?.ApplyTo(new UserScores()) ?? user.DoujinshiScores;
             user.BooruScores     = BooruScores?.ApplyTo(new UserScores()) ?? user.BooruScores;
 
-            user.Reputation = Reputation;
+            user.Reputation = UserReputationCalculator.Calc(user);
 
             return user;
         }
