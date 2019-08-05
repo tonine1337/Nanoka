@@ -49,6 +49,7 @@ namespace Nanoka.Web.Database
                     Id          = Guid.NewGuid(),
                     Secret      = Guid.NewGuid(),
                     Username    = "admin",
+                    Registered  = DateTime.UtcNow,
                     Permissions = UserPermissions.Administrator
                 };
 

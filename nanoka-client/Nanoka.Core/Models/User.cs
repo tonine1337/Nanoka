@@ -14,6 +14,9 @@ namespace Nanoka.Core.Models
         [JsonProperty("name")]
         public string Username { get; set; }
 
+        [JsonProperty("registered")]
+        public DateTime Registered { get; set; }
+
         [JsonProperty("restricted")]
         public bool IsRestricted { get; set; }
 

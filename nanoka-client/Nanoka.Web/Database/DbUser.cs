@@ -1,3 +1,4 @@
+using System;
 using Nanoka.Core.Models;
 using Nest;
 
@@ -13,6 +14,9 @@ namespace Nanoka.Web.Database
 
         [Text(Name = "un")]
         public string Username { get; set; }
+
+        [Date(Name = "r")]
+        public DateTime Registered { get; set; }
 
         [Text(Name = "res")]
         public bool IsRestricted { get; set; }
@@ -34,6 +38,7 @@ namespace Nanoka.Web.Database
             Id           = user.Id.ToShortString();
             Secret       = user.Secret.ToShortString();
             Username     = user.Username ?? Username;
+            Registered   = user.Registered;
             IsRestricted = user.IsRestricted;
             Permissions  = user.Permissions;
 
@@ -48,6 +53,7 @@ namespace Nanoka.Web.Database
             user.Id           = Id.ToGuid();
             user.Secret       = Secret.ToGuid();
             user.Username     = Username ?? user.Username;
+            user.Registered   = Registered;
             user.IsRestricted = IsRestricted;
             user.Permissions  = Permissions;
 

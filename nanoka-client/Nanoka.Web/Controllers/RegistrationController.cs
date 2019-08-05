@@ -61,6 +61,7 @@ namespace Nanoka.Web.Controllers
                 Id          = Guid.NewGuid(),
                 Secret      = Guid.NewGuid(),
                 Username    = request.Username,
+                Registered  = DateTime.UtcNow,
                 Permissions = _options.DefaultUserPermissions
             };
 
