@@ -36,9 +36,26 @@ namespace Nanoka.Web.Database
 
         public async Task MigrateAsync(CancellationToken cancellationToken = default)
         {
+            _logger.LogDebug("Migrating indexes...");
+
             await CreateIndexAsync<DbDoujinshi>(cancellationToken);
             await CreateIndexAsync<DbBooruPost>(cancellationToken);
-            await CreateIndexAsync<DbUser>(cancellationToken);
+
+            if (await CreateIndexAsync<DbUser>(cancellationToken))
+            {
+                // create admin user
+                var user = new User
+                {
+                    Id          = Guid.NewGuid(),
+                    Secret      = Guid.NewGuid(),
+                    Username    = "admin",
+                    Permissions = UserPermissions.Administrator
+                };
+
+                await IndexAsync(user, cancellationToken);
+
+                _logger.LogWarning($"Administrator user created: ID:{user.Id} --- SECRET:{user.Secret}");
+            }
         }
 
         static readonly ConcurrentDictionary<Type, string> _indexNames = new ConcurrentDictionary<Type, string>();
@@ -55,18 +72,20 @@ namespace Nanoka.Web.Database
             return index;
         }
 
-        async Task CreateIndexAsync<T>(CancellationToken cancellationToken = default) where T : class
+        async Task<bool> CreateIndexAsync<T>(CancellationToken cancellationToken = default) where T : class
         {
             var name = GetIndexName<T>();
 
             if ((await _client.Indices.ExistsAsync(name, ct: cancellationToken)).Exists)
-                return;
+                return false;
 
             var response = await _client.Indices.CreateAsync(name, x => x.Map(m => m.AutoMap<T>()), cancellationToken);
 
             ValidateResponse(response);
 
             _logger.LogInformation("Created index '{0}'.", name);
+
+            return true;
         }
 
 #region Doujinshi
