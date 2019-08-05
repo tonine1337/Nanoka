@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Nanoka.Core.Models.Query;
 using Nest;
@@ -300,6 +301,8 @@ namespace Nanoka.Web.Database
 
             return searchDesc.Sort(s =>
             {
+                var set = new HashSet<int>();
+
                 foreach (var attr1 in attributes)
                 {
                     var attr      = attr1;
@@ -313,6 +316,10 @@ namespace Nanoka.Web.Database
                         attr      = (TAttribute) (object) attrValue;
                         ascending = false;
                     }
+
+                    // ensure not sorting by one field multiple times
+                    if (!set.Add(attrValue))
+                        continue;
 
                     s = s.Field(f =>
                     {
