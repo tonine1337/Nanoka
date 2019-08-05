@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Elasticsearch.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Nanoka.Core;
 using Nanoka.Core.Models;
 using Nest;
 
@@ -81,6 +83,88 @@ namespace Nanoka.Web.Database
         public Task DeleteAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
             => DeleteAsync<DbDoujinshi>(doujinshi.Id.ToShortString(), cancellationToken);
 
+        public async Task<SearchResult<Doujinshi>> SearchAsync(DoujinshiQuery query,
+                                                               CancellationToken cancellationToken = default)
+        {
+            var measure = new MeasureContext();
+
+            var response = await _client.SearchAsync<DbDoujinshi>(
+                x => x.Index(GetIndexName<DbDoujinshi>())
+                      .Skip(query.Offset)
+                      .Take(query.Limit)
+                      .MultiQuery(
+                           q => q.Text(query.All)
+                                 .Range(query.UploadTime, d => d.UploadTime)
+                                 .Range(query.UpdateTime, d => d.UpdateTime)
+                                 .Text(query.OriginalName, d => d.OriginalName)
+                                 .Text(query.RomanizedName, d => d.RomanizedName)
+                                 .Text(query.EnglishName, d => d.EnglishName)
+                                 .Range(query.Score, d => d.Score)
+                                 .Range(query.PageCount, d => d.PageCounts))
+                      .NestedMultiQuery(
+                           d => d.Variations,
+                           q =>
+                           {
+                               q.Text(query.All);
+
+                               foreach (var (meta, metaQuery) in query.Metas)
+                               {
+                                   switch (meta)
+                                   {
+                                       case DoujinshiMeta.Artist:
+                                           q.Text(metaQuery, d => d.Variations.First().Artist);
+                                           break;
+                                       case DoujinshiMeta.Group:
+                                           q.Text(metaQuery, d => d.Variations.First().Group);
+                                           break;
+                                       case DoujinshiMeta.Parody:
+                                           q.Text(metaQuery, d => d.Variations.First().Parody);
+                                           break;
+                                       case DoujinshiMeta.Character:
+                                           q.Text(metaQuery, d => d.Variations.First().Character);
+                                           break;
+                                       case DoujinshiMeta.Category:
+                                           q.Text(metaQuery, d => d.Variations.First().Category);
+                                           break;
+                                       case DoujinshiMeta.Language:
+                                           q.Text(metaQuery, d => d.Variations.First().Language);
+                                           break;
+                                       case DoujinshiMeta.Tag:
+                                           q.Text(metaQuery, d => d.Variations.First().Tag);
+                                           break;
+                                       case DoujinshiMeta.Convention:
+                                           q.Text(metaQuery, d => d.Variations.First().Convention);
+                                           break;
+                                   }
+                               }
+
+                               q.Text(query.Source, d => d.Variations.First().Source);
+
+                               return q;
+                           })
+                      .MultiSort(query.Sorting,
+                                 sort =>
+                                 {
+                                     switch (sort)
+                                     {
+                                         case DoujinshiQuerySort.UploadTime:    return d => d.UploadTime;
+                                         case DoujinshiQuerySort.UpdateTime:    return d => d.UpdateTime;
+                                         case DoujinshiQuerySort.OriginalName:  return d => d.OriginalName;
+                                         case DoujinshiQuerySort.RomanizedName: return d => d.RomanizedName;
+                                         case DoujinshiQuerySort.EnglishName:   return d => d.EnglishName;
+                                         case DoujinshiQuerySort.Score:         return d => d.Score;
+                                         case DoujinshiQuerySort.PageCount:     return d => d.PageCounts;
+
+                                         default: throw new NotSupportedException();
+                                     }
+                                 }),
+                cancellationToken);
+
+            ValidateResponse(response);
+
+            return ConvertSearchResponse(response, d => d.ApplyTo(new Doujinshi()), measure);
+        }
+
 #endregion
 
 #region Booru
@@ -146,6 +230,17 @@ namespace Nanoka.Web.Database
 
             _logger.LogInformation($"Deleted {typeof(TDocument).Name}: {response.Id}");
         }
+
+        static SearchResult<TResult> ConvertSearchResponse<T, TResult>(ISearchResponse<T> response,
+                                                                       Func<T, TResult> convert,
+                                                                       MeasureContext measure = null)
+            where T : class
+            => new SearchResult<TResult>
+            {
+                Total = (int) response.Total,
+                Items = response.Documents.Select(convert).ToArray(),
+                Took  = measure?.Milliseconds ?? response.Took
+            };
 
         static void ValidateResponse(IResponse response)
         {
