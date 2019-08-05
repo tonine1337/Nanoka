@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -32,7 +33,8 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpGet("register")]
-        public ContentResult Register() => Content(RecaptchaForm.GetForm(_options.RecaptchaSite), "text/html");
+        public ContentResult Register()
+            => Content(RecaptchaForm.GetForm(_options.RecaptchaSite), "text/html", Encoding.Default);
 
         [HttpPost("register")]
         public async Task<Result<RegistrationResponse>> RegisterAsync(RegistrationRequest request)
