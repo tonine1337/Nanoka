@@ -2,8 +2,9 @@ using System.IO;
 using System.Threading.Tasks;
 using Ipfs.Http;
 using Microsoft.AspNetCore.Mvc;
+using Nanoka.Core;
 
-namespace Nanoka.Core.Controllers
+namespace Nanoka.Client
 {
     [ApiController]
     [Route("fs")]

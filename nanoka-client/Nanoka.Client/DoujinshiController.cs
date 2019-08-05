@@ -1,10 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Nanoka.Core;
 using Nanoka.Core.Client;
 using Nanoka.Core.Models;
 
-namespace Nanoka.Core.Controllers
+namespace Nanoka.Client
 {
     [ApiController]
     [Route("doujinshi")]

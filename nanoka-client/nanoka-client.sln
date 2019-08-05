@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nanoka.Core", "Nanoka.Core\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nanoka.Web", "Nanoka.Web\Nanoka.Web.csproj", "{71421BBC-4457-4584-8DA4-A291FC72E887}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nanoka.Client", "Nanoka.Client\Nanoka.Client.csproj", "{8A3B28AE-2187-4ED4-8048-88DD5DB0C8A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,5 +25,9 @@ Global
 		{71421BBC-4457-4584-8DA4-A291FC72E887}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71421BBC-4457-4584-8DA4-A291FC72E887}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71421BBC-4457-4584-8DA4-A291FC72E887}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A3B28AE-2187-4ED4-8048-88DD5DB0C8A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A3B28AE-2187-4ED4-8048-88DD5DB0C8A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A3B28AE-2187-4ED4-8048-88DD5DB0C8A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A3B28AE-2187-4ED4-8048-88DD5DB0C8A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
