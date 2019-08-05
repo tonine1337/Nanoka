@@ -38,8 +38,14 @@ namespace Nanoka.Web.Database
         [Text(Name = "src")]
         public string Source { get; set; }
 
-        [Nested(Name = "pages")]
+        [Nested(Name = "page")]
         public List<DbDoujinshiPage> Pages { get; set; }
+
+        /// <summary>
+        /// Cached value of the number of elements in <see cref="Pages"/>.
+        /// </summary>
+        [Nested(Name = "page_n")]
+        public int PageCount { get; set; }
 
         public DbDoujinshiVariant Apply(DoujinshiVariant variant)
         {
@@ -57,7 +63,8 @@ namespace Nanoka.Web.Database
             Convention = variant.Metas?.GetOrDefault(DoujinshiMeta.Convention) ?? Convention;
             Source     = variant.Source ?? Source;
 
-            Pages = variant.Pages?.ToList(p => new DbDoujinshiPage().Apply(p)) ?? Pages;
+            Pages     = variant.Pages?.ToList(p => new DbDoujinshiPage().Apply(p)) ?? Pages;
+            PageCount = Pages.Count;
 
             return this;
         }
