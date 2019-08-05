@@ -8,6 +8,9 @@ namespace Nanoka.Core.Models
         [JsonProperty("id")]
         public Guid Id { get; set; }
 
+        [JsonProperty("secret")]
+        public Guid Secret { get; set; }
+
         [JsonProperty("name")]
         public string Username { get; set; }
 

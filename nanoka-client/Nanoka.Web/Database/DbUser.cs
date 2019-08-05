@@ -8,6 +8,9 @@ namespace Nanoka.Web.Database
     {
         public string Id { get; set; }
 
+        [Text(Name = "sec")]
+        public string Secret { get; set; }
+
         [Text(Name = "n")]
         public string Username { get; set; }
 
@@ -29,6 +32,7 @@ namespace Nanoka.Web.Database
                 return null;
 
             Id           = user.Id.ToShortString();
+            Secret       = user.Secret.ToShortString();
             Username     = user.Username ?? Username;
             IsRestricted = user.IsRestricted;
 
@@ -46,6 +50,7 @@ namespace Nanoka.Web.Database
                 return null;
 
             user.Id           = Id.ToGuid();
+            user.Secret       = Secret.ToGuid();
             user.Username     = Username ?? user.Username;
             user.IsRestricted = IsRestricted;
 

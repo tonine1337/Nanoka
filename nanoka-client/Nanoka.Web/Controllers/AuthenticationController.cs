@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Nanoka.Core;
 using Nanoka.Core.Client;
+using Nanoka.Web.Database;
 
 namespace Nanoka.Web.Controllers
 {
@@ -17,9 +18,9 @@ namespace Nanoka.Web.Controllers
     public class AuthenticationController : ControllerBase
     {
         readonly NanokaOptions _options;
-        readonly NetDoujinshiDbContext _db;
+        readonly NanokaDatabase _db;
 
-        public AuthenticationController(IOptions<NanokaOptions> options, NetDoujinshiDbContext db)
+        public AuthenticationController(IOptions<NanokaOptions> options, NanokaDatabase db)
         {
             _options = options.Value;
             _db      = db;
@@ -28,13 +29,10 @@ namespace Nanoka.Web.Controllers
         [HttpPost("auth")]
         public async Task<Result<AuthenticationResponse>> AuthAsync(AuthenticationRequest request)
         {
-            var user = await _db.Users
-                                .AsNoTracking()
-                                .Include(u => u.Role)
-                                .FirstOrDefaultAsync(u => u.Token == request.Token);
+            var user = await _db.GetUserAsync(request.Id);
 
-            if (user == null)
-                return Result.StatusCode(HttpStatusCode.Unauthorized, $"Bad token '{request.Token}'.");
+            if (user == null || user.Secret != request.Secret)
+                return Result.StatusCode(HttpStatusCode.Unauthorized, $"Invalid login for user {request.Id}.");
 
             var expiry  = DateTime.UtcNow.AddMinutes(30);
             var handler = new JwtSecurityTokenHandler();
@@ -54,7 +52,7 @@ namespace Nanoka.Web.Controllers
                         SecurityAlgorithms.HmacSha256Signature)
                 })),
 
-                User   = user.Convert(),
+                User   = user,
                 Expiry = expiry
             };
         }
