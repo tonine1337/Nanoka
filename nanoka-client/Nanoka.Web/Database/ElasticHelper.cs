@@ -43,7 +43,7 @@ namespace Nanoka.Web.Database
             {
                 boolQuery.Must(q => query(new QueryWrapper<T>(q, QueryStrictness.Must)).Container);
                 boolQuery.Should(q => query(new QueryWrapper<T>(q, QueryStrictness.Should)).Container);
-                boolQuery.Filter(q => query(new QueryWrapper<T>(q, QueryStrictness.Filter)).Container);
+                //boolQuery.Filter(q => query(new QueryWrapper<T>(q, QueryStrictness.Filter)).Container);
 
                 return boolQuery;
             });
@@ -61,7 +61,6 @@ namespace Nanoka.Web.Database
             switch (query.Strictness)
             {
                 case QueryStrictness.Must:
-                case QueryStrictness.Filter:
                     wrapper.Container &= container;
                     break;
 
