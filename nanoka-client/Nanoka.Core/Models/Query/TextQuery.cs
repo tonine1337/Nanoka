@@ -10,9 +10,6 @@ namespace Nanoka.Core.Models.Query
         [JsonProperty("operator")]
         public QueryOperator Operator { get; set; }
 
-        [JsonProperty("mode")]
-        public TextQueryMode Mode { get; set; }
-
         [JsonProperty("values")]
         public string[] Values { get; set; }
 

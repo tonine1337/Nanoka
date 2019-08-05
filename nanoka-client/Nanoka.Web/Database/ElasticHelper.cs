@@ -76,7 +76,7 @@ namespace Nanoka.Web.Database
 
         public static QueryWrapper<T> Text<T>(this QueryWrapper<T> wrapper,
                                               TextQuery query,
-                                              params Expression<Func<T, object>>[] paths)
+                                              Expression<Func<T, object>> path)
             where T : class
             => wrapper.QueryInternal(
                 query,
@@ -86,19 +86,13 @@ namespace Nanoka.Web.Database
 
                     foreach (var value in query.Values)
                     {
-                        QueryContainer c;
-
-                        switch (query.Mode)
+                        /*switch (query.Mode)
                         {
-                            case TextQueryMode.Simple:
-                                if (paths.Length == 1)
-                                    c = descriptor.SimpleQueryString(q => q.Fields(f => f.Field(paths[0]))
-                                                                           .Query(value));
-                                else
-                                    c = descriptor.SimpleQueryString(q => q.Fields(paths)
-                                                                           .Query(value));
+                            case TextQueryMode.Simple:*/
 
-                                break;
+                        var c = descriptor.SimpleQueryString(q => q.Fields(f => f.Field(path)).Query(value));
+
+/*                              break;
 
                             case TextQueryMode.Match:
                                 if (paths.Length == 1)
@@ -117,7 +111,7 @@ namespace Nanoka.Web.Database
                                 break;
 
                             default: throw new NotSupportedException();
-                        }
+                        }*/
 
                         if (container == null)
                             container = c;
