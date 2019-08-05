@@ -7,7 +7,7 @@ namespace Nanoka.Web
         public string Secret { get; set; }
 
         public string ElasticEndpoint { get; set; }
-        public string ElasticIndexPrefix { get; set; }
+        public string ElasticIndexPrefix { get; set; } = "nanoka-";
 
         public string RecaptchaSite { get; set; }
         public string RecaptchaSecret { get; set; }
