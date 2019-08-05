@@ -127,36 +127,37 @@ namespace Nanoka.Web.Database
                            {
                                q.Text(query.All);
 
-                               foreach (var (meta, metaQuery) in query.Metas)
-                               {
-                                   switch (meta)
+                               if (query.Metas != null)
+                                   foreach (var (meta, metaQuery) in query.Metas)
                                    {
-                                       case DoujinshiMeta.Artist:
-                                           q.Text(metaQuery, d => d.Variations.First().Artist);
-                                           break;
-                                       case DoujinshiMeta.Group:
-                                           q.Text(metaQuery, d => d.Variations.First().Group);
-                                           break;
-                                       case DoujinshiMeta.Parody:
-                                           q.Text(metaQuery, d => d.Variations.First().Parody);
-                                           break;
-                                       case DoujinshiMeta.Character:
-                                           q.Text(metaQuery, d => d.Variations.First().Character);
-                                           break;
-                                       case DoujinshiMeta.Category:
-                                           q.Text(metaQuery, d => d.Variations.First().Category);
-                                           break;
-                                       case DoujinshiMeta.Language:
-                                           q.Text(metaQuery, d => d.Variations.First().Language);
-                                           break;
-                                       case DoujinshiMeta.Tag:
-                                           q.Text(metaQuery, d => d.Variations.First().Tag);
-                                           break;
-                                       case DoujinshiMeta.Convention:
-                                           q.Text(metaQuery, d => d.Variations.First().Convention);
-                                           break;
+                                       switch (meta)
+                                       {
+                                           case DoujinshiMeta.Artist:
+                                               q.Text(metaQuery, d => d.Variations.First().Artist);
+                                               break;
+                                           case DoujinshiMeta.Group:
+                                               q.Text(metaQuery, d => d.Variations.First().Group);
+                                               break;
+                                           case DoujinshiMeta.Parody:
+                                               q.Text(metaQuery, d => d.Variations.First().Parody);
+                                               break;
+                                           case DoujinshiMeta.Character:
+                                               q.Text(metaQuery, d => d.Variations.First().Character);
+                                               break;
+                                           case DoujinshiMeta.Category:
+                                               q.Text(metaQuery, d => d.Variations.First().Category);
+                                               break;
+                                           case DoujinshiMeta.Language:
+                                               q.Text(metaQuery, d => d.Variations.First().Language);
+                                               break;
+                                           case DoujinshiMeta.Tag:
+                                               q.Text(metaQuery, d => d.Variations.First().Tag);
+                                               break;
+                                           case DoujinshiMeta.Convention:
+                                               q.Text(metaQuery, d => d.Variations.First().Convention);
+                                               break;
+                                       }
                                    }
-                               }
 
                                q.Text(query.Source, d => d.Variations.First().Source);
 
