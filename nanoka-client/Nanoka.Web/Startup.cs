@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Nanoka.Web.Database;
+using Newtonsoft.Json;
 
 namespace Nanoka.Web
 {
@@ -16,8 +18,18 @@ namespace Nanoka.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // options
+            services.Configure<NanokaOptions>(_configuration);
+
             // mvc
             services.AddMvc();
+
+            // database
+            services.AddSingleton<NanokaDatabase>();
+
+            // other utility
+            services.AddSingleton<JsonSerializer>()
+                    .AddHttpClient();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
