@@ -38,6 +38,7 @@ namespace Nanoka.Web.Database
         {
             await CreateIndexAsync<DbDoujinshi>(cancellationToken);
             await CreateIndexAsync<DbBooruPost>(cancellationToken);
+            await CreateIndexAsync<DbUser>(cancellationToken);
         }
 
         static readonly ConcurrentDictionary<Type, string> _indexNames = new ConcurrentDictionary<Type, string>();
