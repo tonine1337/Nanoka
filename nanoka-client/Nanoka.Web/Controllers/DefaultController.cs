@@ -6,6 +6,7 @@ using Nanoka.Core.Models;
 namespace Nanoka.Web.Controllers
 {
     [ApiController]
+    [Route("/")]
     public class DefaultController : ControllerBase
     {
         readonly NanokaOptions _options;
