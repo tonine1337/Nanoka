@@ -25,14 +25,28 @@ namespace Nanoka.Web.Database
         public static SearchDescriptor<T> MultiQuery<T>(this SearchDescriptor<T> searchDesc,
                                                         Func<QueryWrapper<T>, QueryWrapper<T>> query)
             where T : class
-            => searchDesc.Query(searchQuery => searchQuery.Bool(boolQuery =>
+            => searchDesc.Query(q => q.MultiQueryInternal(query));
+
+        public static SearchDescriptor<T> MultiQuery<T, TNested>(this SearchDescriptor<T> searchDesc,
+                                                                 Expression<Func<T, TNested>> nestedPath,
+                                                                 Func<QueryWrapper<T>, QueryWrapper<T>> query)
+            where T : class where TNested : class
+            => searchDesc.Query(
+                searchQuery => searchQuery.Nested(
+                    x => x.Path(nestedPath)
+                          .Query(nestedQuery => nestedQuery.MultiQueryInternal(query))));
+
+        static QueryContainer MultiQueryInternal<T>(this QueryContainerDescriptor<T> searchQuery,
+                                                    Func<QueryWrapper<T>, QueryWrapper<T>> query)
+            where T : class
+            => searchQuery.Bool(boolQuery =>
             {
                 boolQuery.Must(q => query(new QueryWrapper<T>(q, QueryStrictness.Must)).Container);
                 boolQuery.Should(q => query(new QueryWrapper<T>(q, QueryStrictness.Should)).Container);
                 boolQuery.Filter(q => query(new QueryWrapper<T>(q, QueryStrictness.Filter)).Container);
 
                 return boolQuery;
-            }));
+            });
 
         static QueryWrapper<T> Query<T>(this QueryWrapper<T> wrapper,
                                         ISearchQuery query,
