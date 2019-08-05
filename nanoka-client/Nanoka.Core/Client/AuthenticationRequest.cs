@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using Nanoka.Core.Models;
 using Newtonsoft.Json;
 
@@ -6,10 +7,10 @@ namespace Nanoka.Core.Client
 {
     public class AuthenticationRequest
     {
-        [JsonProperty("id")]
+        [JsonProperty("id"), Required]
         public Guid Id { get; set; }
 
-        [JsonProperty("secret")]
+        [JsonProperty("secret"), Required]
         public Guid Secret { get; set; }
     }
 
