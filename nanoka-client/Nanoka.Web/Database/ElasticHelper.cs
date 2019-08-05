@@ -27,9 +27,9 @@ namespace Nanoka.Web.Database
             where T : class
             => searchDesc.Query(q => q.MultiQueryInternal(query));
 
-        public static SearchDescriptor<T> MultiQuery<T, TNested>(this SearchDescriptor<T> searchDesc,
-                                                                 Expression<Func<T, TNested>> nestedPath,
-                                                                 Func<QueryWrapper<T>, QueryWrapper<T>> query)
+        public static SearchDescriptor<T> NestedMultiQuery<T, TNested>(this SearchDescriptor<T> searchDesc,
+                                                                       Expression<Func<T, TNested>> nestedPath,
+                                                                       Func<QueryWrapper<T>, QueryWrapper<T>> query)
             where T : class where TNested : class
             => searchDesc.Query(
                 searchQuery => searchQuery.Nested(
@@ -48,9 +48,9 @@ namespace Nanoka.Web.Database
                 return boolQuery;
             });
 
-        static QueryWrapper<T> Query<T>(this QueryWrapper<T> wrapper,
-                                        ISearchQuery query,
-                                        Func<QueryContainerDescriptor<T>, QueryContainer> createContainer)
+        static QueryWrapper<T> QueryInternal<T>(this QueryWrapper<T> wrapper,
+                                                ISearchQuery query,
+                                                Func<QueryContainerDescriptor<T>, QueryContainer> createContainer)
             where T : class
         {
             if (query.Strictness != wrapper.Strictness || !query.IsSpecified())
@@ -75,11 +75,11 @@ namespace Nanoka.Web.Database
             return wrapper;
         }
 
-        public static QueryWrapper<T> Query<T>(this QueryWrapper<T> wrapper,
-                                               TextQuery query,
-                                               params Expression<Func<T, object>>[] paths)
+        public static QueryWrapper<T> Text<T>(this QueryWrapper<T> wrapper,
+                                              TextQuery query,
+                                              params Expression<Func<T, object>>[] paths)
             where T : class
-            => wrapper.Query(
+            => wrapper.QueryInternal(
                 query,
                 descriptor =>
                 {
@@ -143,12 +143,12 @@ namespace Nanoka.Web.Database
                     return container;
                 });
 
-        public static QueryWrapper<T> Query<T, TField>(this QueryWrapper<T> wrapper,
-                                                       FilterQuery<TField> query,
-                                                       Expression<Func<T, object>> path)
+        public static QueryWrapper<T> Filter<T, TField>(this QueryWrapper<T> wrapper,
+                                                        FilterQuery<TField> query,
+                                                        Expression<Func<T, object>> path)
             where T : class
             where TField : struct
-            => wrapper.Query(
+            => wrapper.QueryInternal(
                 query,
                 descriptor =>
                 {
@@ -181,12 +181,12 @@ namespace Nanoka.Web.Database
                     return container;
                 });
 
-        public static QueryWrapper<T> Query<T, TField>(this QueryWrapper<T> wrapper,
+        public static QueryWrapper<T> Range<T, TField>(this QueryWrapper<T> wrapper,
                                                        RangeQuery<TField> query,
                                                        Expression<Func<T, object>> path)
             where T : class
             where TField : struct
-            => wrapper.Query(
+            => wrapper.QueryInternal(
                 query,
                 descriptor =>
                 {
