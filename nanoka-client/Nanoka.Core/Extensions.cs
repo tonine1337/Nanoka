@@ -36,5 +36,21 @@ namespace Nanoka.Core
             using (var jsonReader = new JsonTextReader(reader))
                 return serializer.Deserialize<T>(jsonReader);
         }
+
+        // ReSharper disable once IdentifierTypo : enumerables
+        public static IEnumerable<T> IntersectMany<T>(IEnumerable<IEnumerable<T>> enumerables)
+        {
+            HashSet<T> set = null;
+
+            foreach (var enumerable in enumerables)
+            {
+                if (set == null)
+                    set = new HashSet<T>(enumerable);
+                else
+                    set.IntersectWith(enumerable);
+            }
+
+            return set;
+        }
     }
 }
