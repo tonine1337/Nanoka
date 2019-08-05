@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Nanoka.Web.Database;
 using Newtonsoft.Json;
 
@@ -18,11 +21,32 @@ namespace Nanoka.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var options = _configuration.Get<NanokaOptions>();
+
             // options
             services.Configure<NanokaOptions>(_configuration);
 
             // mvc
-            services.AddMvc();
+            services.AddMvc()
+                    .AddControllersAsServices();
+
+            services.AddAuthentication(a =>
+                     {
+                         a.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                         a.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
+                     })
+                    .AddJwtBearer(j =>
+                     {
+                         var secret = Encoding.Default.GetBytes(options.Secret);
+
+                         j.TokenValidationParameters = new TokenValidationParameters
+                         {
+                             ValidateIssuerSigningKey = true,
+                             IssuerSigningKey         = new SymmetricSecurityKey(secret),
+                             ValidateIssuer           = false,
+                             ValidateAudience         = false
+                         };
+                     });
 
             // database
             services.AddSingleton<NanokaDatabase>();
@@ -42,7 +66,11 @@ namespace Nanoka.Web
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
 
-            // mvc
+            app.UseCors(o => o.AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .AllowAnyOrigin());
+
+            app.UseAuthentication();
             app.UseMvc();
         }
     }
