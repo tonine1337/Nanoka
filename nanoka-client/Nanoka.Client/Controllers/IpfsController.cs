@@ -4,7 +4,7 @@ using Ipfs.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nanoka.Core;
 
-namespace Nanoka.Client
+namespace Nanoka.Client.Controllers
 {
     [ApiController]
     [Route("fs")]

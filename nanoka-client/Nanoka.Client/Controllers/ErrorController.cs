@@ -2,7 +2,7 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Nanoka.Core;
 
-namespace Nanoka.Client
+namespace Nanoka.Client.Controllers
 {
     // https://medium.com/@matteocontrini/consistent-error-responses-in-asp-net-core-web-apis-bb70b435d1f8
     [ApiController]

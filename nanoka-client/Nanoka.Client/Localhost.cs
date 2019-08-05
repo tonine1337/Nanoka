@@ -1,4 +1,4 @@
-namespace Nanoka.Core
+namespace Nanoka.Client
 {
     // *.localhost.chiya.dev resolves to 127.0.0.1
     public static class Localhost

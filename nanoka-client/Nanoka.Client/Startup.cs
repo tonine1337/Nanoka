@@ -16,9 +16,9 @@ using Nanoka.Core.Client;
 using Nanoka.Core.Installer;
 using Newtonsoft.Json;
 
-namespace Nanoka.Core
+namespace Nanoka.Client
 {
-    public class NanokaStartup : StartupBase
+    public class Startup : StartupBase
     {
         public static async Task RunAsync(CancellationToken cancellationToken = default)
         {
@@ -48,7 +48,7 @@ namespace Nanoka.Core
                               options.ValidateScopes =
                                   context.HostingEnvironment.IsDevelopment();
                           })
-                         .UseStartup<NanokaStartup>();
+                         .UseStartup<Startup>();
 
             using (var host = builder.Build())
             {
@@ -65,7 +65,7 @@ namespace Nanoka.Core
 
         readonly IConfiguration _configuration;
 
-        public NanokaStartup(IConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -113,7 +113,7 @@ namespace Nanoka.Core
 
         public override void Configure(IApplicationBuilder app)
         {
-            var logger = app.ApplicationServices.GetService<ILogger<NanokaStartup>>();
+            var logger = app.ApplicationServices.GetService<ILogger<Startup>>();
 
             logger.LogInformation($"Nanoka client server: {Localhost.Url()}");
 

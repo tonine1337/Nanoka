@@ -13,8 +13,9 @@ using Ipfs.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Nanoka.Core;
 
-namespace Nanoka.Core
+namespace Nanoka.Client
 {
     public class IpfsManager
     {

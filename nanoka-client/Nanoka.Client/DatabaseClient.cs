@@ -5,10 +5,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using Nanoka.Core;
+using Nanoka.Core.Client;
 using Nanoka.Core.Models;
 using Newtonsoft.Json;
 
-namespace Nanoka.Core.Client
+namespace Nanoka.Client
 {
     public class DatabaseClient : IDatabaseClient
     {

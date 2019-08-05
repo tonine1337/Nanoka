@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
-using Nanoka.Core;
+using Nanoka.Client;
 
 namespace Nanoka
 {
     public static class Program
     {
-        public static Task Main() => NanokaStartup.RunAsync();
+        public static Task Main() => Startup.RunAsync();
     }
 }

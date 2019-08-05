@@ -5,7 +5,7 @@ using Nanoka.Core;
 using Nanoka.Core.Client;
 using Nanoka.Core.Models;
 
-namespace Nanoka.Client
+namespace Nanoka.Client.Controllers
 {
     [ApiController]
     [Route("doujinshi")]

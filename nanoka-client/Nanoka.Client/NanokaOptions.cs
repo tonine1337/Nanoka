@@ -1,6 +1,6 @@
 using System;
 
-namespace Nanoka.Core
+namespace Nanoka.Client
 {
     public class NanokaOptions { }
 
