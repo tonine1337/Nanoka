@@ -11,11 +11,14 @@ namespace Nanoka.Web.Database
         [Text(Name = "sec")]
         public string Secret { get; set; }
 
-        [Text(Name = "n")]
+        [Text(Name = "un")]
         public string Username { get; set; }
 
         [Text(Name = "res")]
         public bool IsRestricted { get; set; }
+
+        [Text(Name = "perm")]
+        public UserPermissions Permissions { get; set; }
 
         [Nested(Name = "sc_dj")]
         public DbUserScores DoujinshiScores { get; set; }
@@ -32,6 +35,7 @@ namespace Nanoka.Web.Database
             Secret       = user.Secret.ToShortString();
             Username     = user.Username ?? Username;
             IsRestricted = user.IsRestricted;
+            Permissions  = user.Permissions;
 
             DoujinshiScores = new DbUserScores().Apply(user.DoujinshiScores) ?? DoujinshiScores;
             BooruScores     = new DbUserScores().Apply(user.BooruScores) ?? BooruScores;
@@ -48,6 +52,7 @@ namespace Nanoka.Web.Database
             user.Secret       = Secret.ToGuid();
             user.Username     = Username ?? user.Username;
             user.IsRestricted = IsRestricted;
+            user.Permissions  = Permissions;
 
             user.DoujinshiScores = DoujinshiScores?.ApplyTo(new UserScores()) ?? user.DoujinshiScores;
             user.BooruScores     = BooruScores?.ApplyTo(new UserScores()) ?? user.BooruScores;

@@ -17,6 +17,9 @@ namespace Nanoka.Core.Models
         [JsonProperty("restricted")]
         public bool IsRestricted { get; set; }
 
+        [JsonProperty("perms")]
+        public UserPermissions Permissions { get; set; }
+
         [JsonProperty("scores_dj")]
         public UserScores DoujinshiScores { get; set; }
 
