@@ -48,7 +48,7 @@ namespace Nanoka.Web.Database
             {
                 var name = typeof(T).GetCustomAttribute<ElasticsearchTypeAttribute>()?.RelationName;
 
-                _indexNames[typeof(T)] = index = $"{_options.ElasticIndexPrefix}-{name}".ToLowerInvariant();
+                _indexNames[typeof(T)] = index = (_options.ElasticIndexPrefix + name).ToLowerInvariant();
             }
 
             return index;
