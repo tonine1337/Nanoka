@@ -32,7 +32,7 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpGet("register")]
-        public ContentResult Register() => Content(RecaptchaForm.GetForm(_options.RecaptchaSecret), "text/html");
+        public ContentResult Register() => Content(RecaptchaForm.GetForm(_options.RecaptchaSite), "text/html");
 
         [HttpPost("register")]
         public async Task<Result<RegistrationResponse>> RegisterAsync(RegistrationRequest request)
