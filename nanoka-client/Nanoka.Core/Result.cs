@@ -1,6 +1,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Nanoka.Core.Models;
 using Newtonsoft.Json;
 
 namespace Nanoka.Core
@@ -13,10 +14,17 @@ namespace Nanoka.Core
 
         public static Result StatusCode(HttpStatusCode status, string message) => new Result(status, message);
 
-        public static Result Ok(string message) => StatusCode(HttpStatusCode.OK, message);
-        public static Result NotFound(string message) => StatusCode(HttpStatusCode.NotFound, message);
-        public static Result Forbidden(string message) => StatusCode(HttpStatusCode.Forbidden, message);
-        public static Result BadRequest(string message) => StatusCode(HttpStatusCode.BadRequest, message);
+        public static Result Ok(string message = null) => StatusCode(HttpStatusCode.OK, message);
+        public static Result NotFound(string message = null) => StatusCode(HttpStatusCode.NotFound, message);
+        public static Result Forbidden(string message = null) => StatusCode(HttpStatusCode.Forbidden, message);
+        public static Result BadRequest(string message = null) => StatusCode(HttpStatusCode.BadRequest, message);
+
+#region Helpers
+
+        public static Result Forbidden(params UserPermissions[] required)
+            => Forbidden($"Insufficient permissions. Required: {string.Join(", ", required)}");
+
+#endregion
     }
 
     public class Result<T> : IActionResult
