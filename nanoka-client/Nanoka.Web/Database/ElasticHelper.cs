@@ -76,7 +76,7 @@ namespace Nanoka.Web.Database
 
         public static QueryWrapper<T> Text<T>(this QueryWrapper<T> wrapper,
                                               TextQuery query,
-                                              Expression<Func<T, object>> path)
+                                              Expression<Func<T, object>> path = null)
             where T : class
             => wrapper.QueryInternal(
                 query,
@@ -90,7 +90,16 @@ namespace Nanoka.Web.Database
                         {
                             case TextQueryMode.Simple:*/
 
-                        var c = descriptor.SimpleQueryString(q => q.Fields(f => f.Field(path)).Query(value));
+                        var c = descriptor.SimpleQueryString(q =>
+                        {
+                            // path = null signifies all fields
+                            if (path != null)
+                                q.Fields(f => f.Field(path));
+
+                            q.Query(value);
+
+                            return q;
+                        });
 
 /*                              break;
 
