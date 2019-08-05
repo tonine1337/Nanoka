@@ -64,9 +64,6 @@ namespace Nanoka.Web.Database
 
         public DoujinshiVariant ApplyTo(DoujinshiVariant variant)
         {
-            if (variant == null)
-                return null;
-
             variant.UploaderId = UploaderId.ToGuid();
 
             variant.Metas = Extensions.BuildArrayDict(

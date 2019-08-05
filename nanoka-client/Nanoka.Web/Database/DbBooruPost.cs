@@ -90,9 +90,6 @@ namespace Nanoka.Web.Database
 
         public BooruPost ApplyTo(BooruPost post)
         {
-            if (post == null)
-                return null;
-
             post.Id         = Id.ToGuid();
             post.UploaderId = UploaderId.ToGuid();
             post.Cid        = Cid ?? post.Cid;

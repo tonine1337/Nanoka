@@ -45,9 +45,6 @@ namespace Nanoka.Web.Database
 
         public DoujinshiPage ApplyTo(DoujinshiPage page)
         {
-            if (page == null)
-                return null;
-
             page.Cid         = Cid ?? page.Cid;
             page.Index       = Index;
             page.Source      = Source ?? page.Source;

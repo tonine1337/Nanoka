@@ -41,9 +41,6 @@ namespace Nanoka.Web.Database
 
         public UserScores ApplyTo(UserScores scores)
         {
-            if (scores == null)
-                return null;
-
             scores.UploadCount         = UploadCount;
             scores.UploadAcceptedCount = UploadAcceptedCount;
             scores.EditCount           = EditCount;

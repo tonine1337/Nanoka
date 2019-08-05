@@ -94,7 +94,7 @@ namespace Nanoka.Web.Database
         {
             var doc = await GetAsync<DbDoujinshi>(id.ToShortString(), cancellationToken);
 
-            return doc.ApplyTo(new Doujinshi());
+            return doc?.ApplyTo(new Doujinshi());
         }
 
         public Task IndexAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
@@ -194,7 +194,7 @@ namespace Nanoka.Web.Database
         {
             var doc = await GetAsync<DbBooruPost>(id.ToShortString(), cancellationToken);
 
-            return doc.ApplyTo(new BooruPost());
+            return doc?.ApplyTo(new BooruPost());
         }
 
         public Task IndexAsync(BooruPost post, CancellationToken cancellationToken = default)
@@ -211,7 +211,7 @@ namespace Nanoka.Web.Database
         {
             var doc = await GetAsync<DbUser>(id.ToShortString(), cancellationToken);
 
-            return doc.ApplyTo(new User());
+            return doc?.ApplyTo(new User());
         }
 
         public Task IndexAsync(User user, CancellationToken cancellationToken = default)
@@ -263,10 +263,15 @@ namespace Nanoka.Web.Database
                 Took  = measure?.Milliseconds ?? response.Took
             };
 
-        static void ValidateResponse(IResponse response)
+        void ValidateResponse(IResponse response)
         {
             if (!response.IsValid)
-                throw response.OriginalException;
+            {
+                _logger.LogDebug(response.DebugInformation);
+
+                if (response.OriginalException != null)
+                    throw response.OriginalException;
+            }
         }
     }
 }

@@ -45,9 +45,6 @@ namespace Nanoka.Web.Database
 
         public User ApplyTo(User user)
         {
-            if (user == null)
-                return null;
-
             user.Id           = Id.ToGuid();
             user.Secret       = Secret.ToGuid();
             user.Username     = Username ?? user.Username;

@@ -59,9 +59,6 @@ namespace Nanoka.Web.Database
 
         public Doujinshi ApplyTo(Doujinshi doujinshi)
         {
-            if (doujinshi == null)
-                return null;
-
             doujinshi.Id            = Id.ToGuid();
             doujinshi.UploadTime    = UploadTime;
             doujinshi.UpdateTime    = UpdateTime;
