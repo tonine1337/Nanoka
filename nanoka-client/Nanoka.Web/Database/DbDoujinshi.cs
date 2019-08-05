@@ -32,6 +32,12 @@ namespace Nanoka.Web.Database
         [Nested(Name = "var")]
         public List<DbDoujinshiVariant> Variations { get; set; }
 
+        /// <summary>
+        /// Cached values of the number of pages in each <see cref="Variations"/>.
+        /// </summary>
+        [Number(Name = "pg_n")]
+        public int[] PageCounts { get; set; }
+
         public DbDoujinshi Apply(Doujinshi doujinshi)
         {
             if (doujinshi == null)
@@ -46,6 +52,7 @@ namespace Nanoka.Web.Database
             Score         = doujinshi.Score;
 
             Variations = doujinshi.Variations?.ToList(v => new DbDoujinshiVariant().Apply(v)) ?? Variations;
+            PageCounts = Variations.ToArray(v => v.Pages.Count);
 
             return this;
         }
