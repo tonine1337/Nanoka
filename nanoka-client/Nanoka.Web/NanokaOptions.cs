@@ -13,5 +13,7 @@ namespace Nanoka.Web
         public string RecaptchaSecret { get; set; }
 
         public UserPermissions DefaultUserPermissions { get; set; }
+
+        public int MaxResultCount { get; set; } = 30;
     }
 }
