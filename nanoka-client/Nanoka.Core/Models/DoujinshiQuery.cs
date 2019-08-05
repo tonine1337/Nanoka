@@ -14,10 +14,10 @@ namespace Nanoka.Core.Models
         public int Limit { get; set; }
 
         /// <summary>
-        /// Queries against all text fields.
+        /// Queries against all fields.
         /// </summary>
-        [JsonProperty("multi")]
-        public TextQuery Multi { get; set; }
+        [JsonProperty("all")]
+        public TextQuery All { get; set; }
 
         [JsonProperty("upload")]
         public RangeQuery<DateTime> UploadTime { get; set; }
