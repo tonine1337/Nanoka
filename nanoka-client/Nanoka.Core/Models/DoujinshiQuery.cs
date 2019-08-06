@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Nanoka.Core.Models.Query;
 using Newtonsoft.Json;
 
@@ -7,10 +8,10 @@ namespace Nanoka.Core.Models
 {
     public class DoujinshiQuery
     {
-        [JsonProperty("offset")]
+        [JsonProperty("offset"), Range(0, int.MaxValue)]
         public int Offset { get; set; }
 
-        [JsonProperty("limit")]
+        [JsonProperty("limit"), Range(1, int.MaxValue), Required]
         public int Limit { get; set; }
 
         /// <summary>
