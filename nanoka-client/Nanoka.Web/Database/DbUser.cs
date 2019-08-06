@@ -9,7 +9,7 @@ namespace Nanoka.Web.Database
     {
         public string Id { get; set; }
 
-        [Text(Name = "sec")]
+        [Keyword(Name = "sec", Index = false)]
         public string Secret { get; set; }
 
         [Text(Name = "un")]
@@ -18,10 +18,10 @@ namespace Nanoka.Web.Database
         [Date(Name = "r")]
         public DateTime Registered { get; set; }
 
-        [Text(Name = "res")]
+        [Boolean(Name = "res")]
         public bool IsRestricted { get; set; }
 
-        [Text(Name = "perm")]
+        [Number(Name = "perm")]
         public UserPermissions Permissions { get; set; }
 
         [Nested(Name = "sc_dj")]

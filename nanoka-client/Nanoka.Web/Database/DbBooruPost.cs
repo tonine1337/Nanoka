@@ -10,10 +10,10 @@ namespace Nanoka.Web.Database
     {
         public string Id { get; set; }
 
-        [Text(Name = "cid")]
+        [Keyword(Name = "cid")]
         public string Cid { get; set; }
 
-        [Text(Name = "upu")]
+        [Keyword(Name = "upu")]
         public string UploaderId { get; set; }
 
         [Date(Name = "up")]
@@ -55,10 +55,10 @@ namespace Nanoka.Web.Database
         [Number(Name = "s")]
         public int SizeInBytes { get; set; }
 
-        [Text(Name = "t")]
+        [Keyword(Name = "t")]
         public string MediaType { get; set; }
 
-        [Text(Name = "sib")]
+        [Keyword(Name = "sib")]
         public string[] SiblingIds { get; set; }
 
         public DbBooruPost Apply(BooruPost post)

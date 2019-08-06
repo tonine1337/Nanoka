@@ -6,25 +6,22 @@ namespace Nanoka.Web.Database
     // nested object of doujinshi variant
     public class DbDoujinshiPage
     {
-        [Text(Name = "cid")]
+        [Keyword(Name = "cid", Index = false)]
         public string Cid { get; set; }
 
-        [Number(Name = "i")]
+        [Number(Name = "i", Index = false)]
         public int Index { get; set; }
 
-        [Text(Name = "src")]
-        public string Source { get; set; }
-
-        [Number(Name = "w")]
+        [Number(Name = "w", Index = false)]
         public int Width { get; set; }
 
-        [Number(Name = "h")]
+        [Number(Name = "h", Index = false)]
         public int Height { get; set; }
 
-        [Number(Name = "s")]
+        [Number(Name = "s", Index = false)]
         public int SizeInBytes { get; set; }
 
-        [Text(Name = "t")]
+        [Keyword(Name = "t", Index = false)]
         public string MediaType { get; set; }
 
         public DbDoujinshiPage Apply(DoujinshiPage page)

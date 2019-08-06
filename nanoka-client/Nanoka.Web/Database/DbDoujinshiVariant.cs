@@ -8,7 +8,7 @@ namespace Nanoka.Web.Database
     // nested object of doujinshi
     public class DbDoujinshiVariant
     {
-        [Text(Name = "upu")]
+        [Keyword(Name = "upu")]
         public string UploaderId { get; set; }
 
         [Text(Name = "a")]
@@ -66,15 +66,17 @@ namespace Nanoka.Web.Database
         {
             variant.UploaderId = UploaderId.ToGuid();
 
-            variant.Metas = Extensions.BuildArrayDict(
-                                (DoujinshiMeta.Artist, Artist),
-                                (DoujinshiMeta.Group, Group),
-                                (DoujinshiMeta.Parody, Parody),
-                                (DoujinshiMeta.Character, Character),
-                                (DoujinshiMeta.Category, Category),
-                                (DoujinshiMeta.Language, Language),
-                                (DoujinshiMeta.Tag, Tag),
-                                (DoujinshiMeta.Convention, Convention)) ?? variant.Metas;
+            variant.Metas = new Dictionary<DoujinshiMeta, string[]>
+            {
+                { DoujinshiMeta.Artist, Artist ?? variant.Metas.GetOrDefault(DoujinshiMeta.Artist) },
+                { DoujinshiMeta.Group, Group ?? variant.Metas.GetOrDefault(DoujinshiMeta.Group) },
+                { DoujinshiMeta.Parody, Parody ?? variant.Metas.GetOrDefault(DoujinshiMeta.Parody) },
+                { DoujinshiMeta.Character, Character ?? variant.Metas.GetOrDefault(DoujinshiMeta.Character) },
+                { DoujinshiMeta.Category, Category ?? variant.Metas.GetOrDefault(DoujinshiMeta.Category) },
+                { DoujinshiMeta.Language, Language ?? variant.Metas.GetOrDefault(DoujinshiMeta.Language) },
+                { DoujinshiMeta.Tag, Tag ?? variant.Metas.GetOrDefault(DoujinshiMeta.Tag) },
+                { DoujinshiMeta.Convention, Convention ?? variant.Metas.GetOrDefault(DoujinshiMeta.Convention) }
+            };
 
             variant.Source = Source ?? variant.Source;
 
