@@ -65,7 +65,7 @@ namespace Nanoka.Web.Controllers
             return doujinshi;
         }
 
-        async Task CreateSnapshotAsync(Doujinshi doujinshi)
+        async Task CreateSnapshotAsync(Doujinshi doujinshi, SnapshotEvent snapshotEvent)
         {
             var snapshot = new Snapshot<Doujinshi>
             {
@@ -73,6 +73,7 @@ namespace Nanoka.Web.Controllers
                 TargetId    = doujinshi.Id,
                 CommitterId = UserId,
                 Time        = DateTime.UtcNow,
+                Event       = snapshotEvent,
                 Value       = doujinshi
             };
 
@@ -87,7 +88,7 @@ namespace Nanoka.Web.Controllers
             if (doujinshi == null)
                 return Result.NotFound<Doujinshi>(id);
 
-            await CreateSnapshotAsync(doujinshi);
+            await CreateSnapshotAsync(doujinshi, SnapshotEvent.DoujinshiModified);
 
             _mapper.Map(model, doujinshi);
 
@@ -106,7 +107,7 @@ namespace Nanoka.Web.Controllers
             if (doujinshi == null)
                 return Result.NotFound<Doujinshi>(id);
 
-            await CreateSnapshotAsync(doujinshi);
+            await CreateSnapshotAsync(doujinshi, SnapshotEvent.DoujinshiDeleted);
 
             await _db.DeleteAsync(doujinshi);
 
@@ -121,7 +122,7 @@ namespace Nanoka.Web.Controllers
             if (doujinshi == null)
                 return Result.NotFound<Doujinshi>(id);
 
-            await CreateSnapshotAsync(doujinshi);
+            await CreateSnapshotAsync(doujinshi, SnapshotEvent.DoujinshiModified);
 
             var variant = new DoujinshiVariant
             {
@@ -152,7 +153,7 @@ namespace Nanoka.Web.Controllers
             if (doujinshi == null)
                 return Result.NotFound<DoujinshiVariant>(id, index);
 
-            await CreateSnapshotAsync(doujinshi);
+            await CreateSnapshotAsync(doujinshi, SnapshotEvent.DoujinshiModified);
 
             if (index < 0 || index >= doujinshi.Variants.Count)
                 return Result.NotFound<DoujinshiVariant>(id, index);
