@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Nanoka.Core;
+using Nanoka.Core.Models;
 using Nanoka.Web.Database;
 
 namespace Nanoka.Web
@@ -29,7 +30,7 @@ namespace Nanoka.Web
                 return;
             }
 
-            if (user.Reputation < _minimum)
+            if (!user.Permissions.HasFlag(UserPermissions.Administrator) && user.Reputation < _minimum)
             {
                 context.Result = new InsufficientReputationResult(_minimum);
                 return;
