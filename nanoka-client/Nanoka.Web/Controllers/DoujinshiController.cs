@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Nanoka.Core;
+using Nanoka.Core.Client;
 using Nanoka.Core.Models;
 using Nanoka.Web.Database;
 
@@ -36,6 +37,35 @@ namespace Nanoka.Web.Controllers
             return await _db.SearchAsync(query);
         }
 
+        [HttpPost]
+        public async Task<Result<Doujinshi>> CreateDoujinshiAsync(CreateDoujinshiRequest request)
+        {
+            var now = DateTime.UtcNow;
+
+            var doujinshi = new Doujinshi
+            {
+                Id         = Guid.NewGuid(),
+                UploadTime = now,
+                UpdateTime = now,
+                Variants   = new List<DoujinshiVariant>()
+            };
+
+            _mapper.Map(request.Doujinshi, doujinshi);
+
+            var variant = new DoujinshiVariant
+            {
+                UploaderId = UserId
+            };
+
+            _mapper.Map(request.Variant, variant);
+
+            doujinshi.Variants.Add(variant);
+
+            await _db.IndexAsync(doujinshi);
+
+            return doujinshi;
+        }
+
         async Task CreateSnapshotAsync(Doujinshi doujinshi)
         {
             var snapshot = new Snapshot<Doujinshi>
@@ -43,7 +73,7 @@ namespace Nanoka.Web.Controllers
                 Id          = Guid.NewGuid(),
                 TargetId    = doujinshi.Id,
                 CommitterId = UserId,
-                Time        = DateTime.Now,
+                Time        = DateTime.UtcNow,
                 Value       = doujinshi
             };
 
@@ -53,23 +83,16 @@ namespace Nanoka.Web.Controllers
         [HttpPut("{id}")]
         public async Task<Result<Doujinshi>> UpdateDoujinshiAsync(Guid id, DoujinshiBase model)
         {
-            var now = DateTime.UtcNow;
-
             var doujinshi = await _db.GetDoujinshiAsync(id);
 
             if (doujinshi == null)
-                doujinshi = new Doujinshi
-                {
-                    Id         = id,
-                    UploadTime = now
-                };
+                return Result.NotFound<Doujinshi>(id);
 
-            else
-                await CreateSnapshotAsync(doujinshi);
+            await CreateSnapshotAsync(doujinshi);
 
             _mapper.Map(model, doujinshi);
 
-            doujinshi.UpdateTime = now;
+            doujinshi.UpdateTime = DateTime.UtcNow;
 
             await _db.IndexAsync(doujinshi);
 
@@ -93,8 +116,8 @@ namespace Nanoka.Web.Controllers
 
             _mapper.Map(model, variant);
 
-            doujinshi.Variants = doujinshi.Variants ?? new List<DoujinshiVariant>();
             doujinshi.Variants.Add(variant);
+            doujinshi.UpdateTime = DateTime.UtcNow;
 
             await _db.IndexAsync(doujinshi);
 
