@@ -47,7 +47,7 @@ namespace Nanoka.Core.Models
         public RangeQuery<int> SizeInBytes { get; set; }
 
         [JsonProperty("type")]
-        public FilterQuery<string> MediaType { get; set; }
+        public TextQuery MediaType { get; set; }
 
         [JsonProperty("sorting")]
         public BooruQuerySort Sorting { get; set; }
