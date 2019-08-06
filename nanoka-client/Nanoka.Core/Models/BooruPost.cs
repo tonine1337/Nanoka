@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
 {
-    public class BooruPost
+    public class BooruPost : BooruPostBase
     {
         [JsonProperty("id")]
         public Guid Id { get; set; }
@@ -12,26 +12,14 @@ namespace Nanoka.Core.Models
         [JsonProperty("uploader")]
         public Guid UploaderId { get; set; }
 
-        [JsonProperty("cid")]
-        public string Cid { get; set; }
-
         [JsonProperty("upload")]
         public DateTime UploadTime { get; set; }
 
         [JsonProperty("update")]
         public DateTime UpdateTime { get; set; }
 
-        [JsonProperty("tags")]
-        public IDictionary<BooruTag, string[]> Tags { get; set; }
-
-        [JsonProperty("rating")]
-        public BooruRating Rating { get; set; }
-
         [JsonProperty("score")]
         public int Score { get; set; }
-
-        [JsonProperty("source")]
-        public string Source { get; set; }
 
         [JsonProperty("width")]
         public int Width { get; set; }
@@ -44,6 +32,21 @@ namespace Nanoka.Core.Models
 
         [JsonProperty("type")]
         public string MediaType { get; set; }
+    }
+
+    public class BooruPostBase
+    {
+        [JsonProperty("cid")]
+        public string Cid { get; set; }
+
+        [JsonProperty("tags")]
+        public IDictionary<BooruTag, string[]> Tags { get; set; }
+
+        [JsonProperty("rating")]
+        public BooruRating Rating { get; set; }
+
+        [JsonProperty("source")]
+        public string Source { get; set; }
 
         [JsonProperty("siblings")]
         public Guid[] SiblingIds { get; set; }

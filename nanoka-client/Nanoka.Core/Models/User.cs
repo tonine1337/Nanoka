@@ -11,17 +11,8 @@ namespace Nanoka.Core.Models
         [JsonProperty("secret")]
         public Guid Secret { get; set; }
 
-        [JsonProperty("name")]
-        public string Username { get; set; }
-
         [JsonProperty("registered")]
         public DateTime Registered { get; set; }
-
-        [JsonProperty("restricted")]
-        public bool IsRestricted { get; set; }
-
-        [JsonProperty("perms")]
-        public UserPermissions Permissions { get; set; }
 
         [JsonProperty("scores_dj")]
         public UserScores DoujinshiScores { get; set; }
@@ -31,5 +22,17 @@ namespace Nanoka.Core.Models
 
         [JsonProperty("rep")]
         public double Reputation { get; set; }
+    }
+
+    public class UserBase
+    {
+        [JsonProperty("name")]
+        public string Username { get; set; }
+
+        [JsonProperty("restricted")]
+        public bool IsRestricted { get; set; }
+
+        [JsonProperty("perms")]
+        public UserPermissions Permissions { get; set; }
     }
 }

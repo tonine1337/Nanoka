@@ -2,17 +2,8 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
 {
-    public class DoujinshiPage
+    public class DoujinshiPage : DoujinshiPageBase
     {
-        [JsonProperty("cid")]
-        public string Cid { get; set; }
-
-        [JsonProperty("index")]
-        public int Index { get; set; }
-
-        [JsonProperty("source")]
-        public string Source { get; set; }
-
         [JsonProperty("width")]
         public int Width { get; set; }
 
@@ -24,5 +15,17 @@ namespace Nanoka.Core.Models
 
         [JsonProperty("type")]
         public string MediaType { get; set; }
+    }
+
+    public class DoujinshiPageBase
+    {
+        [JsonProperty("cid")]
+        public string Cid { get; set; }
+
+        [JsonProperty("index")]
+        public int Index { get; set; }
+
+        [JsonProperty("source")]
+        public string Source { get; set; }
     }
 }
