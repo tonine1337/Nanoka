@@ -99,6 +99,21 @@ namespace Nanoka.Web.Controllers
             return doujinshi;
         }
 
+        [HttpDelete("{id}")]
+        public async Task<Result<Doujinshi>> DeleteDoujinshiAsync(Guid id)
+        {
+            var doujinshi = await _db.GetDoujinshiAsync(id);
+
+            if (doujinshi == null)
+                return Result.NotFound<Doujinshi>(id);
+
+            await CreateSnapshotAsync(doujinshi);
+
+            await _db.DeleteAsync(doujinshi);
+
+            return doujinshi;
+        }
+
         [HttpPost("{id}/variants")]
         public async Task<Result<DoujinshiVariant>> CreateVariantAsync(Guid id, DoujinshiVariantBase model)
         {
