@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
 {
-    public abstract class Snapshot<T> : SnapshotBase<T>
+    public abstract class SnapshotBase<T>
     {
         [JsonProperty("id")]
         public Guid Id { get; set; }
@@ -17,12 +17,6 @@ namespace Nanoka.Core.Models
 
         [JsonProperty("time")]
         public DateTime Time { get; set; }
-    }
-
-    public abstract class SnapshotBase<T>
-    {
-        [JsonProperty("reason"), Required]
-        public string Reason { get; set; }
 
         [JsonProperty("value"), Required]
         public T Value { get; set; }

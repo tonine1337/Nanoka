@@ -7,7 +7,7 @@ namespace Nanoka.Web.Database
 {
     public abstract class DbSnapshotBase<TSelf, TSnapshot, TValue>
         where TSelf : DbSnapshotBase<TSelf, TSnapshot, TValue>
-        where TSnapshot : Snapshot<TValue>
+        where TSnapshot : SnapshotBase<TValue>
         where TValue : new()
     {
         [Keyword]
@@ -37,7 +37,6 @@ namespace Nanoka.Web.Database
             TargetId    = snapshot.TargetId.ToShortString();
             CommitterId = snapshot.CommitterId.ToShortString();
             Time        = snapshot.Time;
-            Reason      = snapshot.Reason ?? Reason;
 
             Value = snapshot.Value == null ? Value : Serialize(serializer, snapshot.Value);
 
@@ -50,7 +49,6 @@ namespace Nanoka.Web.Database
             snapshot.TargetId    = TargetId.ToGuid();
             snapshot.CommitterId = CommitterId.ToGuid();
             snapshot.Time        = Time;
-            snapshot.Reason      = Reason ?? snapshot.Reason;
 
             snapshot.Value = Value == null ? snapshot.Value : Deserialize(serializer, Value);
 
