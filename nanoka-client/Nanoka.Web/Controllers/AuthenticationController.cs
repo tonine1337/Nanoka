@@ -43,7 +43,7 @@ namespace Nanoka.Web.Controllers
                 {
                     Subject = new ClaimsIdentity(new[]
                     {
-                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToShortString()),
                         new Claim(ClaimTypes.Role, ((int) user.Permissions).ToString())
                     }),
                     Expires = expiry,
