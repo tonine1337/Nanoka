@@ -130,6 +130,9 @@ namespace Nanoka.Client
 
         static string EndpointToMultiAddr(string endpoint)
         {
+            if (endpoint == null)
+                return null;
+
             try
             {
                 var delimiter = endpoint.LastIndexOf(':');
