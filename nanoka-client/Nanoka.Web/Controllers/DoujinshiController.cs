@@ -98,7 +98,7 @@ namespace Nanoka.Web.Controllers
             return doujinshi;
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), RequireReputation(100)]
         public async Task<Result<Doujinshi>> DeleteDoujinshiAsync(Guid id)
         {
             var doujinshi = await _db.GetDoujinshiAsync(id);
