@@ -39,7 +39,10 @@ namespace Nanoka.Web.Database
             _logger.LogDebug("Migrating indexes...");
 
             await CreateIndexAsync<DbDoujinshi>(cancellationToken);
+            await CreateIndexAsync<DbDoujinshiSnapshot>(cancellationToken);
+
             await CreateIndexAsync<DbBooruPost>(cancellationToken);
+            await CreateIndexAsync<DbBooruPostSnapshot>(cancellationToken);
 
             if (await CreateIndexAsync<DbUser>(cancellationToken))
             {
