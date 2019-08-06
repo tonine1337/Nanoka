@@ -204,6 +204,78 @@ namespace Nanoka.Web.Database
         public Task DeleteAsync(BooruPost post, CancellationToken cancellationToken = default)
             => DeleteAsync<DbBooruPost>(post.Id.ToShortString(), cancellationToken);
 
+        public async Task<SearchResult<BooruPost>> SearchAsync(BooruQuery query,
+                                                               CancellationToken cancellationToken = default)
+        {
+            var measure = new MeasureContext();
+
+            var response = await _client.SearchAsync<DbBooruPost>(
+                x => x.Index(GetIndexName<DbBooruPost>())
+                      .Skip(query.Offset)
+                      .Take(query.Limit)
+                      .MultiQuery(
+                           q =>
+                           {
+                               q.Text(query.All)
+                                .Range(query.UploadTime, p => p.UploadTime)
+                                .Range(query.UpdateTime, p => p.UpdateTime);
+
+                               foreach (var (tag, tagQuery) in query.Tags)
+                               {
+                                   switch (tag)
+                                   {
+                                       case BooruTag.Artist:
+                                           q.Text(tagQuery, p => p.Artist);
+                                           break;
+                                       case BooruTag.Character:
+                                           q.Text(tagQuery, p => p.Character);
+                                           break;
+                                       case BooruTag.Copyright:
+                                           q.Text(tagQuery, p => p.Copyright);
+                                           break;
+                                       case BooruTag.Metadata:
+                                           q.Text(tagQuery, p => p.Metadata);
+                                           break;
+                                       case BooruTag.General:
+                                           q.Text(tagQuery, p => p.General);
+                                           break;
+                                   }
+                               }
+
+                               q.Filter(query.Rating, p => p.Rating)
+                                .Range(query.Score, p => p.Score)
+                                .Text(query.Source, p => p.Source)
+                                .Range(query.Width, p => p.Width)
+                                .Range(query.Height, p => p.Height)
+                                .Range(query.SizeInBytes, p => p.SizeInBytes)
+                                .Text(query.MediaType, p => p.MediaType);
+
+                               return q;
+                           })
+                      .MultiSort(
+                           query.Sorting,
+                           sort =>
+                           {
+                               switch (sort)
+                               {
+                                   case BooruQuerySort.UploadTime:  return p => p.UploadTime;
+                                   case BooruQuerySort.UpdateTime:  return p => p.UpdateTime;
+                                   case BooruQuerySort.Rating:      return p => p.Rating;
+                                   case BooruQuerySort.Score:       return p => p.Score;
+                                   case BooruQuerySort.Width:       return p => p.Width;
+                                   case BooruQuerySort.Height:      return p => p.Height;
+                                   case BooruQuerySort.SizeInBytes: return p => p.SizeInBytes;
+
+                                   default: throw new NotSupportedException();
+                               }
+                           }),
+                cancellationToken);
+
+            ValidateResponse(response);
+
+            return ConvertSearchResponse(response, p => p.ApplyTo(new BooruPost()), measure);
+        }
+
 #endregion
 
 #region User
