@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
 {
-    public class User
+    public class User : UserBase
     {
         [JsonProperty("id")]
         public Guid Id { get; set; }
