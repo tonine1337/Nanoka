@@ -23,7 +23,7 @@ namespace Nanoka.Core
                 return serializer.Deserialize<T>(reader);
         }
 
-        public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
+        public static TValue GetOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dict, TKey key)
             => dict.TryGetValue(key, out var value) ? value : default;
 
         public static Dictionary<TKey, TValue[]> BuildArrayDict<TKey, TValue>(params (TKey, TValue[])[] pairs)
