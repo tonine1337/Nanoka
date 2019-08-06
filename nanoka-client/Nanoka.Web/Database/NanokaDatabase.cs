@@ -134,7 +134,7 @@ namespace Nanoka.Web.Database
                                  .Range(query.Score, d => d.Score)
                                  .Range(query.PageCount, d => d.PageCounts))
                       .NestedMultiQuery(
-                           d => d.Variations,
+                           d => d.Variants,
                            q =>
                            {
                                q.Text(query.All);
@@ -145,33 +145,33 @@ namespace Nanoka.Web.Database
                                        switch (meta)
                                        {
                                            case DoujinshiMeta.Artist:
-                                               q.Text(metaQuery, d => d.Variations.First().Artist);
+                                               q.Text(metaQuery, d => d.Variants.First().Artist);
                                                break;
                                            case DoujinshiMeta.Group:
-                                               q.Text(metaQuery, d => d.Variations.First().Group);
+                                               q.Text(metaQuery, d => d.Variants.First().Group);
                                                break;
                                            case DoujinshiMeta.Parody:
-                                               q.Text(metaQuery, d => d.Variations.First().Parody);
+                                               q.Text(metaQuery, d => d.Variants.First().Parody);
                                                break;
                                            case DoujinshiMeta.Character:
-                                               q.Text(metaQuery, d => d.Variations.First().Character);
+                                               q.Text(metaQuery, d => d.Variants.First().Character);
                                                break;
                                            case DoujinshiMeta.Category:
-                                               q.Text(metaQuery, d => d.Variations.First().Category);
+                                               q.Text(metaQuery, d => d.Variants.First().Category);
                                                break;
                                            case DoujinshiMeta.Language:
-                                               q.Text(metaQuery, d => d.Variations.First().Language);
+                                               q.Text(metaQuery, d => d.Variants.First().Language);
                                                break;
                                            case DoujinshiMeta.Tag:
-                                               q.Text(metaQuery, d => d.Variations.First().Tag);
+                                               q.Text(metaQuery, d => d.Variants.First().Tag);
                                                break;
                                            case DoujinshiMeta.Convention:
-                                               q.Text(metaQuery, d => d.Variations.First().Convention);
+                                               q.Text(metaQuery, d => d.Variants.First().Convention);
                                                break;
                                        }
                                    }
 
-                               q.Text(query.Source, d => d.Variations.First().Source);
+                               q.Text(query.Source, d => d.Variants.First().Source);
 
                                return q;
                            })

@@ -31,10 +31,10 @@ namespace Nanoka.Web.Database
         public int Score { get; set; }
 
         [Nested(Name = "var")]
-        public List<DbDoujinshiVariant> Variations { get; set; }
+        public List<DbDoujinshiVariant> Variants { get; set; }
 
         /// <summary>
-        /// Cached values of the number of pages in each <see cref="Variations"/>.
+        /// Cached values of the number of pages in each <see cref="Variants"/>.
         /// </summary>
         [Number(Name = "pg_n")]
         public int[] PageCounts { get; set; }
@@ -52,8 +52,8 @@ namespace Nanoka.Web.Database
             EnglishName   = doujinshi.EnglishName ?? EnglishName;
             Score         = doujinshi.Score;
 
-            Variations = doujinshi.Variations?.ToList(v => new DbDoujinshiVariant().Apply(v)) ?? Variations;
-            PageCounts = Variations.ToArray(v => v.Pages.Count);
+            Variants   = doujinshi.Variants?.ToList(v => new DbDoujinshiVariant().Apply(v)) ?? Variants;
+            PageCounts = Variants.ToArray(v => v.Pages.Count);
 
             return this;
         }
@@ -68,7 +68,7 @@ namespace Nanoka.Web.Database
             doujinshi.EnglishName   = EnglishName ?? doujinshi.EnglishName;
             doujinshi.Score         = Score;
 
-            doujinshi.Variations = Variations?.ToArray(v => v.ApplyTo(new DoujinshiVariant())) ?? doujinshi.Variations;
+            doujinshi.Variants = Variants?.ToArray(v => v.ApplyTo(new DoujinshiVariant())) ?? doujinshi.Variants;
 
             return doujinshi;
         }

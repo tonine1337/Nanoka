@@ -19,8 +19,8 @@ namespace Nanoka.Core.Models
         [JsonProperty("score")]
         public int Score { get; set; }
 
-        [JsonProperty("variations")]
-        public DoujinshiVariant[] Variations { get; set; }
+        [JsonProperty("variants")]
+        public DoujinshiVariant[] Variants { get; set; }
     }
 
     public class DoujinshiBase : IValidatableObject
