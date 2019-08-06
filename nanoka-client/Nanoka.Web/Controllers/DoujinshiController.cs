@@ -10,7 +10,7 @@ namespace Nanoka.Web.Controllers
 {
     [ApiController]
     [Route("doujinshi")]
-    public class DoujinshiController : ControllerBase
+    public class DoujinshiController : AuthorizedControllerBase
     {
         readonly NanokaOptions _options;
         readonly NanokaDatabase _db;
