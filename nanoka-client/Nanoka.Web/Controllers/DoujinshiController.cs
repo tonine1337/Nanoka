@@ -114,7 +114,7 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpPost("{id}/variants")]
-        public async Task<Result<DoujinshiVariant>> CreateVariantAsync(Guid id, DoujinshiVariantBase model)
+        public async Task<Result<DoujinshiVariant>> CreateVariantAsync(Guid id, CreateDoujinshiVariantRequest request)
         {
             var doujinshi = await _db.GetDoujinshiAsync(id);
 
@@ -125,10 +125,11 @@ namespace Nanoka.Web.Controllers
 
             var variant = new DoujinshiVariant
             {
-                UploaderId = UserId
+                UploaderId = UserId,
+                Pages      = request.Pages.ToList(p => _mapper.Map<DoujinshiPage>(p))
             };
 
-            _mapper.Map(model, variant);
+            _mapper.Map(request.Variant, variant);
 
             doujinshi.Variants.Add(variant);
             doujinshi.UpdateTime = DateTime.UtcNow;
