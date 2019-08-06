@@ -9,19 +9,38 @@ namespace Nanoka.Web.Controllers
     [Authorize]
     public abstract class AuthorizedControllerBase : ControllerBase
     {
-        readonly Lazy<int> _userId;
+        readonly Lazy<Guid> _userId;
         readonly Lazy<UserPermissions> _userPermissions;
 
-        protected int UserId => _userId.Value;
+        protected Guid UserId => _userId.Value;
         protected UserPermissions UserPermissions => _userPermissions.Value;
 
         protected AuthorizedControllerBase()
         {
-            _userId = new Lazy<int>(
-                () => int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var id) ? id : 0);
+            _userId = new Lazy<Guid>(
+                () =>
+                {
+                    var value = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                    if (value == null)
+                        throw new InvalidOperationException($"Missing claim '{nameof(ClaimTypes.NameIdentifier)}'.");
+
+                    return value.ToGuid();
+                });
 
             _userPermissions = new Lazy<UserPermissions>(
-                () => (UserPermissions) (int.TryParse(User.FindFirst(ClaimTypes.Role)?.Value, out var x) ? x : 0));
+                () =>
+                {
+                    var value = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                    if (value == null)
+                        throw new InvalidOperationException($"Missing claim '{nameof(ClaimTypes.Role)}'.");
+
+                    if (int.TryParse(value, out var x))
+                        return (UserPermissions) x;
+
+                    throw new NotSupportedException($"Invalid permission value '{value}'.");
+                });
         }
 
         protected bool HasPermissions(UserPermissions required) => UserPermissions.HasFlag(required);
