@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="8.1.1"/>
         <PackageReference Include="Ipfs.Http.Client" Version="0.30.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.ApiExplorer" Version="2.2.0"/>
