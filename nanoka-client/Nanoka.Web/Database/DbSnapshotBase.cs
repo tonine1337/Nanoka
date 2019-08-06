@@ -22,9 +22,6 @@ namespace Nanoka.Web.Database
         [Date(Name = "tm")]
         public DateTime Time { get; set; }
 
-        [Text(Name = "r")]
-        public string Reason { get; set; }
-
         [Keyword(Name = "v", Index = false)]
         public string Value { get; set; }
 
