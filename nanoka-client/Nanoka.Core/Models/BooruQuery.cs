@@ -50,6 +50,6 @@ namespace Nanoka.Core.Models
         public TextQuery MediaType { get; set; }
 
         [JsonProperty("sorting")]
-        public BooruQuerySort Sorting { get; set; }
+        public BooruQuerySort[] Sorting { get; set; }
     }
 }
