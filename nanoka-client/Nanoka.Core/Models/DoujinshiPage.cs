@@ -24,8 +24,5 @@ namespace Nanoka.Core.Models
 
         [JsonProperty("index")]
         public int Index { get; set; }
-
-        [JsonProperty("source")]
-        public string Source { get; set; }
     }
 }

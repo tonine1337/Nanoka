@@ -34,7 +34,6 @@ namespace Nanoka.Web.Database
 
             Cid         = page.Cid ?? Cid;
             Index       = page.Index;
-            Source      = page.Source ?? Source;
             Width       = page.Width;
             Height      = page.Height;
             SizeInBytes = page.SizeInBytes;
@@ -47,7 +46,6 @@ namespace Nanoka.Web.Database
         {
             page.Cid         = Cid ?? page.Cid;
             page.Index       = Index;
-            page.Source      = Source ?? page.Source;
             page.Width       = Width;
             page.Height      = Height;
             page.SizeInBytes = SizeInBytes;
