@@ -5,9 +5,8 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Web.Database
 {
-    public abstract class DbSnapshotBase<TSelf, TSnapshot, TValue>
-        where TSelf : DbSnapshotBase<TSelf, TSnapshot, TValue>
-        where TSnapshot : SnapshotBase<TValue>
+    public abstract class DbSnapshotBase<TSelf, TValue>
+        where TSelf : DbSnapshotBase<TSelf, TValue>
         where TValue : new()
     {
         [Keyword]
@@ -25,7 +24,7 @@ namespace Nanoka.Web.Database
         [Keyword(Name = "v", Index = false)]
         public string Value { get; set; }
 
-        public TSelf Apply(TSnapshot snapshot, JsonSerializer serializer)
+        public TSelf Apply(Snapshot<TValue> snapshot, JsonSerializer serializer)
         {
             if (snapshot == null)
                 return null;
@@ -40,7 +39,7 @@ namespace Nanoka.Web.Database
             return this as TSelf;
         }
 
-        public TSnapshot ApplyTo(TSnapshot snapshot, JsonSerializer serializer)
+        public Snapshot<TValue> ApplyTo(Snapshot<TValue> snapshot, JsonSerializer serializer)
         {
             snapshot.Id          = Id.ToGuid();
             snapshot.TargetId    = TargetId.ToGuid();

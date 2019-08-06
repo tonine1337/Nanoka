@@ -5,8 +5,8 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Web.Database
 {
-    [ElasticsearchType(RelationName = nameof(DoujinshiSnapshot), IdProperty = nameof(Id))]
-    public class DbDoujinshiSnapshot : DbSnapshotBase<DbDoujinshiSnapshot, DoujinshiSnapshot, Doujinshi>
+    [ElasticsearchType(RelationName = nameof(Doujinshi) + "Snapshot", IdProperty = nameof(Id))]
+    public class DbDoujinshiSnapshot : DbSnapshotBase<DbDoujinshiSnapshot, Doujinshi>
     {
         protected override string Serialize(JsonSerializer serializer, Doujinshi value)
             => serializer.Serialize(new DbDoujinshi().Apply(value));

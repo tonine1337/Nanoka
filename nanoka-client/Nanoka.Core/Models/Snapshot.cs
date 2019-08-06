@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
 {
-    public abstract class SnapshotBase<T>
+    public class Snapshot<T>
     {
         [JsonProperty("id")]
         public Guid Id { get; set; }
