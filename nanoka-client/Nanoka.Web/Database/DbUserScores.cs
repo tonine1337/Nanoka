@@ -10,13 +10,13 @@ namespace Nanoka.Web.Database
         public int UploadCount { get; set; }
 
         [Number(Name = "up_a")]
-        public int UploadAcceptedCount { get; set; }
+        public int UploadApprovedCount { get; set; }
 
         [Number(Name = "ed")]
         public int EditCount { get; set; }
 
         [Number(Name = "ed_a")]
-        public int EditAcceptedCount { get; set; }
+        public int EditApprovedCount { get; set; }
 
         [Number(Name = "vu")]
         public int UpvotedCount { get; set; }
@@ -30,9 +30,9 @@ namespace Nanoka.Web.Database
                 return null;
 
             UploadCount         = scores.UploadCount;
-            UploadAcceptedCount = scores.UploadAcceptedCount;
+            UploadApprovedCount = scores.UploadApprovedCount;
             EditCount           = scores.EditCount;
-            EditAcceptedCount   = scores.EditAcceptedCount;
+            EditApprovedCount   = scores.EditApprovedCount;
             UpvotedCount        = scores.UpvotedCount;
             DownvotedCount      = scores.DownvotedCount;
 
@@ -42,9 +42,9 @@ namespace Nanoka.Web.Database
         public UserScores ApplyTo(UserScores scores)
         {
             scores.UploadCount         = UploadCount;
-            scores.UploadAcceptedCount = UploadAcceptedCount;
+            scores.UploadApprovedCount = UploadApprovedCount;
             scores.EditCount           = EditCount;
-            scores.EditAcceptedCount   = EditAcceptedCount;
+            scores.EditApprovedCount   = EditApprovedCount;
             scores.UpvotedCount        = UpvotedCount;
             scores.DownvotedCount      = DownvotedCount;
 

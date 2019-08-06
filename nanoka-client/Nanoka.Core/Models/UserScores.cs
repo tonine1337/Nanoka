@@ -7,14 +7,14 @@ namespace Nanoka.Core.Models
         [JsonProperty("upload")]
         public int UploadCount { get; set; }
 
-        [JsonProperty("upload_accepted")]
-        public int UploadAcceptedCount { get; set; }
+        [JsonProperty("upload_approved")]
+        public int UploadApprovedCount { get; set; }
 
         [JsonProperty("edit")]
         public int EditCount { get; set; }
 
-        [JsonProperty("edit_accepted")]
-        public int EditAcceptedCount { get; set; }
+        [JsonProperty("edit_approved")]
+        public int EditApprovedCount { get; set; }
 
         [JsonProperty("upvoted")]
         public int UpvotedCount { get; set; }
