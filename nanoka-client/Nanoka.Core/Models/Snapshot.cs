@@ -12,8 +12,8 @@ namespace Nanoka.Core.Models
         [JsonProperty("tid")]
         public Guid TargetId { get; set; }
 
-        [JsonProperty("approver")]
-        public Guid? ApproverId { get; set; }
+        [JsonProperty("committer")]
+        public Guid CommitterId { get; set; }
 
         [JsonProperty("time")]
         public DateTime Time { get; set; }

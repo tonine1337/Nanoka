@@ -16,8 +16,8 @@ namespace Nanoka.Web.Database
         [Keyword(Name = "t")]
         public string TargetId { get; set; }
 
-        [Keyword(Name = "a")]
-        public string ApproverId { get; set; }
+        [Keyword(Name = "c")]
+        public string CommitterId { get; set; }
 
         [Date(Name = "tm")]
         public DateTime Time { get; set; }
@@ -33,11 +33,11 @@ namespace Nanoka.Web.Database
             if (snapshot == null)
                 return null;
 
-            Id         = snapshot.Id.ToShortString();
-            TargetId   = snapshot.TargetId.ToShortString();
-            ApproverId = snapshot.ApproverId?.ToShortString(); // ?? ApproverId // null does not indicate unspecified
-            Time       = snapshot.Time;
-            Reason     = snapshot.Reason ?? Reason;
+            Id          = snapshot.Id.ToShortString();
+            TargetId    = snapshot.TargetId.ToShortString();
+            CommitterId = snapshot.CommitterId.ToShortString();
+            Time        = snapshot.Time;
+            Reason      = snapshot.Reason ?? Reason;
 
             Value = snapshot.Value == null ? Value : Serialize(serializer, snapshot.Value);
 
@@ -46,11 +46,11 @@ namespace Nanoka.Web.Database
 
         public TSnapshot ApplyTo(TSnapshot snapshot, JsonSerializer serializer)
         {
-            snapshot.Id         = Id.ToGuid();
-            snapshot.TargetId   = TargetId.ToGuid();
-            snapshot.ApproverId = ApproverId?.ToGuid();
-            snapshot.Time       = Time;
-            snapshot.Reason     = Reason ?? snapshot.Reason;
+            snapshot.Id          = Id.ToGuid();
+            snapshot.TargetId    = TargetId.ToGuid();
+            snapshot.CommitterId = CommitterId.ToGuid();
+            snapshot.Time        = Time;
+            snapshot.Reason      = Reason ?? snapshot.Reason;
 
             snapshot.Value = Value == null ? snapshot.Value : Deserialize(serializer, Value);
 
