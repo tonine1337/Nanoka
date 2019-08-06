@@ -1,10 +1,12 @@
 ﻿using System.Text;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Nanoka.Core;
 using Nanoka.Web.Database;
 using Newtonsoft.Json;
 
@@ -53,7 +55,8 @@ namespace Nanoka.Web
 
             // other utility
             services.AddSingleton<JsonSerializer>()
-                    .AddHttpClient();
+                    .AddHttpClient()
+                    .AddAutoMapper(typeof(ModelMapperProfile));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
