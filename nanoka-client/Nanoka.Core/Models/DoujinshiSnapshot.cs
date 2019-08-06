@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
@@ -20,10 +21,10 @@ namespace Nanoka.Core.Models
         [JsonProperty("time")]
         public DateTime Time { get; set; }
 
-        [JsonProperty("reason")]
+        [JsonProperty("reason"), Required]
         public string Reason { get; set; }
 
-        [JsonProperty("value")]
+        [JsonProperty("value"), Required]
         public Doujinshi Value { get; set; }
     }
 }

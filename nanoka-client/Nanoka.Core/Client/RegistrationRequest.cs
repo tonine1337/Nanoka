@@ -1,13 +1,14 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Nanoka.Core.Models;
 using Newtonsoft.Json;
 
 namespace Nanoka.Core.Client
 {
     public class RegistrationRequest
     {
-        [JsonProperty("username"), Required, MaxLength(20)]
-        [RegularExpression(@"^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$")]
+        [JsonProperty("username"), Required]
+        [RegularExpression(UserBase.UsernameRegex)]
         public string Username { get; set; }
 
         [JsonProperty("recaptcha"), Required]

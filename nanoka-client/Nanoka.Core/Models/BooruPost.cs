@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
@@ -36,10 +37,10 @@ namespace Nanoka.Core.Models
 
     public class BooruPostBase
     {
-        [JsonProperty("cid")]
+        [JsonProperty("cid"), Required]
         public string Cid { get; set; }
 
-        [JsonProperty("tags")]
+        [JsonProperty("tags"), Required]
         public IDictionary<BooruTag, string[]> Tags { get; set; }
 
         [JsonProperty("rating")]

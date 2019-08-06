@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
@@ -15,7 +16,7 @@ namespace Nanoka.Core.Models
 
     public class DoujinshiVariantBase
     {
-        [JsonProperty("metas")]
+        [JsonProperty("metas"), Required]
         public IDictionary<DoujinshiMeta, string[]> Metas { get; set; }
 
         [JsonProperty("source")]

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
@@ -19,10 +20,10 @@ namespace Nanoka.Core.Models
 
     public class DoujinshiPageBase
     {
-        [JsonProperty("cid")]
+        [JsonProperty("cid"), Required]
         public string Cid { get; set; }
 
-        [JsonProperty("index")]
+        [JsonProperty("index"), Range(0, int.MaxValue)]
         public int Index { get; set; }
     }
 }

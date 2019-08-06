@@ -47,7 +47,7 @@ namespace Nanoka.Core.Models
         [JsonProperty("pages")]
         public RangeQuery<int> PageCount { get; set; }
 
-        [JsonProperty("sorting")]
+        [JsonProperty("sorting"), Required]
         public DoujinshiQuerySort[] Sorting { get; set; }
     }
 }

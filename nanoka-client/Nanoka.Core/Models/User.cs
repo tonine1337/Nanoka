@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
@@ -26,7 +27,10 @@ namespace Nanoka.Core.Models
 
     public class UserBase
     {
-        [JsonProperty("name")]
+        public const string UsernameRegex = @"^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$";
+
+        [JsonProperty("name"), Required]
+        [RegularExpression(UserBase.UsernameRegex)]
         public string Username { get; set; }
 
         [JsonProperty("restricted")]
