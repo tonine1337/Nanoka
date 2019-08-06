@@ -10,6 +10,7 @@ namespace Nanoka.Web.Database
         where TSnapshot : Snapshot<TValue>
         where TValue : new()
     {
+        [Keyword]
         public string Id { get; set; }
 
         [Keyword(Name = "t")]

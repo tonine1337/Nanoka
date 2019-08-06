@@ -7,6 +7,7 @@ namespace Nanoka.Web.Database
     [ElasticsearchType(RelationName = nameof(User), IdProperty = nameof(Id))]
     public class DbUser
     {
+        [Keyword]
         public string Id { get; set; }
 
         [Keyword(Name = "sec", Index = false)]

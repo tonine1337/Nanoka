@@ -9,6 +9,7 @@ namespace Nanoka.Web.Database
     [ElasticsearchType(RelationName = nameof(Doujinshi), IdProperty = nameof(Id))]
     public class DbDoujinshi
     {
+        [Keyword]
         public string Id { get; set; }
 
         [Date(Name = "up")]

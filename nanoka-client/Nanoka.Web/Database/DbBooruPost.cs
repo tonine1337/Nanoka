@@ -8,6 +8,7 @@ namespace Nanoka.Web.Database
     [ElasticsearchType(RelationName = nameof(BooruPost), IdProperty = nameof(Id))]
     public class DbBooruPost
     {
+        [Keyword]
         public string Id { get; set; }
 
         [Keyword(Name = "cid")]
