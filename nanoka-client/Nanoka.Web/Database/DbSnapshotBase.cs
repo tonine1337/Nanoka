@@ -21,6 +21,9 @@ namespace Nanoka.Web.Database
         [Date(Name = "tm")]
         public DateTime Time { get; set; }
 
+        [Number(Name = "e")]
+        public SnapshotEvent Event { get; set; }
+
         [Keyword(Name = "v", Index = false)]
         public string Value { get; set; }
 
@@ -33,6 +36,7 @@ namespace Nanoka.Web.Database
             TargetId    = snapshot.TargetId.ToShortString();
             CommitterId = snapshot.CommitterId.ToShortString();
             Time        = snapshot.Time;
+            Event       = snapshot.Event;
 
             Value = snapshot.Value == null ? Value : Serialize(serializer, snapshot.Value);
 
@@ -45,6 +49,7 @@ namespace Nanoka.Web.Database
             snapshot.TargetId    = TargetId.ToGuid();
             snapshot.CommitterId = CommitterId.ToGuid();
             snapshot.Time        = Time;
+            snapshot.Event       = Event;
 
             snapshot.Value = Value == null ? snapshot.Value : Deserialize(serializer, Value);
 

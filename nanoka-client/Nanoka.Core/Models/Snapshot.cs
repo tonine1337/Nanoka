@@ -18,6 +18,9 @@ namespace Nanoka.Core.Models
         [JsonProperty("time")]
         public DateTime Time { get; set; }
 
+        [JsonProperty("event")]
+        public SnapshotEvent Event { get; set; }
+
         [JsonProperty("value"), Required]
         public T Value { get; set; }
     }
