@@ -47,19 +47,18 @@ namespace Nanoka.Web.Controllers
                 Id         = Guid.NewGuid(),
                 UploadTime = now,
                 UpdateTime = now,
-                Variants   = new List<DoujinshiVariant>()
+                Variants = new List<DoujinshiVariant>
+                {
+                    new DoujinshiVariant
+                    {
+                        UploaderId = UserId,
+                        Pages      = request.Pages.ToList(p => _mapper.Map<DoujinshiPage>(p))
+                    }
+                }
             };
 
             _mapper.Map(request.Doujinshi, doujinshi);
-
-            var variant = new DoujinshiVariant
-            {
-                UploaderId = UserId
-            };
-
-            _mapper.Map(request.Variant, variant);
-
-            doujinshi.Variants.Add(variant);
+            _mapper.Map(request.Variant, doujinshi.Variants[0]);
 
             await _db.IndexAsync(doujinshi);
 
