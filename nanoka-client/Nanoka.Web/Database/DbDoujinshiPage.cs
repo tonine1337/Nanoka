@@ -9,9 +9,6 @@ namespace Nanoka.Web.Database
         [Keyword(Name = "cid", Index = false)]
         public string Cid { get; set; }
 
-        [Number(Name = "i", Index = false)]
-        public int Index { get; set; }
-
         [Number(Name = "w", Index = false)]
         public int Width { get; set; }
 
@@ -30,7 +27,6 @@ namespace Nanoka.Web.Database
                 return null;
 
             Cid         = page.Cid ?? Cid;
-            Index       = page.Index;
             Width       = page.Width;
             Height      = page.Height;
             SizeInBytes = page.SizeInBytes;
@@ -42,7 +38,6 @@ namespace Nanoka.Web.Database
         public DoujinshiPage ApplyTo(DoujinshiPage page)
         {
             page.Cid         = Cid ?? page.Cid;
-            page.Index       = Index;
             page.Width       = Width;
             page.Height      = Height;
             page.SizeInBytes = SizeInBytes;

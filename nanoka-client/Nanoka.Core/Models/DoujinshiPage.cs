@@ -22,8 +22,5 @@ namespace Nanoka.Core.Models
     {
         [JsonProperty("cid"), Required]
         public string Cid { get; set; }
-
-        [JsonProperty("index"), Range(0, int.MaxValue)]
-        public int Index { get; set; }
     }
 }
