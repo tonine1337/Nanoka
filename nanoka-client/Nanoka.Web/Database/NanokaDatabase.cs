@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Nanoka.Core;
 using Nanoka.Core.Models;
 using Nest;
+using Newtonsoft.Json;
 
 namespace Nanoka.Web.Database
 {
@@ -19,11 +20,15 @@ namespace Nanoka.Web.Database
 
         readonly NanokaOptions _options;
         readonly ILogger<NanokaDatabase> _logger;
+        readonly JsonSerializer _serializer;
 
-        public NanokaDatabase(IOptions<NanokaOptions> options, ILogger<NanokaDatabase> logger)
+        public NanokaDatabase(IOptions<NanokaOptions> options,
+                              ILogger<NanokaDatabase> logger,
+                              JsonSerializer serializer)
         {
-            _options = options.Value;
-            _logger  = logger;
+            _options    = options.Value;
+            _logger     = logger;
+            _serializer = serializer;
 
             if (_options.ElasticEndpoint == null)
                 throw new NanokaDatabaseException("Elasticsearch endpoint is not configured.");
@@ -103,6 +108,9 @@ namespace Nanoka.Web.Database
 
         public Task IndexAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
             => IndexAsync(new DbDoujinshi().Apply(doujinshi), cancellationToken);
+
+        public Task IndexSnapshotAsync(Snapshot<Doujinshi> snapshot, CancellationToken cancellationToken = default)
+            => IndexAsync(new DbDoujinshiSnapshot().Apply(snapshot, _serializer), cancellationToken);
 
         public Task DeleteAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
             => DeleteAsync<DbDoujinshi>(doujinshi.Id.ToShortString(), cancellationToken);
@@ -203,6 +211,9 @@ namespace Nanoka.Web.Database
 
         public Task IndexAsync(BooruPost post, CancellationToken cancellationToken = default)
             => IndexAsync(new DbBooruPost().Apply(post), cancellationToken);
+
+        public Task IndexSnapshotAsync(Snapshot<BooruPost> snapshot, CancellationToken cancellationToken = default)
+            => IndexAsync(new DbBooruPostSnapshot().Apply(snapshot, _serializer), cancellationToken);
 
         public Task DeleteAsync(BooruPost post, CancellationToken cancellationToken = default)
             => DeleteAsync<DbBooruPost>(post.Id.ToShortString(), cancellationToken);
