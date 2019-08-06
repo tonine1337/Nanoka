@@ -21,6 +21,8 @@ namespace Nanoka.Core
 
 #region Helpers
 
+        public static Result NotFound<T>(object id) => NotFound($"{typeof(T).Name} '{id}' not found.");
+
         public static Result Forbidden(params UserPermissions[] required)
             => Forbidden($"Insufficient permissions. Required: {string.Join(", ", required)}");
 
