@@ -68,7 +68,7 @@ namespace Nanoka.Web.Database
             doujinshi.EnglishName   = EnglishName ?? doujinshi.EnglishName;
             doujinshi.Score         = Score;
 
-            doujinshi.Variants = Variants?.ToArray(v => v.ApplyTo(new DoujinshiVariant())) ?? doujinshi.Variants;
+            doujinshi.Variants = Variants?.ToList(v => v.ApplyTo(new DoujinshiVariant())) ?? doujinshi.Variants;
 
             return doujinshi;
         }

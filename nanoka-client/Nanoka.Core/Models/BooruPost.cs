@@ -41,7 +41,7 @@ namespace Nanoka.Core.Models
         public string Cid { get; set; }
 
         [JsonProperty("tags"), Required]
-        public IDictionary<BooruTag, string[]> Tags { get; set; }
+        public Dictionary<BooruTag, string[]> Tags { get; set; }
 
         [JsonProperty("rating")]
         public BooruRating Rating { get; set; }
@@ -50,6 +50,6 @@ namespace Nanoka.Core.Models
         public string Source { get; set; }
 
         [JsonProperty("siblings")]
-        public Guid[] SiblingIds { get; set; }
+        public List<Guid> SiblingIds { get; set; }
     }
 }

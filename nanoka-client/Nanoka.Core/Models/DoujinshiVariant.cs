@@ -11,13 +11,13 @@ namespace Nanoka.Core.Models
         public Guid UploaderId { get; set; }
 
         [JsonProperty("pages")]
-        public DoujinshiPage[] Pages { get; set; }
+        public List<DoujinshiPage> Pages { get; set; }
     }
 
     public class DoujinshiVariantBase
     {
         [JsonProperty("metas"), Required]
-        public IDictionary<DoujinshiMeta, string[]> Metas { get; set; }
+        public Dictionary<DoujinshiMeta, string[]> Metas { get; set; }
 
         [JsonProperty("source")]
         public string Source { get; set; }

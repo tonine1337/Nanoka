@@ -80,7 +80,7 @@ namespace Nanoka.Web.Database
 
             variant.Source = Source ?? variant.Source;
 
-            variant.Pages = Pages?.ToArray(p => p.ApplyTo(new DoujinshiPage())) ?? variant.Pages;
+            variant.Pages = Pages?.ToList(p => p.ApplyTo(new DoujinshiPage())) ?? variant.Pages;
 
             return variant;
         }

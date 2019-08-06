@@ -27,7 +27,7 @@ namespace Nanoka.Core.Models
         public RangeQuery<DateTime> UpdateTime { get; set; }
 
         [JsonProperty("tags")]
-        public IDictionary<BooruTag, TextQuery> Tags { get; set; }
+        public Dictionary<BooruTag, TextQuery> Tags { get; set; }
 
         [JsonProperty("rating")]
         public FilterQuery<BooruRating> Rating { get; set; }
@@ -51,6 +51,6 @@ namespace Nanoka.Core.Models
         public TextQuery MediaType { get; set; }
 
         [JsonProperty("sorting"), Required]
-        public BooruQuerySort[] Sorting { get; set; }
+        public List<BooruQuerySort> Sorting { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Nanoka.Core;
 using Nanoka.Core.Models;
 using Nest;
@@ -97,12 +98,14 @@ namespace Nanoka.Web.Database
             post.UploadTime = UploadTime;
             post.UpdateTime = UpdateTime;
 
-            post.Tags = Extensions.BuildArrayDict(
-                            (BooruTag.Artist, Artist),
-                            (BooruTag.Character, Character),
-                            (BooruTag.Copyright, Copyright),
-                            (BooruTag.Metadata, Metadata),
-                            (BooruTag.General, General)) ?? post.Tags;
+            post.Tags = new Dictionary<BooruTag, string[]>
+            {
+                { BooruTag.Artist, Artist ?? post.Tags.GetOrDefault(BooruTag.Artist) },
+                { BooruTag.Character, Character ?? post.Tags.GetOrDefault(BooruTag.Character) },
+                { BooruTag.Copyright, Copyright ?? post.Tags.GetOrDefault(BooruTag.Copyright) },
+                { BooruTag.Metadata, Metadata ?? post.Tags.GetOrDefault(BooruTag.Metadata) },
+                { BooruTag.General, General ?? post.Tags.GetOrDefault(BooruTag.General) }
+            };
 
             post.Rating      = Rating;
             post.Score       = Score;
@@ -111,7 +114,7 @@ namespace Nanoka.Web.Database
             post.Height      = Height;
             post.SizeInBytes = SizeInBytes;
             post.MediaType   = MediaType ?? post.MediaType;
-            post.SiblingIds  = SiblingIds?.ToArray(x => x.ToGuid()) ?? post.SiblingIds;
+            post.SiblingIds  = SiblingIds?.ToList(x => x.ToGuid()) ?? post.SiblingIds;
 
             return post;
         }

@@ -39,7 +39,7 @@ namespace Nanoka.Core.Models
         public RangeQuery<int> Score { get; set; }
 
         [JsonProperty("metas")]
-        public IDictionary<DoujinshiMeta, TextQuery> Metas { get; set; }
+        public Dictionary<DoujinshiMeta, TextQuery> Metas { get; set; }
 
         [JsonProperty("source")]
         public TextQuery Source { get; set; }
@@ -48,6 +48,6 @@ namespace Nanoka.Core.Models
         public RangeQuery<int> PageCount { get; set; }
 
         [JsonProperty("sorting"), Required]
-        public DoujinshiQuerySort[] Sorting { get; set; }
+        public List<DoujinshiQuerySort> Sorting { get; set; }
     }
 }
