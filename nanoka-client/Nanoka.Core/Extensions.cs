@@ -8,6 +8,21 @@ namespace Nanoka.Core
 {
     public static class Extensions
     {
+        public static string Serialize(this JsonSerializer serializer, object obj)
+        {
+            using (var writer = new StringWriter())
+            {
+                serializer.Serialize(writer, obj);
+                return writer.ToString();
+            }
+        }
+
+        public static T Deserialize<T>(this JsonSerializer serializer, string value)
+        {
+            using (var reader = new StringReader(value))
+                return serializer.Deserialize<T>(reader);
+        }
+
         public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
             => dict.TryGetValue(key, out var value) ? value : default;
 
