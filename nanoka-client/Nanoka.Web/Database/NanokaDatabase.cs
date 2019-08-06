@@ -220,27 +220,28 @@ namespace Nanoka.Web.Database
                                 .Range(query.UploadTime, p => p.UploadTime)
                                 .Range(query.UpdateTime, p => p.UpdateTime);
 
-                               foreach (var (tag, tagQuery) in query.Tags)
-                               {
-                                   switch (tag)
+                               if (query.Tags != null)
+                                   foreach (var (tag, tagQuery) in query.Tags)
                                    {
-                                       case BooruTag.Artist:
-                                           q.Text(tagQuery, p => p.Artist);
-                                           break;
-                                       case BooruTag.Character:
-                                           q.Text(tagQuery, p => p.Character);
-                                           break;
-                                       case BooruTag.Copyright:
-                                           q.Text(tagQuery, p => p.Copyright);
-                                           break;
-                                       case BooruTag.Metadata:
-                                           q.Text(tagQuery, p => p.Metadata);
-                                           break;
-                                       case BooruTag.General:
-                                           q.Text(tagQuery, p => p.General);
-                                           break;
+                                       switch (tag)
+                                       {
+                                           case BooruTag.Artist:
+                                               q.Text(tagQuery, p => p.Artist);
+                                               break;
+                                           case BooruTag.Character:
+                                               q.Text(tagQuery, p => p.Character);
+                                               break;
+                                           case BooruTag.Copyright:
+                                               q.Text(tagQuery, p => p.Copyright);
+                                               break;
+                                           case BooruTag.Metadata:
+                                               q.Text(tagQuery, p => p.Metadata);
+                                               break;
+                                           case BooruTag.General:
+                                               q.Text(tagQuery, p => p.General);
+                                               break;
+                                       }
                                    }
-                               }
 
                                q.Filter(query.Rating, p => p.Rating)
                                 .Range(query.Score, p => p.Score)
