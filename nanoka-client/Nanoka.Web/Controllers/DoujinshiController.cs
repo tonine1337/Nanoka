@@ -52,7 +52,7 @@ namespace Nanoka.Web.Controllers
                     new DoujinshiVariant
                     {
                         UploaderId = UserId,
-                        Pages      = request.Pages.ToList(p => _mapper.Map<DoujinshiPage>(p))
+                        Pages      = request.Pages.ToList(_mapper.Map<DoujinshiPage>)
                     }
                 }
             };
@@ -126,7 +126,7 @@ namespace Nanoka.Web.Controllers
             var variant = new DoujinshiVariant
             {
                 UploaderId = UserId,
-                Pages      = request.Pages.ToList(p => _mapper.Map<DoujinshiPage>(p))
+                Pages      = request.Pages.ToList(_mapper.Map<DoujinshiPage>)
             };
 
             _mapper.Map(request.Variant, variant);
@@ -137,6 +137,34 @@ namespace Nanoka.Web.Controllers
             await _db.IndexAsync(doujinshi);
 
             return variant;
+        }
+
+        [HttpPut("{id}/variants/{index}/pages")]
+        public async Task<Result<DoujinshiVariant>> UpdateVariantPagesAsync(Guid id,
+                                                                            int index,
+                                                                            DoujinshiPageBase[] pages)
+        {
+            if (pages == null || pages.Length == 0)
+                return Result.BadRequest("Doujinshi variant must contain at least one page.");
+
+            var doujinshi = await _db.GetDoujinshiAsync(id);
+
+            if (doujinshi == null)
+                return Result.NotFound<DoujinshiVariant>(id, index);
+
+            await CreateSnapshotAsync(doujinshi);
+
+            if (index < 0 || index >= doujinshi.Variants.Count)
+                return Result.NotFound<DoujinshiVariant>(id, index);
+
+            // overwrite page list
+            doujinshi.Variants[index].Pages = pages.ToList(_mapper.Map<DoujinshiPage>);
+
+            doujinshi.UpdateTime = DateTime.UtcNow;
+
+            await _db.IndexAsync(doujinshi);
+
+            return doujinshi.Variants[index];
         }
     }
 }
