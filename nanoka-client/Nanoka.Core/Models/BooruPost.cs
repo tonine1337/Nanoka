@@ -37,6 +37,9 @@ namespace Nanoka.Core.Models
 
     public class BooruPostBase
     {
+        /// <summary>
+        /// CID referencing the image file of this post.
+        /// </summary>
         [JsonProperty("cid"), Required]
         public string Cid { get; set; }
 
