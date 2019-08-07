@@ -53,7 +53,7 @@ namespace Nanoka.Web.Database
             Score         = doujinshi.Score;
 
             Variants   = doujinshi.Variants?.ToList(v => new DbDoujinshiVariant().Apply(v)) ?? Variants;
-            PageCounts = Variants.ToArray(v => v.Pages.Count);
+            PageCounts = Variants.ToArray(v => v.PageCount);
 
             return this;
         }

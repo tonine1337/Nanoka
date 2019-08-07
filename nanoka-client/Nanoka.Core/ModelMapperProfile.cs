@@ -10,7 +10,6 @@ namespace Nanoka.Core
             // doujinshi
             CreateMap<DoujinshiBase, Doujinshi>();
             CreateMap<DoujinshiVariantBase, DoujinshiVariant>();
-            CreateMap<DoujinshiPageBase, DoujinshiPage>();
 
             // booru
             CreateMap<BooruPostBase, BooruPost>();

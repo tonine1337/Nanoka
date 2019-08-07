@@ -11,8 +11,5 @@ namespace Nanoka.Core.Client
 
         [JsonProperty("variant"), Required]
         public DoujinshiVariantBase Variant { get; set; }
-
-        [JsonProperty("pages"), Required, MinLength(1)]
-        public DoujinshiPageBase[] Pages { get; set; }
     }
 }

@@ -11,11 +11,17 @@ namespace Nanoka.Core.Models
         public Guid UploaderId { get; set; }
 
         [JsonProperty("pages")]
-        public List<DoujinshiPage> Pages { get; set; }
+        public int PageCount { get; set; }
     }
 
     public class DoujinshiVariantBase
     {
+        /// <summary>
+        /// CID referencing the directory containing image files of this variant.
+        /// </summary>
+        [JsonProperty("cid"), Required]
+        public string Cid { get; set; }
+
         [JsonProperty("metas"), Required]
         public Dictionary<DoujinshiMeta, string[]> Metas { get; set; }
 

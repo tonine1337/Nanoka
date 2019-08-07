@@ -38,8 +38,8 @@ namespace Nanoka.Web.Database
         [Text(Name = "src")]
         public string Source { get; set; }
 
-        [Nested(Name = "page")]
-        public List<DbDoujinshiPage> Pages { get; set; }
+        [Number(Name = "pg")]
+        public int PageCount { get; set; }
 
         public DbDoujinshiVariant Apply(DoujinshiVariant variant)
         {
@@ -56,8 +56,7 @@ namespace Nanoka.Web.Database
             Tag        = variant.Metas?.GetOrDefault(DoujinshiMeta.Tag) ?? Tag;
             Convention = variant.Metas?.GetOrDefault(DoujinshiMeta.Convention) ?? Convention;
             Source     = variant.Source ?? Source;
-
-            Pages = variant.Pages?.ToList(p => new DbDoujinshiPage().Apply(p)) ?? Pages;
+            PageCount  = variant.PageCount;
 
             return this;
         }
@@ -78,9 +77,8 @@ namespace Nanoka.Web.Database
                 { DoujinshiMeta.Convention, Convention ?? variant.Metas.GetOrDefault(DoujinshiMeta.Convention) }
             };
 
-            variant.Source = Source ?? variant.Source;
-
-            variant.Pages = Pages?.ToList(p => p.ApplyTo(new DoujinshiPage())) ?? variant.Pages;
+            variant.Source    = Source ?? variant.Source;
+            variant.PageCount = PageCount;
 
             return variant;
         }
