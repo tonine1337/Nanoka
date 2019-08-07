@@ -1,5 +1,3 @@
-using System;
-
 namespace Nanoka.Client
 {
     public class NanokaOptions { }
@@ -15,6 +13,6 @@ namespace Nanoka.Client
     public class DatabaseOptions
     {
         public string Endpoint { get; set; } = "https://nanoka-idx.chiya.dev";
-        public Guid? Token { get; set; }
+        public string Secret { get; set; }
     }
 }

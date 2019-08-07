@@ -11,6 +11,7 @@ namespace Nanoka.Client
                               JsonSerializer serializer,
                               IHttpClientFactory httpClientFactory)
             : base(options.Value.Endpoint,
+                   options.Value.Secret,
                    serializer,
                    httpClientFactory.CreateClient(nameof(DatabaseClientBase))) { }
     }

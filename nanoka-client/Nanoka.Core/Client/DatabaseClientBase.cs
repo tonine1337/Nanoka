@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,25 +12,63 @@ namespace Nanoka.Core.Client
 {
     public abstract class DatabaseClientBase : IDatabaseClient
     {
-        readonly CancellationTokenSource _backgroundTaskToken = new CancellationTokenSource();
+        readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
 
         readonly JsonSerializer _serializer;
         readonly HttpClient _http;
 
-        protected DatabaseClientBase(string endpoint,
-                                     JsonSerializer serializer,
-                                     HttpClient httpClient)
+        readonly Guid _userId;
+        readonly Guid _userSecret;
+
+        protected DatabaseClientBase(string endpoint, string secret, JsonSerializer serializer, HttpClient httpClient)
         {
             _serializer = serializer;
             _http       = httpClient;
 
+            _userId     = secret.Substring(0, secret.Length / 2).ToGuid();
+            _userSecret = secret.Substring(secret.Length / 2).ToGuid();
+
             _http.BaseAddress = new Uri(endpoint);
         }
 
-        public async Task ConnectAsync(CancellationToken cancellationToken = default) { }
+        void LinkToken(ref CancellationToken token)
+            => token = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token, token).Token;
 
-        async Task<TResponse> Send<TResponse>(string path, HttpMethod method, CancellationToken cancellationToken)
+        DateTime _nextAuthTime;
+
+        public async Task ConnectAsync(CancellationToken cancellationToken = default)
         {
+            LinkToken(ref cancellationToken);
+
+            using (await _semaphore.EnterAsync(cancellationToken))
+            {
+                if (DateTime.Now < _nextAuthTime.AddSeconds(-5)) // reauthenticate slightly earlier
+                    return;
+
+                var response = await Send<AuthenticationResponse>(
+                    "users/auth",
+                    HttpMethod.Post,
+                    new AuthenticationRequest
+                    {
+                        Id     = _userId,
+                        Secret = _userSecret
+                    },
+                    cancellationToken);
+
+                _http.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", response.AccessToken);
+
+                _nextAuthTime = response.Expiry;
+            }
+        }
+
+        async Task<TResponse> Send<TResponse>(string path,
+                                              HttpMethod method,
+                                              CancellationToken cancellationToken)
+        {
+            LinkToken(ref cancellationToken);
+
             var requestMessage = new HttpRequestMessage
             {
                 Method     = method,
@@ -41,24 +80,18 @@ namespace Nanoka.Core.Client
             return await ConvertResponseAsync<TResponse>(responseMessage);
         }
 
-        async Task<TResponse> Send<TRequest, TResponse>(string path,
-                                                        HttpMethod method,
-                                                        TRequest request,
-                                                        CancellationToken cancellationToken)
+        async Task<TResponse> Send<TResponse>(string path,
+                                              HttpMethod method,
+                                              object request,
+                                              CancellationToken cancellationToken)
         {
-            string requestString;
-
-            using (var writer = new StringWriter())
-            {
-                _serializer.Serialize(writer, request);
-                requestString = writer.ToString();
-            }
+            LinkToken(ref cancellationToken);
 
             var requestMessage = new HttpRequestMessage
             {
                 Method     = method,
                 RequestUri = new Uri(path, UriKind.Relative),
-                Content    = new StringContent(requestString, Encoding.Default, "application/json")
+                Content    = new StringContent(_serializer.Serialize(request), Encoding.Default, "application/json")
             };
 
             var responseMessage = await _http.SendAsync(requestMessage, cancellationToken);
@@ -108,8 +141,8 @@ namespace Nanoka.Core.Client
 
         public void Dispose()
         {
-            _backgroundTaskToken.Cancel();
-            _backgroundTaskToken.Dispose();
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
         }
     }
 }
