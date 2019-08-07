@@ -21,6 +21,9 @@ namespace Nanoka.Core.Models
         [JsonProperty("event")]
         public SnapshotEvent Event { get; set; }
 
+        [JsonProperty("target")]
+        public SnapshotTarget Target { get; set; }
+
         [JsonProperty("value"), Required]
         public T Value { get; set; }
     }

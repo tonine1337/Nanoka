@@ -74,6 +74,7 @@ namespace Nanoka.Web.Controllers
                 CommitterId = UserId,
                 Time        = DateTime.UtcNow,
                 Event       = snapshotEvent,
+                Target      = SnapshotTarget.Doujinshi,
                 Value       = doujinshi
             };
 
@@ -88,7 +89,7 @@ namespace Nanoka.Web.Controllers
             if (doujinshi == null)
                 return Result.NotFound<Doujinshi>(id);
 
-            await CreateSnapshotAsync(doujinshi, SnapshotEvent.DoujinshiModified);
+            await CreateSnapshotAsync(doujinshi, SnapshotEvent.Modification);
 
             _mapper.Map(model, doujinshi);
 
@@ -107,7 +108,7 @@ namespace Nanoka.Web.Controllers
             if (doujinshi == null)
                 return Result.NotFound<Doujinshi>(id);
 
-            await CreateSnapshotAsync(doujinshi, SnapshotEvent.DoujinshiDeleted);
+            await CreateSnapshotAsync(doujinshi, SnapshotEvent.Deletion);
 
             await _db.DeleteAsync(doujinshi);
 
@@ -122,7 +123,7 @@ namespace Nanoka.Web.Controllers
             if (doujinshi == null)
                 return Result.NotFound<Doujinshi>(id);
 
-            await CreateSnapshotAsync(doujinshi, SnapshotEvent.DoujinshiModified);
+            await CreateSnapshotAsync(doujinshi, SnapshotEvent.Modification);
 
             var variant = new DoujinshiVariant
             {
@@ -153,7 +154,7 @@ namespace Nanoka.Web.Controllers
             if (doujinshi == null)
                 return Result.NotFound<DoujinshiVariant>(id, index);
 
-            await CreateSnapshotAsync(doujinshi, SnapshotEvent.DoujinshiModified);
+            await CreateSnapshotAsync(doujinshi, SnapshotEvent.Modification);
 
             if (index < 0 || index >= doujinshi.Variants.Count)
                 return Result.NotFound<DoujinshiVariant>(id, index);

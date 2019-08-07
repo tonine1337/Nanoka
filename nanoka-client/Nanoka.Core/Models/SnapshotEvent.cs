@@ -8,13 +8,18 @@ namespace Nanoka.Core.Models
         Unspecified = 0,
 
         /// <summary>
-        /// Doujinshi object was modified.
+        /// The snapshot was taken before a modification to an object.
         /// </summary>
-        DoujinshiModified = 1,
+        Modification = 1,
 
         /// <summary>
-        /// Doujinshi object was deleted.
+        /// The snapshot was taken before the deletion of an object.
         /// </summary>
-        DoujinshiDeleted = 2
+        Deletion,
+
+        /// <summary>
+        /// The snapshot was taken before an object was reverted to its previous state.
+        /// </summary>
+        Rollback
     }
 }
