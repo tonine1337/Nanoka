@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
@@ -15,8 +16,8 @@ namespace Nanoka.Core.Models
         [JsonProperty("registered")]
         public DateTime Registered { get; set; }
 
-        [JsonProperty("restricted")]
-        public bool IsRestricted { get; set; }
+        [JsonProperty("restrictions")]
+        public List<UserRestriction> Restrictions { get; set; }
 
         [JsonProperty("upload")]
         public int UploadCount { get; set; }
