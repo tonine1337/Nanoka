@@ -68,24 +68,23 @@ namespace Nanoka.Web.Database
             if (post == null)
                 return null;
 
-            Id          = post.Id.ToShortString();
-            UploaderId  = post.UploaderId.ToShortString();
-            Cid         = post.Cid ?? Cid;
-            UploadTime  = post.UploadTime;
-            UpdateTime  = post.UpdateTime;
-            Artist      = post.Tags?.GetOrDefault(BooruTag.Artist) ?? Artist;
-            Character   = post.Tags?.GetOrDefault(BooruTag.Character) ?? Character;
-            Copyright   = post.Tags?.GetOrDefault(BooruTag.Copyright) ?? Copyright;
-            Metadata    = post.Tags?.GetOrDefault(BooruTag.Metadata) ?? Metadata;
-            General     = post.Tags?.GetOrDefault(BooruTag.General) ?? General;
-            Rating      = post.Rating;
-            Score       = post.Score;
-            Source      = post.Source ?? Source;
-            Width       = post.Width;
-            Height      = post.Height;
-            SizeInBytes = post.SizeInBytes;
-            MediaType   = post.MediaType ?? MediaType;
-            SiblingIds  = post.SiblingIds?.ToArray(x => x.ToShortString()) ?? SiblingIds;
+            Id         = post.Id.ToShortString();
+            UploaderId = post.UploaderId.ToShortString();
+            Cid        = post.Cid ?? Cid;
+            UploadTime = post.UploadTime;
+            UpdateTime = post.UpdateTime;
+            Artist     = post.Tags?.GetOrDefault(BooruTag.Artist) ?? Artist;
+            Character  = post.Tags?.GetOrDefault(BooruTag.Character) ?? Character;
+            Copyright  = post.Tags?.GetOrDefault(BooruTag.Copyright) ?? Copyright;
+            Metadata   = post.Tags?.GetOrDefault(BooruTag.Metadata) ?? Metadata;
+            General    = post.Tags?.GetOrDefault(BooruTag.General) ?? General;
+            Rating     = post.Rating;
+            Score      = post.Score;
+            Source     = post.Source ?? Source;
+            Width      = post.Width;
+            Height     = post.Height;
+            MediaType  = post.MediaType ?? MediaType;
+            SiblingIds = post.SiblingIds?.ToArray(x => x.ToShortString()) ?? SiblingIds;
 
             return this;
         }
@@ -107,14 +106,13 @@ namespace Nanoka.Web.Database
                 { BooruTag.General, General ?? post.Tags.GetOrDefault(BooruTag.General) }
             };
 
-            post.Rating      = Rating;
-            post.Score       = Score;
-            post.Source      = Source ?? post.Source;
-            post.Width       = Width;
-            post.Height      = Height;
-            post.SizeInBytes = SizeInBytes;
-            post.MediaType   = MediaType ?? post.MediaType;
-            post.SiblingIds  = SiblingIds?.ToList(x => x.ToGuid()) ?? post.SiblingIds;
+            post.Rating     = Rating;
+            post.Score      = Score;
+            post.Source     = Source ?? post.Source;
+            post.Width      = Width;
+            post.Height     = Height;
+            post.MediaType  = MediaType ?? post.MediaType;
+            post.SiblingIds = SiblingIds?.ToList(x => x.ToGuid()) ?? post.SiblingIds;
 
             return post;
         }

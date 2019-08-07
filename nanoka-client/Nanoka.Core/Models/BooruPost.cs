@@ -28,9 +28,6 @@ namespace Nanoka.Core.Models
         [JsonProperty("height")]
         public int Height { get; set; }
 
-        [JsonProperty("size")]
-        public int SizeInBytes { get; set; }
-
         [JsonProperty("type")]
         public string MediaType { get; set; }
     }
