@@ -2,6 +2,7 @@ using System;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Nanoka.Core;
 using Nanoka.Core.Models;
 
 namespace Nanoka.Web.Controllers
