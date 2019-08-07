@@ -1,6 +1,7 @@
 using System;
 using Nanoka.Core.Models;
 using Nest;
+using Newtonsoft.Json;
 
 namespace Nanoka.Web.Database
 {
@@ -25,43 +26,50 @@ namespace Nanoka.Web.Database
         [Number(Name = "perm")]
         public UserPermissions Permissions { get; set; }
 
-        [Nested(Name = "sc_dj")]
-        public DbUserScores DoujinshiScores { get; set; }
+        [JsonProperty("upload")]
+        public int UploadCount { get; set; }
 
-        [Nested(Name = "sc_bo")]
-        public DbUserScores BooruScores { get; set; }
+        [JsonProperty("edit")]
+        public int EditCount { get; set; }
+
+        [JsonProperty("upvoted")]
+        public int UpvotedCount { get; set; }
+
+        [JsonProperty("downvoted")]
+        public int DownvotedCount { get; set; }
 
         public DbUser Apply(User user)
         {
             if (user == null)
                 return null;
 
-            Id           = user.Id.ToShortString();
-            Secret       = user.Secret.ToShortString();
-            Username     = user.Username ?? Username;
-            Registered   = user.Registered;
-            IsRestricted = user.IsRestricted;
-            Permissions  = user.Permissions;
-
-            DoujinshiScores = new DbUserScores().Apply(user.DoujinshiScores) ?? DoujinshiScores;
-            BooruScores     = new DbUserScores().Apply(user.BooruScores) ?? BooruScores;
+            Id             = user.Id.ToShortString();
+            Secret         = user.Secret.ToShortString();
+            Username       = user.Username ?? Username;
+            Registered     = user.Registered;
+            IsRestricted   = user.IsRestricted;
+            Permissions    = user.Permissions;
+            UploadCount    = user.UploadCount;
+            EditCount      = user.EditCount;
+            UpvotedCount   = user.UpvotedCount;
+            DownvotedCount = user.DownvotedCount;
 
             return this;
         }
 
         public User ApplyTo(User user)
         {
-            user.Id           = Id.ToGuid();
-            user.Secret       = Secret.ToGuid();
-            user.Username     = Username ?? user.Username;
-            user.Registered   = Registered;
-            user.IsRestricted = IsRestricted;
-            user.Permissions  = Permissions;
-
-            user.DoujinshiScores = DoujinshiScores?.ApplyTo(new UserScores()) ?? user.DoujinshiScores;
-            user.BooruScores     = BooruScores?.ApplyTo(new UserScores()) ?? user.BooruScores;
-
-            user.Reputation = UserReputationCalculator.Calc(user);
+            user.Id             = Id.ToGuid();
+            user.Secret         = Secret.ToGuid();
+            user.Username       = Username ?? user.Username;
+            user.Registered     = Registered;
+            user.IsRestricted   = IsRestricted;
+            user.Permissions    = Permissions;
+            user.UploadCount    = UploadCount;
+            user.EditCount      = EditCount;
+            user.UpvotedCount   = UpvotedCount;
+            user.DownvotedCount = DownvotedCount;
+            user.Reputation     = UserReputationCalculator.Calc(user);
 
             return user;
         }

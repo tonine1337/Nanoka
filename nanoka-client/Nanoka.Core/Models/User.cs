@@ -15,11 +15,20 @@ namespace Nanoka.Core.Models
         [JsonProperty("registered")]
         public DateTime Registered { get; set; }
 
-        [JsonProperty("scores_dj")]
-        public UserScores DoujinshiScores { get; set; }
+        [JsonProperty("restricted")]
+        public bool IsRestricted { get; set; }
 
-        [JsonProperty("scores_bo")]
-        public UserScores BooruScores { get; set; }
+        [JsonProperty("upload")]
+        public int UploadCount { get; set; }
+
+        [JsonProperty("edit")]
+        public int EditCount { get; set; }
+
+        [JsonProperty("upvoted")]
+        public int UpvotedCount { get; set; }
+
+        [JsonProperty("downvoted")]
+        public int DownvotedCount { get; set; }
 
         [JsonProperty("rep")]
         public double Reputation { get; set; }
@@ -30,11 +39,8 @@ namespace Nanoka.Core.Models
         public const string UsernameRegex = @"^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$";
 
         [JsonProperty("name"), Required]
-        [RegularExpression(UserBase.UsernameRegex)]
+        [RegularExpression(UsernameRegex)]
         public string Username { get; set; }
-
-        [JsonProperty("restricted")]
-        public bool IsRestricted { get; set; }
 
         [JsonProperty("perms")]
         public UserPermissions Permissions { get; set; }
