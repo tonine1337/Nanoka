@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
@@ -11,6 +13,25 @@ namespace Nanoka.Core
 {
     public static class Extensions
     {
+        public static async Task<IDisposable> EnterAsync(this SemaphoreSlim semaphore,
+                                                         CancellationToken cancellationToken = default)
+        {
+            await semaphore.WaitAsync(cancellationToken);
+            return new SemaphoreContext(semaphore);
+        }
+
+        sealed class SemaphoreContext : IDisposable
+        {
+            readonly SemaphoreSlim _semaphore;
+
+            public SemaphoreContext(SemaphoreSlim semaphore)
+            {
+                _semaphore = semaphore;
+            }
+
+            public void Dispose() => _semaphore.Release();
+        }
+
         public static string ToShortString(this Guid guid)
             => Convert.ToBase64String(guid.ToByteArray())
                       .Substring(0, 22)
