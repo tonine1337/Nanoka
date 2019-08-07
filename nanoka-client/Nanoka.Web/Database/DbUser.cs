@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Nanoka.Core;
 using Nanoka.Core.Models;
 using Nest;
-using Newtonsoft.Json;
 
 namespace Nanoka.Web.Database
 {
@@ -28,16 +27,16 @@ namespace Nanoka.Web.Database
         [Number(Name = "perm")]
         public UserPermissions Permissions { get; set; }
 
-        [JsonProperty("upload")]
+        [Number(Name = "c_up")]
         public int UploadCount { get; set; }
 
-        [JsonProperty("edit")]
+        [Number(Name = "c_ed")]
         public int EditCount { get; set; }
 
-        [JsonProperty("upvoted")]
+        [Number(Name = "c_uv")]
         public int UpvotedCount { get; set; }
 
-        [JsonProperty("downvoted")]
+        [Number(Name = "c_dv")]
         public int DownvotedCount { get; set; }
 
         public DbUser Apply(User user)
