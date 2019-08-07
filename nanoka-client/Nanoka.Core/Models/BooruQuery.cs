@@ -44,9 +44,6 @@ namespace Nanoka.Core.Models
         [JsonProperty("height")]
         public RangeQuery<int> Height { get; set; }
 
-        [JsonProperty("size")]
-        public RangeQuery<int> SizeInBytes { get; set; }
-
         [JsonProperty("type")]
         public TextQuery MediaType { get; set; }
 

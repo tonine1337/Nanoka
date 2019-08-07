@@ -13,7 +13,6 @@ namespace Nanoka.Core.Models
         [EnumMember(Value = "rating")] Rating,
         [EnumMember(Value = "score")] Score,
         [EnumMember(Value = "width")] Width,
-        [EnumMember(Value = "height")] Height,
-        [EnumMember(Value = "size")] SizeInBytes
+        [EnumMember(Value = "height")] Height
     }
 }

@@ -54,9 +54,6 @@ namespace Nanoka.Web.Database
         [Number(Name = "h")]
         public int Height { get; set; }
 
-        [Number(Name = "s")]
-        public int SizeInBytes { get; set; }
-
         [Keyword(Name = "t")]
         public string MediaType { get; set; }
 

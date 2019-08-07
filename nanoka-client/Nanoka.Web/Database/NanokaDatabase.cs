@@ -260,7 +260,6 @@ namespace Nanoka.Web.Database
                                 .Text(query.Source, p => p.Source)
                                 .Range(query.Width, p => p.Width)
                                 .Range(query.Height, p => p.Height)
-                                .Range(query.SizeInBytes, p => p.SizeInBytes)
                                 .Text(query.MediaType, p => p.MediaType);
 
                                return q;
@@ -271,13 +270,12 @@ namespace Nanoka.Web.Database
                            {
                                switch (sort)
                                {
-                                   case BooruQuerySort.UploadTime:  return p => p.UploadTime;
-                                   case BooruQuerySort.UpdateTime:  return p => p.UpdateTime;
-                                   case BooruQuerySort.Rating:      return p => p.Rating;
-                                   case BooruQuerySort.Score:       return p => p.Score;
-                                   case BooruQuerySort.Width:       return p => p.Width;
-                                   case BooruQuerySort.Height:      return p => p.Height;
-                                   case BooruQuerySort.SizeInBytes: return p => p.SizeInBytes;
+                                   case BooruQuerySort.UploadTime: return p => p.UploadTime;
+                                   case BooruQuerySort.UpdateTime: return p => p.UpdateTime;
+                                   case BooruQuerySort.Rating:     return p => p.Rating;
+                                   case BooruQuerySort.Score:      return p => p.Score;
+                                   case BooruQuerySort.Width:      return p => p.Width;
+                                   case BooruQuerySort.Height:     return p => p.Height;
 
                                    default: throw new NotSupportedException();
                                }
