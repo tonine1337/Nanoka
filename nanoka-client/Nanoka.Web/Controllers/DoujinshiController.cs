@@ -211,5 +211,27 @@ namespace Nanoka.Web.Controllers
                 await _db.IndexAsync(doujinshi, token);
             });
         }
+
+        [HttpPut("{id}/variants/{index}"), RequireReputation(100)]
+        public async Task<Result<DoujinshiVariant>> DeleteVariantAsync(Guid id, int index)
+        {
+            var doujinshi = await _db.GetDoujinshiAsync(id);
+
+            if (index < 0 || index >= doujinshi.Variants.Count)
+                return Result.NotFound<DoujinshiVariant>(id, index);
+
+            var variant = doujinshi.Variants[index];
+
+            // unpin files
+            await _ipfs.Pin.RemoveAsync(variant.Cid);
+
+            await CreateSnapshotAsync(doujinshi, SnapshotEvent.Modification);
+
+            doujinshi.Variants.Remove(variant);
+
+            await _db.IndexAsync(doujinshi);
+
+            return variant;
+        }
     }
 }
