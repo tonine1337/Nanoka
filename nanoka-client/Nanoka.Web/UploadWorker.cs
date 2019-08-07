@@ -52,20 +52,20 @@ namespace Nanoka.Web
         [JsonProperty("running")]
         public bool IsRunning { get; private set; } = true;
 
-        [JsonProperty("stop_reason")]
-        public string StopReason { get; private set; }
+        [JsonProperty("message")]
+        public string Message { get; private set; }
 
         [JsonIgnore]
         public CancellationToken CancellationToken => _cancellationToken.Token;
 
-        public void SetProgress(double value)
+        public void SetProgress(double value, string message = null)
         {
             lock (_lock)
             {
                 value = Math.Clamp(value, 0, 1);
 
-                IsRunning  = value < 1;
-                StopReason = null;
+                IsRunning = value < 1;
+                Message   = message ?? Message;
 
                 _end      = null;
                 _progress = value;
@@ -76,8 +76,8 @@ namespace Nanoka.Web
         {
             lock (_lock)
             {
-                IsRunning  = false;
-                StopReason = reason;
+                IsRunning = false;
+                Message   = reason;
 
                 _end = DateTime.UtcNow;
             }
