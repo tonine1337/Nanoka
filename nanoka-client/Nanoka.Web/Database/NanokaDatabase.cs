@@ -44,10 +44,8 @@ namespace Nanoka.Web.Database
             _logger.LogDebug("Migrating indexes...");
 
             await CreateIndexAsync<DbDoujinshi>(cancellationToken);
-            await CreateIndexAsync<DbDoujinshiSnapshot>(cancellationToken);
-
             await CreateIndexAsync<DbBooruPost>(cancellationToken);
-            await CreateIndexAsync<DbBooruPostSnapshot>(cancellationToken);
+            await CreateIndexAsync<DbSnapshot>(cancellationToken);
 
             if (await CreateIndexAsync<DbUser>(cancellationToken))
             {
@@ -110,7 +108,7 @@ namespace Nanoka.Web.Database
             => IndexAsync(new DbDoujinshi().Apply(doujinshi), cancellationToken);
 
         public Task IndexSnapshotAsync(Snapshot<Doujinshi> snapshot, CancellationToken cancellationToken = default)
-            => IndexAsync(new DbDoujinshiSnapshot().Apply(snapshot, _serializer), cancellationToken);
+            => IndexAsync(new DbSnapshot().Apply(snapshot, _serializer), cancellationToken);
 
         public Task DeleteAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
             => DeleteAsync<DbDoujinshi>(doujinshi.Id.ToShortString(), cancellationToken);
@@ -213,7 +211,7 @@ namespace Nanoka.Web.Database
             => IndexAsync(new DbBooruPost().Apply(post), cancellationToken);
 
         public Task IndexSnapshotAsync(Snapshot<BooruPost> snapshot, CancellationToken cancellationToken = default)
-            => IndexAsync(new DbBooruPostSnapshot().Apply(snapshot, _serializer), cancellationToken);
+            => IndexAsync(new DbSnapshot().Apply(snapshot, _serializer), cancellationToken);
 
         public Task DeleteAsync(BooruPost post, CancellationToken cancellationToken = default)
             => DeleteAsync<DbBooruPost>(post.Id.ToShortString(), cancellationToken);
