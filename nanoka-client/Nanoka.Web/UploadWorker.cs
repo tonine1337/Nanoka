@@ -64,7 +64,7 @@ namespace Nanoka.Web
             {
                 value = Math.Clamp(value, 0, 1);
 
-                IsRunning = value < 1;
+                IsRunning = false; // value < 1; 1 does not necessarily indicate completion
                 Message   = message ?? Message;
 
                 _end      = null;
@@ -72,14 +72,26 @@ namespace Nanoka.Web
             }
         }
 
-        public void SetFailure(string reason)
+        public void SetFailure(string message)
         {
             lock (_lock)
             {
                 IsRunning = false;
-                Message   = reason;
+                Message   = Message ?? message;
 
                 _end = DateTime.UtcNow;
+            }
+        }
+
+        public void SetSuccess(string message = null)
+        {
+            lock (_lock)
+            {
+                IsRunning = true;
+                Message   = Message ?? message;
+
+                _end      = DateTime.UtcNow;
+                _progress = 1;
             }
         }
 
