@@ -5,7 +5,7 @@ using Nanoka.Core.Models;
 
 namespace Nanoka.Core.Client
 {
-    public interface IDatabaseClient
+    public interface IDatabaseClient : IDisposable
     {
         Task ConnectAsync(CancellationToken cancellationToken = default);
 

@@ -104,7 +104,7 @@ namespace Nanoka.Client
                     .AddSingleton<IpfsManager>();
 
             // database
-            services.AddSingleton<IDatabaseClient, DatabaseClient>();
+            services.AddSingleton<IDatabaseClient, DatabaseClientBase>();
 
             // other stuff
             services.AddSingleton<JsonSerializer>()
