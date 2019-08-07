@@ -8,9 +8,9 @@ namespace Nanoka.Core
 {
     public class Result : Result<object>
     {
-        Result(HttpStatusCode status, string message) : base(status, message, null) { }
+        Result(HttpStatusCode status, string message) : base(status, message) { }
 
-        public Result<T> ToGeneric<T>() => new Result<T>((HttpStatusCode) Status, Message, default);
+        public Result<T> ToGeneric<T>() => new Result<T>((HttpStatusCode) Status, Message);
 
         public static Result StatusCode(HttpStatusCode status, string message) => new Result(status, message);
 
@@ -36,15 +36,15 @@ namespace Nanoka.Core
         public bool Error => !(200 <= Status && Status < 300);
 
         [JsonProperty("status")]
-        public int Status { get; }
+        public int Status { get; set; }
 
         [JsonProperty("message")]
-        public string Message { get; }
+        public string Message { get; set; }
 
         [JsonProperty("body")]
-        public T Body { get; }
+        public T Body { get; set; }
 
-        public Result(HttpStatusCode status, string message, T body)
+        public Result(HttpStatusCode status, string message = null, T body = default)
         {
             Status  = (int) status;
             Message = message ?? status.ToString();
