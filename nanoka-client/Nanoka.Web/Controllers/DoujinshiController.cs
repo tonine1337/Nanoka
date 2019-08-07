@@ -40,7 +40,15 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<Result<Doujinshi>> GetAsync(Guid id) => await _db.GetDoujinshiAsync(id);
+        public async Task<Result<Doujinshi>> GetAsync(Guid id)
+        {
+            var doujinshi = await _db.GetDoujinshiAsync(id);
+
+            if (doujinshi == null)
+                return Result.NotFound<Doujinshi>(id);
+
+            return doujinshi;
+        }
 
         [HttpPost("search")]
         public async Task<Result<SearchResult<Doujinshi>>> SearchAsync(DoujinshiQuery query)
