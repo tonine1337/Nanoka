@@ -53,7 +53,7 @@ namespace Nanoka.Web.Database
                 var user = new User
                 {
                     Id          = Guid.NewGuid(),
-                    Secret      = Guid.NewGuid(),
+                    Secret      = Extensions.SecureGuid(),
                     Username    = "admin",
                     Registered  = DateTime.UtcNow,
                     Permissions = UserPermissions.Administrator

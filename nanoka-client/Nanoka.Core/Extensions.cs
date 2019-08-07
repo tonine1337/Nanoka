@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
@@ -10,6 +11,24 @@ namespace Nanoka.Core
 {
     public static class Extensions
     {
+        /// <summary>
+        /// https://stackoverflow.com/a/50456283
+        /// </summary>
+        public static Guid SecureGuid()
+        {
+            using (var provider = RandomNumberGenerator.Create())
+            {
+                var bytes = new byte[16];
+
+                provider.GetBytes(bytes);
+
+                bytes[8] = (byte) ((bytes[8] & 0xBF) | 0x80);
+                bytes[7] = (byte) ((bytes[7] & 0x4F) | 0x40);
+
+                return new Guid(bytes);
+            }
+        }
+
         /// <summary>
         /// Registers a background service that can be injected into other services.
         /// </summary>

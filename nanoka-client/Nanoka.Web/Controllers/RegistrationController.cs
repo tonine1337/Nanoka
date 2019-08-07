@@ -12,6 +12,7 @@ using Nanoka.Core.Models;
 using Nanoka.Web.Controllers.Recaptcha;
 using Nanoka.Web.Database;
 using Newtonsoft.Json.Linq;
+using Extensions = Nanoka.Core.Extensions;
 
 namespace Nanoka.Web.Controllers
 {
@@ -59,7 +60,7 @@ namespace Nanoka.Web.Controllers
             var user = new User
             {
                 Id          = Guid.NewGuid(),
-                Secret      = Guid.NewGuid(),
+                Secret      = Extensions.SecureGuid(),
                 Username    = request.Username,
                 Registered  = DateTime.UtcNow,
                 Permissions = _options.DefaultUserPermissions
