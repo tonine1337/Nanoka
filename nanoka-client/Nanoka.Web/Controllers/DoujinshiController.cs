@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -85,28 +86,37 @@ namespace Nanoka.Web.Controllers
             _mapper.Map(request.Doujinshi, doujinshi);
             _mapper.Map(request.Variant, doujinshi.Variants[0]);
 
-            return _uploadManager.CreateWorker(async (services, token) =>
+            return _uploadManager.CreateWorker(async (services, worker, token) =>
             {
-                await LoadVariantIpfsAsync(doujinshi.Variants[0], token);
+                await LoadVariantIpfsAsync(doujinshi.Variants[0], worker, token);
 
                 doujinshi.UpdateTime = DateTime.UtcNow;
 
                 await _db.IndexAsync(doujinshi, token);
+
+                worker.SetSuccess($"Doujinshi '{doujinshi.Id}' was created.");
             });
         }
 
         async Task LoadVariantIpfsAsync(DoujinshiVariant variant,
+                                        UploadWorker worker,
                                         CancellationToken cancellationToken = default)
         {
+            worker.SetProgress(0, $"Listing CID '{variant.Cid}'.");
+
             var variantNode = await _ipfs.FileSystem.ListFileAsync(variant.Cid, cancellationToken);
 
             if (!variantNode.IsDirectory)
                 throw new NotSupportedException($"CID '{variant.Cid}' does not reference a directory.");
 
-            var count = 0;
+            var links = variantNode.Links.ToArray();
 
-            foreach (var node in variantNode.Links)
+            for (var i = 0; i < links.Length; i++)
             {
+                var node = links[i];
+
+                worker.SetProgress(i / (double) links.Length, $"Processing file '{node.Name}'.");
+
                 var extension = Path.GetExtension(node.Name);
 
                 if (node.Name == null || node.Name.Length > 64 || extension == null)
@@ -130,11 +140,11 @@ namespace Nanoka.Web.Controllers
                     if (image.Width == 0 || image.Height == 0)
                         throw new FormatException($"Invalid image dimensions for file '{node.Name}'.");
                 }
-
-                ++count;
             }
 
-            variant.PageCount = count;
+            variant.PageCount = links.Length;
+
+            worker.SetProgress(1, $"Pinning {links.Length} files.");
 
             // make the files always available
             await _ipfs.Pin.AddAsync(variantNode.Id, true, cancellationToken);
@@ -193,9 +203,9 @@ namespace Nanoka.Web.Controllers
 
             _mapper.Map(model, variant);
 
-            return _uploadManager.CreateWorker(async (services, token) =>
+            return _uploadManager.CreateWorker(async (services, worker, token) =>
             {
-                await LoadVariantIpfsAsync(variant, token);
+                await LoadVariantIpfsAsync(variant, worker, token);
 
                 // reload doujinshi because it might have changed
                 doujinshi = await _db.GetDoujinshiAsync(id, token);
@@ -209,15 +219,67 @@ namespace Nanoka.Web.Controllers
                 doujinshi.UpdateTime = DateTime.UtcNow;
 
                 await _db.IndexAsync(doujinshi, token);
+
+                worker.SetSuccess($"Variant '{id}/{doujinshi.Variants.IndexOf(variant)}' created.");
             });
         }
 
-        [HttpPut("{id}/variants/{index}"), RequireReputation(100)]
+        [HttpPut("{id}/variants/{index}")]
+        public async Task<Result<UploadWorker>> UpdateVariantAsync(Guid id, int index, DoujinshiVariantBase model)
+        {
+            var doujinshi = await _db.GetDoujinshiAsync(id);
+
+            if (doujinshi == null || index < 0 || index >= doujinshi.Variants.Count)
+                return Result.NotFound<DoujinshiVariant>(id, index);
+
+            var variant = doujinshi.Variants[index];
+            var lastCid = variant.Cid;
+
+            _mapper.Map(model, variant);
+
+            return _uploadManager.CreateWorker(async (services, worker, token) =>
+            {
+                if (variant.Cid != lastCid)
+                {
+                    await LoadVariantIpfsAsync(variant, worker, token);
+
+                    // reload doujinshi because it might have changed
+                    doujinshi = await _db.GetDoujinshiAsync(id, token);
+
+                    if (doujinshi == null)
+                        throw new InvalidOperationException($"Doujinshi '{id}' was deleted.");
+                }
+
+                await CreateSnapshotAsync(doujinshi, SnapshotEvent.Modification);
+
+                index = doujinshi.Variants.FindIndex(v => v.Cid == lastCid);
+
+                if (index == -1)
+                {
+                    doujinshi.Variants.Add(variant);
+                }
+                else
+                {
+                    // unpin old files
+                    await _ipfs.Pin.RemoveAsync(doujinshi.Variants[index].Cid, true, token);
+
+                    doujinshi.Variants[index] = variant;
+                }
+
+                doujinshi.UpdateTime = DateTime.UtcNow;
+
+                await _db.IndexAsync(doujinshi, token);
+
+                worker.SetSuccess($"Variant '{id}/{doujinshi.Variants.IndexOf(variant)}' updated.");
+            });
+        }
+
+        [HttpDelete("{id}/variants/{index}"), RequireReputation(100)]
         public async Task<Result<DoujinshiVariant>> DeleteVariantAsync(Guid id, int index)
         {
             var doujinshi = await _db.GetDoujinshiAsync(id);
 
-            if (index < 0 || index >= doujinshi.Variants.Count)
+            if (doujinshi == null || index < 0 || index >= doujinshi.Variants.Count)
                 return Result.NotFound<DoujinshiVariant>(id, index);
 
             var variant = doujinshi.Variants[index];
