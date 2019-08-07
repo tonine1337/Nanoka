@@ -9,7 +9,9 @@ using Nanoka.Core;
 
 namespace Nanoka.Web
 {
-    public delegate Task UploadWorkerDelegate(IServiceProvider services, CancellationToken cancellationToken = default);
+    public delegate Task UploadWorkerDelegate(IServiceProvider services,
+                                              UploadWorker worker,
+                                              CancellationToken cancellationToken = default);
 
     public class UploadManager : BackgroundService
     {
@@ -45,7 +47,7 @@ namespace Nanoka.Web
                 try
                 {
                     using (var scope = _services.CreateScope())
-                        await func(scope.ServiceProvider, worker.CancellationToken);
+                        await func(scope.ServiceProvider, worker, worker.CancellationToken);
 
                     // worker function should have set the progress to 1 when it finished
                     if (worker.IsRunning)
