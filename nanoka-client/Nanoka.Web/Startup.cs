@@ -53,6 +53,9 @@ namespace Nanoka.Web
             // database
             services.AddSingleton<NanokaDatabase>();
 
+            // background services
+            services.AddHostedDependencyService<UploadManager>();
+
             // other utility
             services.AddSingleton<JsonSerializer>()
                     .AddHttpClient()
