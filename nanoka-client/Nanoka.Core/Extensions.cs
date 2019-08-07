@@ -2,12 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 
 namespace Nanoka.Core
 {
     public static class Extensions
     {
+        /// <summary>
+        /// Registers a background service that can be injected into other services.
+        /// </summary>
+        public static IServiceCollection AddHostedDependencyService<TService>(this IServiceCollection collection)
+            where TService : class, IHostedService
+            => collection.AddSingleton<TService>()
+                         .AddSingleton<IHostedService, TService>(s => s.GetService<TService>());
+
         public static string Serialize(this JsonSerializer serializer, object obj)
         {
             using (var writer = new StringWriter())
