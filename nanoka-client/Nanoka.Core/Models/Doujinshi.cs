@@ -34,7 +34,7 @@ namespace Nanoka.Core.Models
         [JsonProperty("name_english")]
         public string EnglishName { get; set; }
 
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        IEnumerable<ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
             if (OriginalName == null &&
                 RomanizedName == null &&
