@@ -16,6 +16,12 @@ namespace Nanoka.Core.Models.Query
         [JsonProperty("limit"), Range(1, int.MaxValue), Required]
         public int Limit { get; set; }
 
+        /// <summary>
+        /// Queries against all fields.
+        /// </summary>
+        [JsonProperty("all")]
+        public TextQuery All { get; set; }
+
         [JsonProperty("sorting"), Required]
         public List<TSort> Sorting { get; set; }
 
@@ -30,6 +36,8 @@ namespace Nanoka.Core.Models.Query
 
         public TSelf WithOffset(int offset) => Set(x => x.Offset = offset);
         public TSelf WithLimit(int limit) => Set(x => x.Limit = limit);
+
+        public TSelf WithAll(TextQuery q) => Set(x => x.All = q);
 
         public TSelf WithSorting(Action<SortingBuilder<TSort>> build) => Set(x =>
         {
