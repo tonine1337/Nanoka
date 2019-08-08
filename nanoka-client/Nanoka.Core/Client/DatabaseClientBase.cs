@@ -54,7 +54,8 @@ namespace Nanoka.Core.Client
                         Id     = _userId,
                         Secret = _userSecret
                     },
-                    cancellationToken);
+                    cancellationToken,
+                    false);
 
                 _http.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", response.AccessToken);
@@ -65,8 +66,12 @@ namespace Nanoka.Core.Client
 
         async Task<TResponse> Send<TResponse>(string path,
                                               HttpMethod method,
-                                              CancellationToken cancellationToken)
+                                              CancellationToken cancellationToken,
+                                              bool ensureAuth = true)
         {
+            if (ensureAuth)
+                await ConnectAsync(cancellationToken);
+
             LinkToken(ref cancellationToken);
 
             var requestMessage = new HttpRequestMessage
@@ -83,8 +88,12 @@ namespace Nanoka.Core.Client
         async Task<TResponse> Send<TResponse>(string path,
                                               HttpMethod method,
                                               object request,
-                                              CancellationToken cancellationToken)
+                                              CancellationToken cancellationToken,
+                                              bool ensureAuth = true)
         {
+            if (ensureAuth)
+                await ConnectAsync(cancellationToken);
+
             LinkToken(ref cancellationToken);
 
             var requestMessage = new HttpRequestMessage
