@@ -75,7 +75,7 @@ namespace Nanoka.Web.Controllers
             await _db.IndexSnapshotAsync(snapshot);
         }
 
-        [HttpPost]
+        [HttpPost, RequireUnrestricted]
         public Result<UploadState<Doujinshi>> CreateDoujinshi(CreateDoujinshiRequest request)
         {
             var doujinshi = new Doujinshi
@@ -169,7 +169,7 @@ namespace Nanoka.Web.Controllers
             await _ipfs.Pin.AddAsync(variantNode.Id, true, cancellationToken);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), RequireUnrestricted]
         public async Task<Result<Doujinshi>> UpdateDoujinshiAsync(Guid id, DoujinshiBase model)
         {
             using (await NanokaLock.EnterAsync(id))
@@ -191,7 +191,7 @@ namespace Nanoka.Web.Controllers
             }
         }
 
-        [HttpDelete("{id}"), RequireReputation(100)]
+        [HttpDelete("{id}"), RequireUnrestricted, RequireReputation(100)]
         public async Task<Result<Doujinshi>> DeleteDoujinshiAsync(Guid id, [FromQuery] string reason)
         {
             using (await NanokaLock.EnterAsync(id))
@@ -222,7 +222,7 @@ namespace Nanoka.Web.Controllers
             }
         }
 
-        [HttpPost("{id}/variants")]
+        [HttpPost("{id}/variants"), RequireUnrestricted]
         public async Task<Result<UploadState<DoujinshiVariant>>> CreateVariantAsync(Guid id, DoujinshiVariantBase model)
         {
             using (await NanokaLock.EnterAsync(id))
@@ -272,7 +272,7 @@ namespace Nanoka.Web.Controllers
             });
         }
 
-        [HttpPut("{id}/variants/{variantId}")]
+        [HttpPut("{id}/variants/{variantId}"), RequireUnrestricted]
         public async Task<Result<UploadState<DoujinshiVariant>>> UpdateVariantAsync(Guid id, Guid variantId, DoujinshiVariantBase model)
         {
             // the variant that has new values
@@ -344,7 +344,7 @@ namespace Nanoka.Web.Controllers
             });
         }
 
-        [HttpDelete("{id}/variants/{variantId}"), RequireReputation(100)]
+        [HttpDelete("{id}/variants/{variantId}"), RequireUnrestricted, RequireReputation(100)]
         public async Task<Result<DoujinshiVariant>> DeleteVariantAsync(Guid id, Guid variantId, [FromQuery] string reason)
         {
             using (await NanokaLock.EnterAsync(id))
