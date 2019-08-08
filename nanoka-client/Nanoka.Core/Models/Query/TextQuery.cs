@@ -14,5 +14,19 @@ namespace Nanoka.Core.Models.Query
         public string[] Values { get; set; }
 
         public bool IsSpecified() => Values != null && Values.Length != 0;
+
+        public static implicit operator TextQuery(string value) => new TextQuery
+        {
+            Strictness = QueryStrictness.Must,
+            Operator   = QueryOperator.All,
+            Values     = new[] { value }
+        };
+
+        public static implicit operator TextQuery(string[] values) => new TextQuery
+        {
+            Strictness = QueryStrictness.Must,
+            Operator   = QueryOperator.Any,
+            Values     = values
+        };
     }
 }
