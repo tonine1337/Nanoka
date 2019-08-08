@@ -37,8 +37,7 @@ namespace Nanoka.Web
                 if (context.Result != null)
                     return;
 
-                var claim = context.HttpContext.User.FindFirst(ClaimTypes.Role);
-                var perms = (UserPermissions) (int.TryParse(claim?.Value, out var x) ? x : 0);
+                var perms = (UserPermissions) (int.TryParse(context.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value, out var x) ? x : 0);
 
                 if (!perms.HasFlag(UserPermissions.Administrator) && _requiredFlags.Any(f => !perms.HasFlag(f)))
                     context.Result = new InsufficientPermissionsResult(_requiredFlags);
