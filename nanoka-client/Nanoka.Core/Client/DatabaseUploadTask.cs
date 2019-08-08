@@ -5,14 +5,14 @@ using Nanoka.Core.Models;
 
 namespace Nanoka.Core.Client
 {
-    public class UploadWorker<T> : IDisposable
+    public class DatabaseUploadTask<T> : IDisposable
     {
         readonly CancellationTokenSource _backgroundTaskToken = new CancellationTokenSource();
 
         readonly IDatabaseClient _client;
         readonly Guid _id;
 
-        internal UploadWorker(IDatabaseClient client, UploadState<T> state)
+        internal DatabaseUploadTask(IDatabaseClient client, UploadState<T> state)
         {
             _client = client;
             _id     = state.Id;
