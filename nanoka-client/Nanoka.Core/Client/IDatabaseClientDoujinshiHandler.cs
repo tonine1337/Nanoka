@@ -1,3 +1,4 @@
+using System;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +8,12 @@ namespace Nanoka.Core.Client
 {
     public interface IDatabaseClientDoujinshiHandler
     {
+        Task<Doujinshi> GetAsync(Guid id, CancellationToken cancellationToken = default);
+
         Task<DatabaseUploadTask<Doujinshi>> CreateAsync(DoujinshiBase doujinshi, DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default);
+
+        Task UpdateAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default);
+
+        Task DeleteAsync(Doujinshi doujinshi, string reason, CancellationToken cancellationToken = default);
     }
 }

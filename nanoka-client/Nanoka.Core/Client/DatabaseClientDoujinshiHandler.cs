@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using Ipfs.Http;
 using Nanoka.Core.Models;
 using SixLabors.ImageSharp;
@@ -13,12 +14,17 @@ namespace Nanoka.Core.Client
     {
         readonly IDatabaseClient _client;
         readonly IpfsClient _ipfs;
+        readonly IMapper _mapper;
 
-        public DatabaseClientDoujinshiHandler(IDatabaseClient client, IpfsClient ipfs)
+        public DatabaseClientDoujinshiHandler(IDatabaseClient client, IpfsClient ipfs, IMapper mapper)
         {
             _client = client;
             _ipfs   = ipfs;
+            _mapper = mapper;
         }
+
+        public Task<Doujinshi> GetAsync(Guid id, CancellationToken cancellationToken = default)
+            => _client.GetDoujinshiAsync(id, cancellationToken);
 
         public async Task<DatabaseUploadTask<Doujinshi>> CreateAsync(DoujinshiBase doujinshi,
                                                                      DoujinshiVariantBase variant,
@@ -75,6 +81,22 @@ namespace Nanoka.Core.Client
                 cancellationToken);
 
             return new DatabaseUploadTask<Doujinshi>(_client, state);
+        }
+
+        public async Task UpdateAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
+        {
+            doujinshi.Validate();
+
+            var model = await _client.UpdateDoujinshiAsync(doujinshi.Id, doujinshi, cancellationToken);
+
+            _mapper.Map(model, doujinshi);
+        }
+
+        public async Task DeleteAsync(Doujinshi doujinshi, string reason, CancellationToken cancellationToken = default)
+        {
+            await _client.DeleteDoujinshiAsync(doujinshi.Id, reason, cancellationToken);
+
+            _mapper.Map(new Doujinshi(), doujinshi);
         }
     }
 }
