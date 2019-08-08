@@ -58,7 +58,7 @@ namespace Nanoka.Web.Controllers
             return await _db.SearchAsync(query);
         }
 
-        async Task CreateSnapshotAsync(Doujinshi doujinshi, SnapshotEvent snapshotEvent)
+        async Task CreateSnapshotAsync(Doujinshi doujinshi, SnapshotEvent snapshotEvent, string reason = null)
         {
             var snapshot = new Snapshot<Doujinshi>
             {
@@ -68,6 +68,7 @@ namespace Nanoka.Web.Controllers
                 Time        = DateTime.UtcNow,
                 Event       = snapshotEvent,
                 Target      = SnapshotTarget.Doujinshi,
+                Reason      = reason,
                 Value       = doujinshi
             };
 
@@ -178,7 +179,7 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpDelete("{id}"), RequireReputation(100)]
-        public async Task<Result<Doujinshi>> DeleteDoujinshiAsync(Guid id)
+        public async Task<Result<Doujinshi>> DeleteDoujinshiAsync(Guid id, [FromQuery] string reason)
         {
             var doujinshi = await _db.GetDoujinshiAsync(id);
 
@@ -189,7 +190,7 @@ namespace Nanoka.Web.Controllers
             foreach (var variant in doujinshi.Variants)
                 await _ipfs.Pin.RemoveAsync(variant.Cid);
 
-            await CreateSnapshotAsync(doujinshi, SnapshotEvent.Deletion);
+            await CreateSnapshotAsync(doujinshi, SnapshotEvent.Deletion, reason);
 
             await _db.DeleteAsync(doujinshi);
 
@@ -283,7 +284,7 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpDelete("{id}/variants/{index}"), RequireReputation(100)]
-        public async Task<Result<DoujinshiVariant>> DeleteVariantAsync(Guid id, int index)
+        public async Task<Result<DoujinshiVariant>> DeleteVariantAsync(Guid id, int index, [FromQuery] string reason)
         {
             var doujinshi = await _db.GetDoujinshiAsync(id);
 
@@ -295,7 +296,7 @@ namespace Nanoka.Web.Controllers
             // unpin files
             await _ipfs.Pin.RemoveAsync(variant.Cid);
 
-            await CreateSnapshotAsync(doujinshi, SnapshotEvent.Modification);
+            await CreateSnapshotAsync(doujinshi, SnapshotEvent.Modification, reason);
 
             doujinshi.Variants.Remove(variant);
 
