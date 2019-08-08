@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using Ipfs.Http;
 using Nanoka.Core.Models;
 using Newtonsoft.Json;
@@ -28,7 +29,8 @@ namespace Nanoka.Core.Client
                                      string secret,
                                      JsonSerializer serializer,
                                      HttpClient httpClient,
-                                     IpfsClient ipfs)
+                                     IpfsClient ipfs,
+                                     IMapper mapper)
         {
             _serializer = serializer;
             _http       = httpClient;
@@ -38,7 +40,7 @@ namespace Nanoka.Core.Client
 
             _http.BaseAddress = new Uri(endpoint);
 
-            Doujinshi = new DatabaseClientDoujinshiHandler(this, ipfs);
+            Doujinshi = new DatabaseClientDoujinshiHandler(this, ipfs, mapper);
         }
 
         void LinkToken(ref CancellationToken token)
