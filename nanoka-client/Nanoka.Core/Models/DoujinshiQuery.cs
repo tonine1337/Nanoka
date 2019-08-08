@@ -1,25 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Nanoka.Core.Models.Query;
 using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
 {
-    public class DoujinshiQuery
+    public class DoujinshiQuery : QueryWrapperBase<DoujinshiQuery, DoujinshiQuerySort>
     {
-        [JsonProperty("offset"), Range(0, int.MaxValue)]
-        public int Offset { get; set; }
-
-        [JsonProperty("limit"), Range(1, int.MaxValue), Required]
-        public int Limit { get; set; }
-
-        /// <summary>
-        /// Queries against all fields.
-        /// </summary>
-        [JsonProperty("all")]
-        public TextQuery All { get; set; }
-
         [JsonProperty("upload")]
         public RangeQuery<DateTime> UploadTime { get; set; }
 
@@ -47,7 +34,21 @@ namespace Nanoka.Core.Models
         [JsonProperty("pages")]
         public RangeQuery<int> PageCount { get; set; }
 
-        [JsonProperty("sorting"), Required]
-        public List<DoujinshiQuerySort> Sorting { get; set; }
+        public DoujinshiQuery WithUploadTime(RangeQuery<DateTime> q) => Set(x => x.UploadTime = q);
+        public DoujinshiQuery WithUpdateTime(RangeQuery<DateTime> q) => Set(x => x.UpdateTime = q);
+        public DoujinshiQuery WithOriginalName(TextQuery q) => Set(x => x.OriginalName = q);
+        public DoujinshiQuery WithRomanizedName(TextQuery q) => Set(x => x.RomanizedName = q);
+        public DoujinshiQuery WithEnglishName(TextQuery q) => Set(x => x.EnglishName = q);
+        public DoujinshiQuery WithScore(RangeQuery<int> q) => Set(x => x.Score = q);
+        public DoujinshiQuery WithArtist(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Artist] = q);
+        public DoujinshiQuery WithGroup(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Group] = q);
+        public DoujinshiQuery WithParody(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Parody] = q);
+        public DoujinshiQuery WithCharacter(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Character] = q);
+        public DoujinshiQuery WithCategory(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Category] = q);
+        public DoujinshiQuery WithLanguage(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Language] = q);
+        public DoujinshiQuery WithTag(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Tag] = q);
+        public DoujinshiQuery WithConvention(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Convention] = q);
+        public DoujinshiQuery WithSource(TextQuery q) => Set(x => x.Source = q);
+        public DoujinshiQuery WithPageCount(RangeQuery<int> q) => Set(x => x.PageCount = q);
     }
 }

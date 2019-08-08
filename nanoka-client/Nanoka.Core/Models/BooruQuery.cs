@@ -1,25 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Nanoka.Core.Models.Query;
 using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
 {
-    public class BooruQuery
+    public class BooruQuery : QueryWrapperBase<BooruQuery, BooruQuerySort>
     {
-        [JsonProperty("offset"), Range(0, int.MaxValue)]
-        public int Offset { get; set; }
-
-        [JsonProperty("limit"), Range(1, int.MaxValue), Required]
-        public int Limit { get; set; }
-
-        /// <summary>
-        /// Queries against all fields.
-        /// </summary>
-        [JsonProperty("all")]
-        public TextQuery All { get; set; }
-
         [JsonProperty("upload")]
         public RangeQuery<DateTime> UploadTime { get; set; }
 
@@ -47,7 +34,17 @@ namespace Nanoka.Core.Models
         [JsonProperty("type")]
         public TextQuery MediaType { get; set; }
 
-        [JsonProperty("sorting"), Required]
-        public List<BooruQuerySort> Sorting { get; set; }
+        public BooruQuery WithUploadTime(RangeQuery<DateTime> q) => Set(x => x.UploadTime = q);
+        public BooruQuery WithUpdateTime(RangeQuery<DateTime> q) => Set(x => x.UpdateTime = q);
+        public BooruQuery WithArtist(TextQuery q) => Set(x => x.Tags[BooruTag.Artist] = q);
+        public BooruQuery WithCharacter(TextQuery q) => Set(x => x.Tags[BooruTag.Character] = q);
+        public BooruQuery WithCopyright(TextQuery q) => Set(x => x.Tags[BooruTag.Copyright] = q);
+        public BooruQuery WithMetadata(TextQuery q) => Set(x => x.Tags[BooruTag.Metadata] = q);
+        public BooruQuery WithGeneral(TextQuery q) => Set(x => x.Tags[BooruTag.General] = q);
+        public BooruQuery WithRating(FilterQuery<BooruRating> q) => Set(x => x.Rating = q);
+        public BooruQuery WithSource(TextQuery q) => Set(x => x.Source = q);
+        public BooruQuery WithWidth(RangeQuery<int> q) => Set(x => x.Width = q);
+        public BooruQuery WithHeight(RangeQuery<int> q) => Set(x => x.Height = q);
+        public BooruQuery WithMediaType(TextQuery q) => Set(x => x.MediaType = q);
     }
 }
