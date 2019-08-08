@@ -26,6 +26,9 @@ namespace Nanoka.Core.Client
         public Task<Doujinshi> GetAsync(Guid id, CancellationToken cancellationToken = default)
             => _client.GetDoujinshiAsync(id, cancellationToken);
 
+        public Task<SearchResult<Doujinshi>> SearchAsync(Func<DoujinshiQuery, DoujinshiQuery> query, CancellationToken cancellationToken = default)
+            => _client.SearchDoujinshiAsync(query(new DoujinshiQuery()), cancellationToken);
+
         public async Task<DatabaseUploadTask<Doujinshi>> CreateAsync(DoujinshiBase doujinshi,
                                                                      DoujinshiVariantBase variant,
                                                                      ZipArchive archive,
