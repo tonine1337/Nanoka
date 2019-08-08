@@ -66,6 +66,7 @@ namespace Nanoka.Core.Client
 
         async Task<TResponse> Send<TResponse>(string path,
                                               HttpMethod method,
+                                              object request,
                                               CancellationToken cancellationToken,
                                               bool ensureAuth = true)
         {
@@ -80,28 +81,10 @@ namespace Nanoka.Core.Client
                 RequestUri = new Uri(path, UriKind.Relative)
             };
 
-            var responseMessage = await _http.SendAsync(requestMessage, cancellationToken);
-
-            return await ConvertResponseAsync<TResponse>(responseMessage);
-        }
-
-        async Task<TResponse> Send<TResponse>(string path,
-                                              HttpMethod method,
-                                              object request,
-                                              CancellationToken cancellationToken,
-                                              bool ensureAuth = true)
-        {
-            if (ensureAuth)
-                await ConnectAsync(cancellationToken);
-
-            LinkToken(ref cancellationToken);
-
-            var requestMessage = new HttpRequestMessage
-            {
-                Method     = method,
-                RequestUri = new Uri(path, UriKind.Relative),
-                Content    = new StringContent(_serializer.Serialize(request), Encoding.Default, "application/json")
-            };
+            if (request != null)
+                requestMessage.Content = new StringContent(_serializer.Serialize(request),
+                                                           Encoding.Default,
+                                                           "application/json");
 
             var responseMessage = await _http.SendAsync(requestMessage, cancellationToken);
 
@@ -143,10 +126,47 @@ namespace Nanoka.Core.Client
         }
 
         public Task<Doujinshi> GetDoujinshiAsync(Guid id, CancellationToken cancellationToken = default)
-            => Send<Doujinshi>($"doujinshi/{id}", HttpMethod.Get, cancellationToken);
+            => Send<Doujinshi>($"doujinshi/{id}", HttpMethod.Get, null, cancellationToken);
+
+        public Task<SearchResult<Doujinshi>> SearchDoujinshiAsync(DoujinshiQuery query,
+                                                                  CancellationToken cancellationToken = default)
+            => Send<SearchResult<Doujinshi>>("doujinshi/search", HttpMethod.Post, query, cancellationToken);
+
+        public Task<UploadState> CreateDoujinshiAsync(CreateDoujinshiRequest request,
+                                                      CancellationToken cancellationToken = default)
+            => Send<UploadState>("doujinshi", HttpMethod.Post, request, cancellationToken);
+
+        public Task<Doujinshi> UpdateDoujinshiAsync(Guid id,
+                                                    DoujinshiBase doujinshi,
+                                                    CancellationToken cancellationToken = default)
+            => Send<Doujinshi>($"doujinshi/{id}", HttpMethod.Put, doujinshi, cancellationToken);
+
+        public Task<Doujinshi> DeleteDoujinshiAsync(Guid id,
+                                                    string reason,
+                                                    CancellationToken cancellationToken = default)
+            => Send<Doujinshi>($"doujinshi/{id}", HttpMethod.Delete, null, cancellationToken);
+
+        public Task<UploadState> CreateDoujinshiVariantAsync(Guid id,
+                                                             DoujinshiVariantBase variant,
+                                                             CancellationToken cancellationToken = default)
+            => Send<UploadState>($"doujinshi/{id}/variants", HttpMethod.Post, variant, cancellationToken);
+
+        public Task<UploadState> UpdateDoujinshiVariantAsync(Guid id,
+                                                             int index,
+                                                             DoujinshiVariantBase variant,
+                                                             CancellationToken cancellationToken = default)
+            => Send<UploadState>($"doujinshi/{id}/variants/{index}", HttpMethod.Put, variant, cancellationToken);
+
+        public Task<DoujinshiVariant> DeleteDoujinshiVariantAsync(Guid id,
+                                                                  int index,
+                                                                  CancellationToken cancellationToken = default)
+            => Send<DoujinshiVariant>($"doujinshi/{id}/variants/{index}", HttpMethod.Delete, null, cancellationToken);
 
         public Task<BooruPost> GetBooruPostAsync(Guid id, CancellationToken cancellationToken = default)
-            => Send<BooruPost>($"booru/{id}", HttpMethod.Get, cancellationToken);
+            => Send<BooruPost>($"booru/{id}", HttpMethod.Get, null, cancellationToken);
+
+        public Task<UploadState> GetUploadStateAsync(Guid id, CancellationToken cancellationToken = default)
+            => Send<UploadState>($"uploads/{id}", HttpMethod.Get, null, cancellationToken);
 
         public void Dispose()
         {
