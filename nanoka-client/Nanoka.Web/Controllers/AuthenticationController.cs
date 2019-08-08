@@ -1,5 +1,6 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
@@ -44,7 +45,9 @@ namespace Nanoka.Web.Controllers
                     Subject = new ClaimsIdentity(new[]
                     {
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToShortString()),
-                        new Claim(ClaimTypes.Role, ((int) user.Permissions).ToString())
+                        new Claim(ClaimTypes.Role, ((int) user.Permissions).ToString()),
+                        new Claim("rep", user.Reputation.ToString("F")),
+                        new Claim("rest", user.Restrictions.Any(r => DateTime.UtcNow < r.End) ? "1" : "0")
                     }),
                     Expires = expiry,
                     SigningCredentials = new SigningCredentials(
