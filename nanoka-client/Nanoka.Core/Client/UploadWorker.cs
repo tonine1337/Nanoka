@@ -5,26 +5,27 @@ using Nanoka.Core.Models;
 
 namespace Nanoka.Core.Client
 {
-    public class UploadWorker : IDisposable
+    public class UploadWorker<T> : IDisposable
     {
         readonly CancellationTokenSource _backgroundTaskToken = new CancellationTokenSource();
 
         readonly IDatabaseClient _client;
         readonly Guid _id;
 
-        internal UploadWorker(IDatabaseClient client, Guid id, UploadState initial)
+        internal UploadWorker(IDatabaseClient client, Guid id, UploadState<T> initial)
         {
             _client = client;
             _id     = id;
 
             State = initial;
 
-            Task.Run(() => RunRefreshAsync(_backgroundTaskToken.Token));
+            if (initial == null || initial.IsRunning)
+                Task.Run(() => RunRefreshAsync(_backgroundTaskToken.Token));
         }
 
-        public UploadState State { get; private set; }
+        public UploadState<T> State { get; private set; }
 
-        public event Func<UploadState, CancellationToken, Task> StateUpdatedAsync;
+        public event Func<UploadState<T>, CancellationToken, Task> StateUpdatedAsync;
 
         async Task RunRefreshAsync(CancellationToken cancellationToken = default)
         {
@@ -32,12 +33,12 @@ namespace Nanoka.Core.Client
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var current = await _client.GetUploadStateAsync(_id, cancellationToken);
+                    var current = await _client.GetUploadStateAsync<T>(_id, cancellationToken);
 
                     var @event = StateUpdatedAsync;
 
                     if (current == null)
-                        current = new UploadState
+                        current = new UploadState<T>
                         {
                             IsRunning = false,
                             Progress  = 0,

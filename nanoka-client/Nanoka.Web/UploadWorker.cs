@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Nanoka.Core.Models;
 using Newtonsoft.Json;
 
 namespace Nanoka.Web
@@ -9,51 +10,16 @@ namespace Nanoka.Web
         readonly object _lock = new object();
         readonly CancellationTokenSource _cancellationToken = new CancellationTokenSource();
 
-        double _progress;
+        readonly DateTime _start = DateTime.UtcNow;
         DateTime? _end;
 
-        [JsonProperty("id")]
+        double _progress;
+        string _message;
+        object _result;
+
         public Guid Id { get; } = Guid.NewGuid();
 
-        [JsonProperty("progress")]
-        public double Progress
-        {
-            get
-            {
-                lock (_lock)
-                    return _progress;
-            }
-        }
-
-        [JsonProperty("start")]
-        public DateTime Start { get; } = DateTime.UtcNow;
-
-        [JsonProperty("end")]
-        public DateTime End
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    if (_end != null)
-                        return _end.Value;
-
-                    if (_progress <= 0 || _progress > 1)
-                        return DateTime.MaxValue;
-
-                    // this is a bad estimate; todo: use moving average
-                    var now = DateTime.UtcNow;
-
-                    return now + (now - Start) / _progress;
-                }
-            }
-        }
-
-        [JsonProperty("running")]
         public bool IsRunning { get; private set; } = true;
-
-        [JsonProperty("message")]
-        public string Message { get; private set; }
 
         [JsonIgnore]
         public CancellationToken CancellationToken => _cancellationToken.Token;
@@ -65,8 +31,9 @@ namespace Nanoka.Web
                 value = Math.Clamp(value, 0, 1);
 
                 IsRunning = false; // value < 1; 1 does not necessarily indicate completion
-                Message   = message ?? Message;
 
+                _message  = message ?? _message;
+                _result   = null;
                 _end      = null;
                 _progress = value;
             }
@@ -77,25 +44,67 @@ namespace Nanoka.Web
             lock (_lock)
             {
                 IsRunning = false;
-                Message   = Message ?? message;
 
-                _end = DateTime.UtcNow;
+                _message = message;
+                _result  = null;
+                _end     = DateTime.UtcNow;
             }
         }
 
-        public void SetSuccess(string message = null)
+        public void SetSuccess(object result, string message = null)
         {
             lock (_lock)
             {
                 IsRunning = true;
-                Message   = Message ?? message;
 
+                _message  = message ?? _message;
+                _result   = result;
                 _end      = DateTime.UtcNow;
                 _progress = 1;
             }
         }
 
         public void Cancel() => _cancellationToken.Cancel();
+
+        public UploadState<T> CreateState<T>()
+        {
+            lock (_lock)
+            {
+                return new UploadState<T>
+                {
+                    Id        = Id,
+                    Progress  = _progress,
+                    Start     = _start,
+                    End       = EndTime,
+                    IsRunning = IsRunning,
+                    Message   = _message,
+                    Result    = (T) _result
+                };
+            }
+        }
+
+        public DateTime EndTime
+        {
+            get
+            {
+                lock (_lock)
+                    return _end ?? EstimateEndTime();
+            }
+        }
+
+        DateTime EstimateEndTime()
+        {
+            if (_end != null)
+                return _end.Value;
+
+            if (_progress <= 0 || _progress > 1)
+                return DateTime.MaxValue;
+
+            // this is a bad estimate; todo: use moving average
+            var now = DateTime.UtcNow;
+
+            return now + (now - _start) / _progress;
+        }
 
         public void Dispose()
         {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nanoka.Core;
+using Nanoka.Core.Models;
 
 namespace Nanoka.Web
 {
@@ -33,7 +34,7 @@ namespace Nanoka.Web
                 return _workers.GetOrDefault(id);
         }
 
-        public UploadWorker CreateWorker(UploadWorkerDelegate func)
+        public UploadState<T> CreateWorker<T>(UploadWorkerDelegate func)
         {
             // create worker object
             var worker = new UploadWorker();
@@ -63,7 +64,7 @@ namespace Nanoka.Web
                 }
             });
 
-            return worker;
+            return worker.CreateState<T>();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -79,7 +80,7 @@ namespace Nanoka.Web
                             continue;
 
                         // make finished worker information available for longer
-                        if (DateTime.UtcNow < worker.End.AddMinutes(10))
+                        if (DateTime.UtcNow < worker.EndTime.AddMinutes(10))
                             continue;
 
                         _workers.Remove(id);

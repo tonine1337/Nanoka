@@ -76,7 +76,7 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpPost]
-        public Result<UploadWorker> CreateDoujinshi(CreateDoujinshiRequest request)
+        public Result<UploadState<Doujinshi>> CreateDoujinshi(CreateDoujinshiRequest request)
         {
             var doujinshi = new Doujinshi
             {
@@ -95,7 +95,7 @@ namespace Nanoka.Web.Controllers
             _mapper.Map(request.Doujinshi, doujinshi);
             _mapper.Map(request.Variant, doujinshi.Variants[0]);
 
-            return _uploadManager.CreateWorker(async (services, worker, token) =>
+            return _uploadManager.CreateWorker<Doujinshi>(async (services, worker, token) =>
             {
                 await LoadVariantIpfsAsync(doujinshi.Variants[0], worker, token);
 
@@ -103,7 +103,7 @@ namespace Nanoka.Web.Controllers
 
                 await _db.IndexAsync(doujinshi, token);
 
-                worker.SetSuccess($"Doujinshi '{doujinshi.Id}' was created.");
+                worker.SetSuccess(doujinshi, $"Doujinshi '{doujinshi.Id}' was created.");
             });
         }
 
@@ -198,7 +198,7 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpPost("{id}/variants")]
-        public async Task<Result<UploadWorker>> CreateVariantAsync(Guid id, DoujinshiVariantBase model)
+        public async Task<Result<UploadState<DoujinshiVariant>>> CreateVariantAsync(Guid id, DoujinshiVariantBase model)
         {
             var doujinshi = await _db.GetDoujinshiAsync(id);
 
@@ -212,7 +212,7 @@ namespace Nanoka.Web.Controllers
 
             _mapper.Map(model, variant);
 
-            return _uploadManager.CreateWorker(async (services, worker, token) =>
+            return _uploadManager.CreateWorker<DoujinshiVariant>(async (services, worker, token) =>
             {
                 await LoadVariantIpfsAsync(variant, worker, token);
 
@@ -229,12 +229,12 @@ namespace Nanoka.Web.Controllers
 
                 await _db.IndexAsync(doujinshi, token);
 
-                worker.SetSuccess($"Variant '{id}/{doujinshi.Variants.IndexOf(variant)}' created.");
+                worker.SetSuccess(variant, $"Variant '{id}/{doujinshi.Variants.IndexOf(variant)}' created.");
             });
         }
 
         [HttpPut("{id}/variants/{index}")]
-        public async Task<Result<UploadWorker>> UpdateVariantAsync(Guid id, int index, DoujinshiVariantBase model)
+        public async Task<Result<UploadState<DoujinshiVariant>>> UpdateVariantAsync(Guid id, int index, DoujinshiVariantBase model)
         {
             var doujinshi = await _db.GetDoujinshiAsync(id);
 
@@ -246,7 +246,7 @@ namespace Nanoka.Web.Controllers
 
             _mapper.Map(model, variant);
 
-            return _uploadManager.CreateWorker(async (services, worker, token) =>
+            return _uploadManager.CreateWorker<DoujinshiVariant>(async (services, worker, token) =>
             {
                 if (variant.Cid != lastCid)
                 {
@@ -279,7 +279,7 @@ namespace Nanoka.Web.Controllers
 
                 await _db.IndexAsync(doujinshi, token);
 
-                worker.SetSuccess($"Variant '{id}/{doujinshi.Variants.IndexOf(variant)}' updated.");
+                worker.SetSuccess(variant, $"Variant '{id}/{doujinshi.Variants.IndexOf(variant)}' updated.");
             });
         }
 
