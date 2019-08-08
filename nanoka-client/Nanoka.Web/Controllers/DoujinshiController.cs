@@ -120,19 +120,20 @@ namespace Nanoka.Web.Controllers
 
             var links = variantNode.Links.ToArray();
 
+            foreach (var node in links)
+            {
+                if (node.IsDirectory)
+                    throw new NotSupportedException($"CID '{variant.Cid}' references another directory '{node.Id}'.");
+
+                if (node.Name == null || node.Name.Length > 64 || Path.GetExtension(node.Name).Length == 0)
+                    throw new FormatException($"CID '{variant.Cid}' references a file with an invalid filename.");
+            }
+
             for (var i = 0; i < links.Length; i++)
             {
                 var node = links[i];
 
                 worker.SetProgress(i / (double) links.Length, $"Processing file '{node.Name}'.");
-
-                var extension = Path.GetExtension(node.Name);
-
-                if (node.Name == null || node.Name.Length > 64 || extension == null)
-                    throw new FormatException($"CID '{variant.Cid}' references a file with an invalid filename.");
-
-                if (node.IsDirectory)
-                    throw new NotSupportedException($"CID '{variant.Cid}' references another directory '{node.Id}'.");
 
                 // ensure file is a valid image
                 using (var stream = await _ipfs.FileSystem.ReadFileAsync(node.Id, cancellationToken))
@@ -140,7 +141,7 @@ namespace Nanoka.Web.Controllers
                 {
                     var mime = format.DefaultMimeType;
 
-                    if (MimeTypeMap.GetMimeType(extension) != mime)
+                    if (MimeTypeMap.GetMimeType(Path.GetExtension(node.Name)) != mime)
                         throw new NotSupportedException($"File extension '{node.Name}' is invalid for '{mime}'.");
 
                     if (image.Frames.Count != 1)
