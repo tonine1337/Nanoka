@@ -76,11 +76,8 @@ namespace Nanoka.Web
                 {
                     foreach (var (id, worker) in _workers.ToArray())
                     {
-                        if (worker.IsRunning)
-                            continue;
-
                         // make finished worker information available for longer
-                        if (DateTime.UtcNow < worker.EndTime.AddMinutes(10))
+                        if (worker.End == null || DateTime.UtcNow < worker.End.Value.AddMinutes(10))
                             continue;
 
                         _workers.Remove(id);

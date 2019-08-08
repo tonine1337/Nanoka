@@ -19,6 +19,15 @@ namespace Nanoka.Web
 
         public Guid Id { get; } = Guid.NewGuid();
 
+        public DateTime? End
+        {
+            get
+            {
+                lock (_lock)
+                    return _end;
+            }
+        }
+
         public bool IsRunning { get; private set; } = true;
 
         [JsonIgnore]
@@ -75,20 +84,11 @@ namespace Nanoka.Web
                     Id        = Id,
                     Progress  = _progress,
                     Start     = _start,
-                    End       = EndTime,
+                    End       = _end ?? EstimateEndTime(),
                     IsRunning = IsRunning,
                     Message   = _message,
                     Result    = (T) _result
                 };
-            }
-        }
-
-        public DateTime EndTime
-        {
-            get
-            {
-                lock (_lock)
-                    return _end ?? EstimateEndTime();
             }
         }
 
