@@ -33,6 +33,12 @@ namespace Nanoka.Web
         [JsonIgnore]
         public CancellationToken CancellationToken => _cancellationToken.Token;
 
+        public void SetMessage(string message)
+        {
+            lock (_lock)
+                _message = message;
+        }
+
         public void SetProgress(double value, string message = null)
         {
             lock (_lock)
