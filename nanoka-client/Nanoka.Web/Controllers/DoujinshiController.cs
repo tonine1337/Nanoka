@@ -145,7 +145,7 @@ namespace Nanoka.Web.Controllers
                         throw new NotSupportedException($"File extension '{node.Name}' is invalid for '{mime}'.");
 
                     if (image.Frames.Count != 1)
-                        throw new FormatException($"Not a static image for file '{node.Name}'.");
+                        throw new FormatException($"File '{node.Name}' is not a static image.");
 
                     if (image.Width == 0 || image.Height == 0)
                         throw new FormatException($"Invalid image dimensions for file '{node.Name}'.");
