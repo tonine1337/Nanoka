@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -13,6 +14,8 @@ namespace Nanoka.Core
 {
     public static class Extensions
     {
+        public static void Validate(this object obj) => Validator.ValidateObject(obj, new ValidationContext(obj));
+
         public static async Task<IDisposable> EnterAsync(this SemaphoreSlim semaphore,
                                                          CancellationToken cancellationToken = default)
         {
