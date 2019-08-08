@@ -12,21 +12,25 @@ namespace Nanoka.Core.Client
         readonly IDatabaseClient _client;
         readonly Guid _id;
 
-        internal UploadWorker(IDatabaseClient client, Guid id, UploadState<T> initial)
+        internal UploadWorker(IDatabaseClient client, UploadState<T> state)
         {
             _client = client;
-            _id     = id;
+            _id     = state.Id;
 
-            State = initial;
-
-            if (initial == null || initial.IsRunning)
+            if (state.IsRunning)
                 Task.Run(() => RunRefreshAsync(_backgroundTaskToken.Token));
         }
 
         public UploadState<T> State { get; private set; }
 
+        /// <summary>
+        /// Triggered when <see cref="State"/> is changed.
+        /// </summary>
         public event Func<UploadState<T>, CancellationToken, Task> StateUpdatedAsync;
 
+        /// <summary>
+        /// Periodically refreshes <see cref="State"/> with the latest upload status.
+        /// </summary>
         async Task RunRefreshAsync(CancellationToken cancellationToken = default)
         {
             try
