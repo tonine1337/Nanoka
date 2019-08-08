@@ -34,11 +34,26 @@ namespace Nanoka.Core.Client
                                                                      ZipArchive archive,
                                                                      CancellationToken cancellationToken = default)
         {
-            if (archive == null || archive.Mode == ZipArchiveMode.Create)
-                throw new NotSupportedException($"{nameof(archive)} is write-only.");
-
             doujinshi.Validate();
             variant.Validate();
+
+            await PrepareVariantArchiveAsync(variant, archive, cancellationToken);
+
+            var state = await _client.CreateDoujinshiAsync(
+                new CreateDoujinshiRequest
+                {
+                    Doujinshi = doujinshi,
+                    Variant   = variant
+                },
+                cancellationToken);
+
+            return new DatabaseUploadTask<Doujinshi>(_client, state);
+        }
+
+        async Task PrepareVariantArchiveAsync(DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default)
+        {
+            if (archive == null || archive.Mode == ZipArchiveMode.Create)
+                throw new NotSupportedException($"{nameof(archive)} is write-only.");
 
             foreach (var entry in archive.Entries)
             {
@@ -74,16 +89,6 @@ namespace Nanoka.Core.Client
 
                 variant.Cid = node.Id;
             }
-
-            var state = await _client.CreateDoujinshiAsync(
-                new CreateDoujinshiRequest
-                {
-                    Doujinshi = doujinshi,
-                    Variant   = variant
-                },
-                cancellationToken);
-
-            return new DatabaseUploadTask<Doujinshi>(_client, state);
         }
 
         public async Task UpdateAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
@@ -100,6 +105,17 @@ namespace Nanoka.Core.Client
             await _client.DeleteDoujinshiAsync(doujinshi.Id, reason, cancellationToken);
 
             _mapper.Map(new Doujinshi(), doujinshi);
+        }
+
+        public async Task<DatabaseUploadTask<DoujinshiVariant>> CreateVariantAsync(Doujinshi doujinshi, DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default)
+        {
+            variant.Validate();
+
+            await PrepareVariantArchiveAsync(variant, archive, cancellationToken);
+
+            var state = await _client.CreateDoujinshiVariantAsync(doujinshi.Id, variant, cancellationToken);
+
+            return new DatabaseUploadTask<DoujinshiVariant>(_client, state);
         }
     }
 }
