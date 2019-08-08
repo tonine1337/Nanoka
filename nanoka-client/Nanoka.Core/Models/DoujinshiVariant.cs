@@ -7,6 +7,9 @@ namespace Nanoka.Core.Models
 {
     public class DoujinshiVariant : DoujinshiVariantBase
     {
+        [JsonProperty("id")]
+        public Guid Id { get; set; }
+
         [JsonProperty("uploader")]
         public Guid UploaderId { get; set; }
 
