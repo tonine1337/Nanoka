@@ -24,6 +24,9 @@ namespace Nanoka.Web.Database
         [Number(Name = "e")]
         public SnapshotEvent Event { get; set; }
 
+        [Text(Name = "r")]
+        public string Reason { get; set; }
+
         [Keyword(Name = "v", Index = false)]
         public string Value { get; set; }
 
@@ -45,6 +48,7 @@ namespace Nanoka.Web.Database
             CommitterId = snapshot.CommitterId.ToShortString();
             Time        = snapshot.Time;
             Event       = snapshot.Event;
+            Reason      = snapshot.Reason ?? Reason;
 
             Value = snapshot.Value == null ? Value : serializer.Serialize(project(snapshot.Value));
 
@@ -66,6 +70,7 @@ namespace Nanoka.Web.Database
             snapshot.CommitterId = CommitterId.ToGuid();
             snapshot.Time        = Time;
             snapshot.Event       = Event;
+            snapshot.Reason      = Reason ?? snapshot.Reason;
 
             snapshot.Value = Value == null ? snapshot.Value : project(serializer.Deserialize<TProjection>(Value));
 

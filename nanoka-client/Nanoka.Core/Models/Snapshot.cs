@@ -24,6 +24,9 @@ namespace Nanoka.Core.Models
         [JsonProperty("target")]
         public SnapshotTarget Target { get; set; }
 
+        [JsonProperty("reason")]
+        public string Reason { get; set; }
+
         [JsonProperty("value"), Required]
         public T Value { get; set; }
     }
