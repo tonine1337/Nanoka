@@ -26,7 +26,8 @@ namespace Nanoka.Core.Client
         public IDatabaseClientDoujinshiHandler Doujinshi { get; }
 
         protected DatabaseClientBase(string endpoint,
-                                     string secret,
+                                     Guid userId,
+                                     Guid userSecret,
                                      JsonSerializer serializer,
                                      HttpClient httpClient,
                                      IpfsClient ipfs,
@@ -34,9 +35,8 @@ namespace Nanoka.Core.Client
         {
             _serializer = serializer;
             _http       = httpClient;
-
-            _userId     = secret.Substring(0, secret.Length / 2).ToGuid();
-            _userSecret = secret.Substring(secret.Length / 2).ToGuid();
+            _userId     = userId;
+            _userSecret = userSecret;
 
             _http.BaseAddress = new Uri(endpoint);
 
@@ -46,7 +46,7 @@ namespace Nanoka.Core.Client
         void LinkToken(ref CancellationToken token)
             => token = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token, token).Token;
 
-        DateTime _nextAuthTime;
+        DateTime _nextAuthTime = DateTime.Now;
 
         public async Task ConnectAsync(CancellationToken cancellationToken = default)
         {
