@@ -15,7 +15,8 @@ namespace Nanoka.Client
                               IpfsClient ipfs,
                               IMapper mapper)
             : base(options.Value.Endpoint,
-                   options.Value.Secret,
+                   options.Value.UserId,
+                   options.Value.UserSecret,
                    serializer,
                    httpClientFactory.CreateClient(nameof(DatabaseClientBase)),
                    ipfs,
