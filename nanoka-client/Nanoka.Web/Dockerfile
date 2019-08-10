@@ -1,16 +1,16 @@
 # Build stage
 FROM microsoft/dotnet:sdk AS build
-WORKDIR ../
+WORKDIR /
 
 # Copy everything
-COPY . ./
+COPY .. ./
 
 # Publish project
 RUN dotnet publish Nanoka.Web -c Release -o ./bin
 
 # Runtime stage
 FROM microsoft/dotnet:aspnetcore-runtime
-WORKDIR ../
+WORKDIR /
 
 # Copy publish output
 COPY --from=build /Nanoka.Web/bin .
