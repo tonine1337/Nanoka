@@ -3,7 +3,7 @@ FROM microsoft/dotnet:sdk AS build
 WORKDIR /
 
 # Copy everything
-COPY .. ./
+COPY . ./
 
 # Publish project
 RUN dotnet publish Nanoka.Web -c Release -o ./bin
