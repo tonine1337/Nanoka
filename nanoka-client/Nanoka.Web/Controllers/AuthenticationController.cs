@@ -47,7 +47,7 @@ namespace Nanoka.Web.Controllers
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToShortString()),
                         new Claim(ClaimTypes.Role, ((int) user.Permissions).ToString()),
                         new Claim("rep", user.Reputation.ToString("F")),
-                        new Claim("rest", user.Restrictions.Any(r => DateTime.UtcNow < r.End) ? "1" : "0")
+                        new Claim("rest", user.Restrictions != null && user.Restrictions.Any(r => DateTime.UtcNow < r.End) ? "1" : "0")
                     }),
                     Expires = expiry,
                     SigningCredentials = new SigningCredentials(
