@@ -238,57 +238,6 @@ namespace Nanoka.Web.Controllers
             });
         }
 
-        [HttpPut("{id}/variants/{variantId}"), RequireUnrestricted]
-        public async Task<Result<UploadState<DoujinshiVariant>>> UpdateVariantAsync(Guid id, Guid variantId, DoujinshiVariantBase model)
-        {
-            // the variant that has new values
-            DoujinshiVariant variant;
-
-            using (await NanokaLock.EnterAsync(id))
-            {
-                variant = (await _db.GetDoujinshiAsync(id))?.Variants.FirstOrDefault(v => v.Id == variantId);
-
-                if (variant == null)
-                    return Result.NotFound<DoujinshiVariant>(id, variantId);
-            }
-
-            // the cid before setting new values to the variant
-            var lastCid = variant.Cid;
-
-            _mapper.Map(model, variant);
-
-            return _uploadManager.CreateWorker<DoujinshiVariant>(async (services, worker, token) =>
-            {
-                // load new cid only if changed
-                if (variant.Cid != lastCid)
-                    await LoadVariantAsync(variant, worker, token);
-
-                using (await NanokaLock.EnterAsync(id, token))
-                {
-                    var doujinshi = await _db.GetDoujinshiAsync(id, token);
-
-                    if (doujinshi == null)
-                        throw new InvalidOperationException($"Doujinshi '{id}' was deleted.");
-
-                    var index = doujinshi.Variants.FindIndex(v => v.Id == id);
-
-                    if (index == -1)
-                        throw new InvalidOperationException($"Variant '{id}/{variantId}' was deleted.");
-
-                    await CreateSnapshotAsync(doujinshi, SnapshotEvent.Modification);
-
-                    // overwrite in place with new values
-                    doujinshi.Variants[index] = variant;
-
-                    doujinshi.UpdateTime = DateTime.UtcNow;
-
-                    await _db.IndexAsync(doujinshi, token);
-                }
-
-                worker.SetSuccess(variant, $"Variant '{id}/{variantId}' updated.");
-            });
-        }
-
         [HttpDelete("{id}/variants/{variantId}"), RequireUnrestricted, RequireReputation(100)]
         public async Task<Result<DoujinshiVariant>> DeleteVariantAsync(Guid id, Guid variantId, [FromQuery] string reason)
         {
