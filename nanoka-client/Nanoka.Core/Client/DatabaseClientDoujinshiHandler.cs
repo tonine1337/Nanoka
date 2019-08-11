@@ -26,7 +26,7 @@ namespace Nanoka.Core.Client
         public Task<SearchResult<Doujinshi>> SearchAsync(Func<DoujinshiQuery, DoujinshiQuery> query, CancellationToken cancellationToken = default)
             => _client.SearchDoujinshiAsync(query(new DoujinshiQuery()), cancellationToken);
 
-        public async Task<DatabaseUploadTask<Doujinshi>> CreateAsync(DoujinshiBase doujinshi,
+        public async Task<DatabaseUploadTask<Doujinshi>> UploadAsync(DoujinshiBase doujinshi,
                                                                      DoujinshiVariantBase variant,
                                                                      ZipArchive archive,
                                                                      CancellationToken cancellationToken = default)
@@ -98,7 +98,7 @@ namespace Nanoka.Core.Client
         public Task DeleteAsync(Doujinshi doujinshi, string reason, CancellationToken cancellationToken = default)
             => _client.DeleteDoujinshiAsync(doujinshi.Id, reason, cancellationToken);
 
-        public async Task<DatabaseUploadTask<DoujinshiVariant>> CreateVariantAsync(Doujinshi doujinshi, DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default)
+        public async Task<DatabaseUploadTask<DoujinshiVariant>> UploadVariantAsync(Doujinshi doujinshi, DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default)
         {
             variant.Validate();
 
