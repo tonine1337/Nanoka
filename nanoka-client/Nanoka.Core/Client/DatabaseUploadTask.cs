@@ -10,12 +10,14 @@ namespace Nanoka.Core.Client
         readonly CancellationTokenSource _backgroundTaskToken = new CancellationTokenSource();
 
         readonly IDatabaseClient _client;
-        readonly Guid _id;
+
+        public readonly Guid Id;
 
         internal DatabaseUploadTask(IDatabaseClient client, UploadState<T> state)
         {
             _client = client;
-            _id     = state.Id;
+
+            Id = state.Id;
 
             if (state.IsRunning)
                 Task.Run(() => RunRefreshAsync(_backgroundTaskToken.Token));
@@ -37,7 +39,7 @@ namespace Nanoka.Core.Client
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var current = await _client.GetUploadStateAsync<T>(_id, cancellationToken);
+                    var current = await _client.GetUploadStateAsync<T>(Id, cancellationToken);
 
                     var @event = StateUpdatedAsync;
 
@@ -46,7 +48,7 @@ namespace Nanoka.Core.Client
                         {
                             IsRunning = false,
                             Progress  = 0,
-                            Message   = $"Worker state '{_id}' could not be retrieved."
+                            Message   = $"Worker state '{Id}' could not be retrieved."
                         };
 
                     State = current;
