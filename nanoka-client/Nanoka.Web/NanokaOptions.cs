@@ -11,6 +11,8 @@ namespace Nanoka.Web
         public string ElasticIndexPrefix { get; set; } = "nanoka-";
 
         public string IpfsEndpoint { get; set; } = "http://localhost:5001";
+        public string IpfsIdentity { get; set; }
+        public string IpfsSwarmKey { get; set; }
 
         public string RecaptchaSite { get; set; }
         public string RecaptchaSecret { get; set; }

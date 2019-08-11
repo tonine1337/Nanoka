@@ -20,7 +20,9 @@ namespace Nanoka.Web.Controllers
         public Result<DatabaseInfo> GetAsync()
             => new DatabaseInfo
             {
-                Version = NanokaVersion.Latest
+                Version       = NanokaVersion.Latest,
+                IpfsBootstrap = _options.IpfsIdentity,
+                IpfsSwarmKey  = _options.IpfsSwarmKey
             };
     }
 }
