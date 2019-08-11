@@ -45,15 +45,11 @@ namespace Nanoka.Client.Controllers
         }
 
         [HttpPost]
-        public async Task<Result<Guid>> UploadAsync([FromForm] UploadDoujinshiRequest request)
+        public async Task<Result<UploadState>> UploadAsync([FromForm] UploadDoujinshiRequest request)
         {
             using (var stream = request.Archive.OpenReadStream())
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, false))
-            {
-                var upload = await _client.Doujinshi.UploadAsync(request.Doujinshi, request.Variant, archive);
-
-                return upload.Id;
-            }
+                return await _client.Doujinshi.UploadAsync(request.Doujinshi, request.Variant, archive);
         }
 
         [HttpPut("{id}")]
@@ -94,7 +90,7 @@ namespace Nanoka.Client.Controllers
         }
 
         [HttpPost("{id}/variants")]
-        public async Task<Result<Guid>> UploadVariantAsync(Guid id, [FromForm] UploadVariantRequest request)
+        public async Task<Result<UploadState>> UploadVariantAsync(Guid id, [FromForm] UploadVariantRequest request)
         {
             var doujinshi = await _client.Doujinshi.GetAsync(id);
 
@@ -103,11 +99,7 @@ namespace Nanoka.Client.Controllers
 
             using (var stream = request.Archive.OpenReadStream())
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, false))
-            {
-                var upload = await _client.Doujinshi.UploadVariantAsync(doujinshi, request.Variant, archive);
-
-                return upload.Id;
-            }
+                return await _client.Doujinshi.UploadVariantAsync(doujinshi, request.Variant, archive);
         }
 
         [HttpDelete("{id}/variants/{variantId}")]
