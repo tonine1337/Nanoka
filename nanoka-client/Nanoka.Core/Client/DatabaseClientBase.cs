@@ -136,6 +136,9 @@ namespace Nanoka.Core.Client
             return response.Body;
         }
 
+        public Task<DatabaseInfo> GetDatabaseInfoAsync(CancellationToken cancellationToken = default)
+            => Send<DatabaseInfo>("", HttpMethod.Get, null, cancellationToken);
+
         public Task<Doujinshi> GetDoujinshiAsync(Guid id, CancellationToken cancellationToken = default)
             => Send<Doujinshi>($"doujinshi/{id}", HttpMethod.Get, null, cancellationToken);
 

@@ -11,6 +11,8 @@ namespace Nanoka.Core.Client
 
         Task ConnectAsync(CancellationToken cancellationToken = default);
 
+        Task<DatabaseInfo> GetDatabaseInfoAsync(CancellationToken cancellationToken = default);
+
         Task<Doujinshi> GetDoujinshiAsync(Guid id, CancellationToken cancellationToken = default);
         Task<SearchResult<Doujinshi>> SearchDoujinshiAsync(DoujinshiQuery query, CancellationToken cancellationToken = default);
         Task<UploadState<Doujinshi>> CreateDoujinshiAsync(CreateDoujinshiRequest request, CancellationToken cancellationToken = default);
