@@ -179,7 +179,7 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpDelete("{id}"), RequireUnrestricted, RequireReputation(100)]
-        public async Task<Result<Doujinshi>> DeleteDoujinshiAsync(Guid id, [FromQuery] string reason)
+        public async Task<Result> DeleteDoujinshiAsync(Guid id, [FromQuery] string reason)
         {
             using (await NanokaLock.EnterAsync(id))
             {
@@ -192,7 +192,7 @@ namespace Nanoka.Web.Controllers
 
                 await _db.DeleteAsync(doujinshi);
 
-                return doujinshi;
+                return Result.Ok();
             }
         }
 
@@ -239,7 +239,7 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpDelete("{id}/variants/{variantId}"), RequireUnrestricted, RequireReputation(100)]
-        public async Task<Result<DoujinshiVariant>> DeleteVariantAsync(Guid id, Guid variantId, [FromQuery] string reason)
+        public async Task<Result> DeleteVariantAsync(Guid id, Guid variantId, [FromQuery] string reason)
         {
             using (await NanokaLock.EnterAsync(id))
             {
@@ -255,7 +255,7 @@ namespace Nanoka.Web.Controllers
 
                 await _db.IndexAsync(doujinshi);
 
-                return variant;
+                return Result.Ok();
             }
         }
     }
