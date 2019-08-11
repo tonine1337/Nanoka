@@ -188,7 +188,7 @@ namespace Nanoka.Client
             }
         }
 
-        public async Task StartDaemonAsync(CancellationToken cancellationToken)
+        public async Task StartDaemonAsync(string bootstrapAddr, string swarmKey, CancellationToken cancellationToken)
         {
             _client.ApiUri = new Uri($"http://{_options.ApiEndpoint}");
 
@@ -201,7 +201,7 @@ namespace Nanoka.Client
             SetConfig("Addresses.API", EndpointToMultiAddr(_options.ApiEndpoint));
             SetConfig("Addresses.Gateway", EndpointToMultiAddr(_options.GatewayEndpoint));
 
-            SetBootstrap(_options.SwarmBootstrap, _options.SwarmKey);
+            SetBootstrap(bootstrapAddr, swarmKey);
 
             // start daemon process
             using (var process = StartIpfs($"daemon {_options.DaemonFlags}"))

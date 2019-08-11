@@ -10,9 +10,6 @@ namespace Nanoka.Client
         public string GatewayEndpoint { get; set; } = null; // "localhost:8080";
         public string DaemonFlags { get; set; } = "--init --migrate --enable-gc --writable";
         public double DaemonWaitTimeout { get; set; } = 10;
-
-        public string SwarmBootstrap { get; set; }
-        public string SwarmKey { get; set; }
     }
 
     public class DatabaseOptions

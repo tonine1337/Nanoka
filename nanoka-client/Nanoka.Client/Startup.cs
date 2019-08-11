@@ -52,11 +52,11 @@ namespace Nanoka.Client
 
             using (var host = builder.Build())
             {
-                // start ipfs daemon
-                await host.Services.GetService<IpfsManager>().StartDaemonAsync(cancellationToken);
-
                 // connect to database
-                await host.Services.GetService<IDatabaseClient>().ConnectAsync(cancellationToken);
+                var info = await host.Services.GetService<IDatabaseClient>().GetDatabaseInfoAsync(cancellationToken);
+
+                // start ipfs daemon
+                await host.Services.GetService<IpfsManager>().StartDaemonAsync(info.IpfsBootstrap, info.IpfsSwarmKey, cancellationToken);
 
                 // run host
                 await host.RunAsync(cancellationToken);
