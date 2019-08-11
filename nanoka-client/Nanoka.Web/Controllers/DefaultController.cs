@@ -22,7 +22,7 @@ namespace Nanoka.Web.Controllers
             {
                 Version       = NanokaVersion.Latest,
                 IpfsBootstrap = _options.IpfsIdentity,
-                IpfsSwarmKey  = _options.IpfsSwarmKey
+                IpfsSwarmKey  = _options.IpfsSwarmKey.Replace(" ", "\n")
             };
     }
 }
