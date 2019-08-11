@@ -50,9 +50,9 @@ namespace Nanoka.Client.Controllers
             using (var stream = request.Archive.OpenReadStream())
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, false))
             {
-                var task = await _client.Doujinshi.UploadAsync(request.Doujinshi, request.Variant, archive);
+                var upload = await _client.Doujinshi.UploadAsync(request.Doujinshi, request.Variant, archive);
 
-                return task.Id;
+                return upload.Id;
             }
         }
 
@@ -104,9 +104,9 @@ namespace Nanoka.Client.Controllers
             using (var stream = request.Archive.OpenReadStream())
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, false))
             {
-                var task = await _client.Doujinshi.UploadVariantAsync(doujinshi, request.Variant, archive);
+                var upload = await _client.Doujinshi.UploadVariantAsync(doujinshi, request.Variant, archive);
 
-                return task.Id;
+                return upload.Id;
             }
         }
 
