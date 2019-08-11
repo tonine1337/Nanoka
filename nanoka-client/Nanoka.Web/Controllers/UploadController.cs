@@ -17,14 +17,14 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpGet("{workerId}")]
-        public Result<UploadState<object>> GetState(Guid workerId)
+        public Result<UploadState> GetState(Guid workerId)
         {
             var worker = _uploadManager.FindWorker(workerId);
 
             if (worker == null)
                 return Result.NotFound<UploadWorker>(workerId);
 
-            return worker.CreateState<object>();
+            return worker.CreateState();
         }
     }
 }

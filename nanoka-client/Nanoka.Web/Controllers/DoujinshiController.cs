@@ -76,7 +76,7 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpPost, RequireUnrestricted]
-        public Result<UploadState<Doujinshi>> CreateDoujinshi(CreateDoujinshiRequest request)
+        public Result<UploadState> CreateDoujinshi(CreateDoujinshiRequest request)
         {
             var doujinshi = new Doujinshi
             {
@@ -96,7 +96,7 @@ namespace Nanoka.Web.Controllers
             _mapper.Map(request.Doujinshi, doujinshi);
             _mapper.Map(request.Variant, doujinshi.Variants[0]);
 
-            return _uploadManager.CreateWorker<Doujinshi>(async (services, worker, token) =>
+            return _uploadManager.CreateWorker(async (services, worker, token) =>
             {
                 await LoadVariantAsync(doujinshi.Variants[0], worker, token);
 
@@ -104,7 +104,7 @@ namespace Nanoka.Web.Controllers
 
                 await _db.IndexAsync(doujinshi, token);
 
-                worker.SetSuccess(doujinshi, $"Doujinshi '{doujinshi.Id}' was created.");
+                worker.SetSuccess($"Doujinshi '{doujinshi.Id}' was created.");
             });
         }
 
@@ -197,7 +197,7 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpPost("{id}/variants"), RequireUnrestricted]
-        public async Task<Result<UploadState<DoujinshiVariant>>> CreateVariantAsync(Guid id, DoujinshiVariantBase model)
+        public async Task<Result<UploadState>> CreateVariantAsync(Guid id, DoujinshiVariantBase model)
         {
             using (await NanokaLock.EnterAsync(id))
             {
@@ -215,7 +215,7 @@ namespace Nanoka.Web.Controllers
 
             _mapper.Map(model, variant);
 
-            return _uploadManager.CreateWorker<DoujinshiVariant>(async (services, worker, token) =>
+            return _uploadManager.CreateWorker(async (services, worker, token) =>
             {
                 await LoadVariantAsync(variant, worker, token);
 
@@ -234,7 +234,7 @@ namespace Nanoka.Web.Controllers
                     await _db.IndexAsync(doujinshi, token);
                 }
 
-                worker.SetSuccess(variant, $"Variant '{id}/{variant.Id}' created.");
+                worker.SetSuccess($"Variant '{id}/{variant.Id}' created.");
             });
         }
 

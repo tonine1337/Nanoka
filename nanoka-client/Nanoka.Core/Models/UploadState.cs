@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Core.Models
 {
-    public class UploadState<T>
+    public class UploadState
     {
         [JsonProperty("id")]
         public Guid Id { get; set; }
@@ -22,8 +22,5 @@ namespace Nanoka.Core.Models
 
         [JsonProperty("message")]
         public string Message { get; set; }
-
-        [JsonProperty("result")]
-        public T Result { get; set; }
     }
 }

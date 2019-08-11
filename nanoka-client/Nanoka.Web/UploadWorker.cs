@@ -15,7 +15,6 @@ namespace Nanoka.Web
 
         double _progress;
         string _message;
-        object _result;
 
         public Guid Id { get; } = Guid.NewGuid();
 
@@ -48,7 +47,6 @@ namespace Nanoka.Web
                 IsRunning = false; // value < 1; 1 does not necessarily indicate completion
 
                 _message  = message ?? _message;
-                _result   = null;
                 _end      = null;
                 _progress = value;
             }
@@ -61,19 +59,17 @@ namespace Nanoka.Web
                 IsRunning = false;
 
                 _message = message;
-                _result  = null;
                 _end     = DateTime.UtcNow;
             }
         }
 
-        public void SetSuccess(object result, string message = null)
+        public void SetSuccess(string message = null)
         {
             lock (_lock)
             {
                 IsRunning = true;
 
                 _message  = message ?? _message;
-                _result   = result;
                 _end      = DateTime.UtcNow;
                 _progress = 1;
             }
@@ -81,19 +77,18 @@ namespace Nanoka.Web
 
         public void Cancel() => _cancellationToken.Cancel();
 
-        public UploadState<T> CreateState<T>()
+        public UploadState CreateState()
         {
             lock (_lock)
             {
-                return new UploadState<T>
+                return new UploadState
                 {
                     Id        = Id,
                     Progress  = _progress,
                     Start     = _start,
                     End       = _end ?? EstimateEndTime(),
                     IsRunning = IsRunning,
-                    Message   = _message,
-                    Result    = (T) _result
+                    Message   = _message
                 };
             }
         }

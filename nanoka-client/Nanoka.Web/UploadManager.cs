@@ -34,7 +34,7 @@ namespace Nanoka.Web
                 return _workers.GetOrDefault(id);
         }
 
-        public UploadState<T> CreateWorker<T>(UploadWorkerDelegate func)
+        public UploadState CreateWorker(UploadWorkerDelegate func)
         {
             // create worker object
             var worker = new UploadWorker();
@@ -64,7 +64,7 @@ namespace Nanoka.Web
                 }
             });
 
-            return worker.CreateState<T>();
+            return worker.CreateState();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
