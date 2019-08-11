@@ -19,6 +19,6 @@ namespace Nanoka.Client.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<Result<Doujinshi>> GetAsync(Guid id) => await _client.GetDoujinshiAsync(id);
+        public async Task<Result<Doujinshi>> GetAsync(Guid id) => await _client.Doujinshi.GetAsync(id);
     }
 }
