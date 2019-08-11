@@ -7,7 +7,7 @@ namespace Nanoka.Web.Controllers
 {
     [ApiController]
     [Route("/")]
-    public class DefaultController : ControllerBase
+    public class DefaultController : AuthorizedControllerBase
     {
         readonly NanokaOptions _options;
 
