@@ -117,5 +117,12 @@ namespace Nanoka.Core.Client
 
             return new DatabaseUploadTask<DoujinshiVariant>(_client, state);
         }
+
+        public async Task DeleteAsync(Doujinshi doujinshi, DoujinshiVariant variant, CancellationToken cancellationToken = default)
+        {
+            await _client.DeleteDoujinshiVariantAsync(doujinshi.Id, variant.Id, cancellationToken);
+
+            _mapper.Map(new DoujinshiVariant(), variant);
+        }
     }
 }

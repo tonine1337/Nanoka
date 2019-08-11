@@ -19,5 +19,7 @@ namespace Nanoka.Core.Client
         Task DeleteAsync(Doujinshi doujinshi, string reason, CancellationToken cancellationToken = default);
 
         Task<DatabaseUploadTask<DoujinshiVariant>> CreateVariantAsync(Doujinshi doujinshi, DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default);
+
+        Task DeleteAsync(Doujinshi doujinshi, DoujinshiVariant variant, CancellationToken cancellationToken = default);
     }
 }

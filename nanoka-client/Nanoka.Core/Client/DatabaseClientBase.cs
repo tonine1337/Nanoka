@@ -157,8 +157,8 @@ namespace Nanoka.Core.Client
         public Task<UploadState<DoujinshiVariant>> CreateDoujinshiVariantAsync(Guid id, DoujinshiVariantBase variant, CancellationToken cancellationToken = default)
             => Send<UploadState<DoujinshiVariant>>($"doujinshi/{id}/variants", HttpMethod.Post, variant, cancellationToken);
 
-        public Task DeleteDoujinshiVariantAsync(Guid id, int index, CancellationToken cancellationToken = default)
-            => Send<object>($"doujinshi/{id}/variants/{index}", HttpMethod.Delete, null, cancellationToken);
+        public Task DeleteDoujinshiVariantAsync(Guid id, Guid variantId, CancellationToken cancellationToken = default)
+            => Send<object>($"doujinshi/{id}/variants/{variantId}", HttpMethod.Delete, null, cancellationToken);
 
         public Task<BooruPost> GetBooruPostAsync(Guid id, CancellationToken cancellationToken = default)
             => Send<BooruPost>($"booru/{id}", HttpMethod.Get, null, cancellationToken);
