@@ -90,10 +90,17 @@ namespace Nanoka.Client
 
         void InitRepo()
         {
-            // start with a fresh repository in development
-            if (!_hostingEnvironment.IsProduction() &&
-                Directory.Exists(GetIpfsRepoPath()))
-                Directory.Delete(GetIpfsRepoPath(), true);
+            try
+            {
+                // start with a fresh repository in development
+                if (!_hostingEnvironment.IsProduction() &&
+                    Directory.Exists(GetIpfsRepoPath()))
+                    Directory.Delete(GetIpfsRepoPath(), true);
+            }
+            catch
+            {
+                // ignored
+            }
 
             // shutdown existing daemon
             using (var process = StartIpfs("shutdown"))
