@@ -75,7 +75,11 @@ namespace Nanoka.Client
                 UseShellExecute = false,
                 EnvironmentVariables =
                 {
-                    { "IPFS_PATH", GetIpfsRepoPath() }
+                    // custom IPFS path so that it doesn't clash with other installations
+                    { "IPFS_PATH", GetIpfsRepoPath() },
+
+                    // completely fail when trying to connect to nodes outside of our private network (misconfiguration)
+                    { "LIBP2P_FORCE_PNET", "1" }
                 }
             };
 
@@ -128,6 +132,31 @@ namespace Nanoka.Client
             }
         }
 
+        void SetBootstrap(string addr, string key)
+        {
+            using (var process = StartIpfs("bootstrap rm --all"))
+            {
+                process.WaitForExit();
+
+                if (process.ExitCode != 0)
+                    throw new IpfsManagerException($"IPFS client exited with code {process.ExitCode}" +
+                                                   "while resetting old bootstrap nodes.");
+            }
+
+            using (var process = StartIpfs($"bootstrap add {addr}"))
+            {
+                process.WaitForExit();
+
+                if (process.ExitCode != 0)
+                    throw new IpfsManagerException($"IPFS client exited with code {process.ExitCode}" +
+                                                   $"configuring bootstrap node for '{addr}'.");
+            }
+
+            using (var stream = File.Open(Path.Combine(GetIpfsRepoPath(), "swarm.key"), FileMode.Create, FileAccess.Write))
+            using (var writer = new StreamWriter(stream))
+                writer.Write(key);
+        }
+
         static string EndpointToMultiAddr(string endpoint)
         {
             if (endpoint == null)
@@ -171,6 +200,8 @@ namespace Nanoka.Client
             // update configuration
             SetConfig("Addresses.API", EndpointToMultiAddr(_options.ApiEndpoint));
             SetConfig("Addresses.Gateway", EndpointToMultiAddr(_options.GatewayEndpoint));
+
+            SetBootstrap(_options.SwarmBootstrap, _options.SwarmKey);
 
             // start daemon process
             using (var process = StartIpfs($"daemon {_options.DaemonFlags}"))
