@@ -40,14 +40,7 @@ namespace Nanoka.Core.Models
         public DoujinshiQuery WithRomanizedName(TextQuery q) => Set(x => x.RomanizedName = q);
         public DoujinshiQuery WithEnglishName(TextQuery q) => Set(x => x.EnglishName = q);
         public DoujinshiQuery WithScore(RangeQuery<int> q) => Set(x => x.Score = q);
-        public DoujinshiQuery WithArtist(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Artist] = q);
-        public DoujinshiQuery WithGroup(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Group] = q);
-        public DoujinshiQuery WithParody(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Parody] = q);
-        public DoujinshiQuery WithCharacter(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Character] = q);
-        public DoujinshiQuery WithCategory(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Category] = q);
-        public DoujinshiQuery WithLanguage(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Language] = q);
-        public DoujinshiQuery WithTag(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Tag] = q);
-        public DoujinshiQuery WithConvention(TextQuery q) => Set(x => x.Metas[DoujinshiMeta.Convention] = q);
+        public DoujinshiQuery WithMeta(DoujinshiMeta meta, TextQuery q) => Set(x => x.Metas[meta] = q);
         public DoujinshiQuery WithSource(TextQuery q) => Set(x => x.Source = q);
         public DoujinshiQuery WithPageCount(RangeQuery<int> q) => Set(x => x.PageCount = q);
     }
