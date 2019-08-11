@@ -1,8 +1,10 @@
 using System;
+using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Ipfs.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nanoka.Core;
@@ -17,11 +19,13 @@ namespace Nanoka.Client.Controllers
     {
         readonly IDatabaseClient _client;
         readonly IMapper _mapper;
+        readonly IpfsClient _ipfs;
 
-        public DoujinshiController(IDatabaseClient client, IMapper mapper)
+        public DoujinshiController(IDatabaseClient client, IMapper mapper, IpfsClient ipfs)
         {
             _client = client;
             _mapper = mapper;
+            _ipfs   = ipfs;
         }
 
         [HttpPost("search")]
@@ -118,6 +122,28 @@ namespace Nanoka.Client.Controllers
             await _client.Doujinshi.DeleteVariantAsync(doujinshi, variant);
 
             return Result.Ok();
+        }
+
+        [HttpGet("{id}/variants/{variantId}/{index}")]
+        public async Task<IActionResult> GetImageAsync(Guid id, Guid variantId, int index)
+        {
+            // todo: cache
+            var doujinshi = await _client.Doujinshi.GetAsync(id);
+            var variant   = doujinshi?.Variants.FirstOrDefault(v => v.Id == variantId);
+
+            if (variant == null)
+                return Result.NotFound<DoujinshiVariant>(id, variantId);
+
+            var links = (await _ipfs.FileSystem.ListFileAsync(variant.Cid))?.Links.ToArray();
+
+            if (links == null || index < 0 || index >= links.Length)
+                return Result.NotFound($"Image index '{id}/{variantId}/{index}' is out of range.");
+
+            var node = links[index];
+
+            var stream = await _ipfs.FileSystem.ReadFileAsync(node.Id);
+
+            return new FileStreamResult(stream, MimeTypeMap.GetMimeType(Path.GetExtension(node.Name)));
         }
     }
 }
