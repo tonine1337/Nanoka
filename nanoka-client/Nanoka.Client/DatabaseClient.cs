@@ -1,5 +1,4 @@
 using System.Net.Http;
-using AutoMapper;
 using Ipfs.Http;
 using Microsoft.Extensions.Options;
 using Nanoka.Core.Client;
@@ -12,14 +11,12 @@ namespace Nanoka.Client
         public DatabaseClient(IOptions<DatabaseOptions> options,
                               JsonSerializer serializer,
                               IHttpClientFactory httpClientFactory,
-                              IpfsClient ipfs,
-                              IMapper mapper)
+                              IpfsClient ipfs)
             : base(options.Value.Endpoint,
                    options.Value.UserId,
                    options.Value.UserSecret,
                    serializer,
                    httpClientFactory.CreateClient(nameof(DatabaseClientBase)),
-                   ipfs,
-                   mapper) { }
+                   ipfs) { }
     }
 }

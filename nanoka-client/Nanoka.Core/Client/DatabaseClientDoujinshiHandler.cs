@@ -3,7 +3,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using Ipfs.Http;
 using Nanoka.Core.Models;
 using SixLabors.ImageSharp;
@@ -14,13 +13,11 @@ namespace Nanoka.Core.Client
     {
         readonly IDatabaseClient _client;
         readonly IpfsClient _ipfs;
-        readonly IMapper _mapper;
 
-        public DatabaseClientDoujinshiHandler(IDatabaseClient client, IpfsClient ipfs, IMapper mapper)
+        public DatabaseClientDoujinshiHandler(IDatabaseClient client, IpfsClient ipfs)
         {
             _client = client;
             _ipfs   = ipfs;
-            _mapper = mapper;
         }
 
         public Task<Doujinshi> GetAsync(Guid id, CancellationToken cancellationToken = default)
@@ -95,17 +92,11 @@ namespace Nanoka.Core.Client
         {
             doujinshi.Validate();
 
-            var model = await _client.UpdateDoujinshiAsync(doujinshi.Id, doujinshi, cancellationToken);
-
-            _mapper.Map(model, doujinshi);
+            await _client.UpdateDoujinshiAsync(doujinshi.Id, doujinshi, cancellationToken);
         }
 
-        public async Task DeleteAsync(Doujinshi doujinshi, string reason, CancellationToken cancellationToken = default)
-        {
-            await _client.DeleteDoujinshiAsync(doujinshi.Id, reason, cancellationToken);
-
-            _mapper.Map(new Doujinshi(), doujinshi);
-        }
+        public Task DeleteAsync(Doujinshi doujinshi, string reason, CancellationToken cancellationToken = default)
+            => _client.DeleteDoujinshiAsync(doujinshi.Id, reason, cancellationToken);
 
         public async Task<DatabaseUploadTask<DoujinshiVariant>> CreateVariantAsync(Doujinshi doujinshi, DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default)
         {
@@ -118,11 +109,7 @@ namespace Nanoka.Core.Client
             return new DatabaseUploadTask<DoujinshiVariant>(_client, state);
         }
 
-        public async Task DeleteAsync(Doujinshi doujinshi, DoujinshiVariant variant, CancellationToken cancellationToken = default)
-        {
-            await _client.DeleteDoujinshiVariantAsync(doujinshi.Id, variant.Id, cancellationToken);
-
-            _mapper.Map(new DoujinshiVariant(), variant);
-        }
+        public Task DeleteAsync(Doujinshi doujinshi, DoujinshiVariant variant, CancellationToken cancellationToken = default)
+            => _client.DeleteDoujinshiVariantAsync(doujinshi.Id, variant.Id, cancellationToken);
     }
 }
