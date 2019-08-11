@@ -26,25 +26,20 @@ namespace Nanoka.Core.Client
         public Task<SearchResult<Doujinshi>> SearchAsync(Func<DoujinshiQuery, DoujinshiQuery> query, CancellationToken cancellationToken = default)
             => _client.SearchDoujinshiAsync(query(new DoujinshiQuery()), cancellationToken);
 
-        public async Task<DatabaseUploadTask<Doujinshi>> UploadAsync(DoujinshiBase doujinshi,
-                                                                     DoujinshiVariantBase variant,
-                                                                     ZipArchive archive,
-                                                                     CancellationToken cancellationToken = default)
+        public async Task<UploadState<Doujinshi>> UploadAsync(DoujinshiBase doujinshi, DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default)
         {
             doujinshi.Validate();
             variant.Validate();
 
             await PrepareVariantArchiveAsync(variant, archive, cancellationToken);
 
-            var state = await _client.CreateDoujinshiAsync(
+            return await _client.CreateDoujinshiAsync(
                 new CreateDoujinshiRequest
                 {
                     Doujinshi = doujinshi,
                     Variant   = variant
                 },
                 cancellationToken);
-
-            return new DatabaseUploadTask<Doujinshi>(_client, state);
         }
 
         async Task PrepareVariantArchiveAsync(DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default)
@@ -98,15 +93,13 @@ namespace Nanoka.Core.Client
         public Task DeleteAsync(Doujinshi doujinshi, string reason, CancellationToken cancellationToken = default)
             => _client.DeleteDoujinshiAsync(doujinshi.Id, reason, cancellationToken);
 
-        public async Task<DatabaseUploadTask<DoujinshiVariant>> UploadVariantAsync(Doujinshi doujinshi, DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default)
+        public async Task<UploadState<DoujinshiVariant>> UploadVariantAsync(Doujinshi doujinshi, DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default)
         {
             variant.Validate();
 
             await PrepareVariantArchiveAsync(variant, archive, cancellationToken);
 
-            var state = await _client.CreateDoujinshiVariantAsync(doujinshi.Id, variant, cancellationToken);
-
-            return new DatabaseUploadTask<DoujinshiVariant>(_client, state);
+            return await _client.CreateDoujinshiVariantAsync(doujinshi.Id, variant, cancellationToken);
         }
 
         public Task DeleteVariantAsync(Doujinshi doujinshi, DoujinshiVariant variant, CancellationToken cancellationToken = default)
