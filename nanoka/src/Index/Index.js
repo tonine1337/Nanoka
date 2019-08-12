@@ -19,8 +19,8 @@ function Index() {
         <a href="#" className="ui simple dropdown">
           Forum
           <div className="menu">
-            <a href="https://reddit.com" target="_blank" className="item"><i className="icon reddit"></i> Reddit</a>
-            <a href="https://discord.gg/Edx7Rbc" target="_blank" className="item"><i className="icon discord"></i> Discord</a>
+            <a href="https://reddit.com" target="_blank" rel="noopener noreferrer" className="item"><i className="icon reddit"></i> Reddit</a>
+            <a href="https://discord.gg/Edx7Rbc" target="_blank" rel="noopener noreferrer" className="item"><i className="icon discord"></i> Discord</a>
           </div>
         </a>
         <NavLink to="/wiki">Wiki</NavLink>
