@@ -3,7 +3,7 @@ import { withRouter } from "react-router-dom";
 import { Button, Icon, Input } from 'semantic-ui-react';
 import * as qs from 'qs';
 
-class Search extends React.Component {
+class SearchBar extends React.Component {
   constructor(props) {
     super(props);
 
@@ -36,4 +36,4 @@ class Search extends React.Component {
   }
 }
 
-export default withRouter(Search);
+export default withRouter(SearchBar);

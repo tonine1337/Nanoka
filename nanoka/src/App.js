@@ -3,9 +3,7 @@ import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
 import Index from './Index/Index';
 import { Button, Icon, Menu, Header, Divider, Container } from 'semantic-ui-react';
 import * as api from './Api';
-import Search from './Search';
-
-import { ListByName as DoujinshiListByName } from './Doujinshi/ListByName';
+import SearchBar from './SearchBar';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -116,7 +114,7 @@ export default class App extends React.Component {
           </Menu.Item>
           <div className="right menu">
             <Menu.Item>
-              <Search />
+              <SearchBar />
             </Menu.Item>
             <Menu.Item className="ui simple dropdown">
               <Icon name="cog" />
@@ -143,7 +141,6 @@ export default class App extends React.Component {
 
         <Container as="main" style={{ marginTop: "3rem", marginBottom: "3rem" }}>
           <Route path="/" exact component={Index} />
-          <Route path="/doujinshi/all/name" exact component={DoujinshiListByName} />
         </Container>
       </Router>
     );
