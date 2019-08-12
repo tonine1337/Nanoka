@@ -8,7 +8,7 @@ function App() {
       <div>
         <div>
           <div className="ui menu">
-            <div className="header item">Nanoka</div>
+            <a href="/" className="header item">Nanoka</a>
             <div className="ui simple dropdown item">
               <i className="icon book"></i>
               Doujinshi
