@@ -125,11 +125,20 @@ namespace Nanoka.Client
                .UseStatusCodePagesWithReExecute("/errors/{0}");
 
             // development page
-            if (app.ApplicationServices.GetService<IHostingEnvironment>().IsDevelopment())
+            var isDev = app.ApplicationServices.GetService<IHostingEnvironment>().IsDevelopment();
+
+            if (isDev)
                 app.UseDeveloperExceptionPage();
 
             // cors
-            app.UseCors(p => p.WithOrigins("localhost", "nanoka.chiya.dev"));
+            if (isDev)
+                app.UseCors(p => p.AllowAnyOrigin()
+                                  .AllowAnyHeader()
+                                  .AllowAnyMethod());
+            else
+                app.UseCors(p => p.WithOrigins("https://nanoka.chiya.dev")
+                                  .AllowAnyHeader()
+                                  .AllowAnyMethod());
 
             // mvc
             app.UseMvc();
