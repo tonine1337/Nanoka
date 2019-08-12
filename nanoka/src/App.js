@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
 import Index from './Index/Index';
-import { Button, Icon, Menu, Header, Divider, Input, Container } from 'semantic-ui-react';
+import { Button, Icon, Menu, Header, Divider, Container } from 'semantic-ui-react';
 import * as api from './Api';
+import Search from './Search';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -113,11 +114,7 @@ export default class App extends React.Component {
           </Menu.Item>
           <div className="right menu">
             <Menu.Item>
-              <Input className="action left icon">
-                <Icon name="search" />
-                <input type="text" style={{ minWidth: "30rem" }} />
-                <Button className="primary">Search</Button>
-              </Input>
+              <Search />
             </Menu.Item>
             <Menu.Item className="ui simple dropdown">
               <Icon name="cog" />
