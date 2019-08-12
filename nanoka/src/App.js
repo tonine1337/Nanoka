@@ -75,7 +75,7 @@ function App() {
               <div className="item">
                 <div className="ui action left icon input">
                   <i className="search icon"></i>
-                  <input type="text" style={{ minWidth: "32rem" }} />
+                  <input type="text" style={{ minWidth: "30rem" }} />
                   <button className="ui button primary">Search</button>
                 </div>
               </div>
