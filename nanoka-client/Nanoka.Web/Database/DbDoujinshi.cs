@@ -18,13 +18,13 @@ namespace Nanoka.Web.Database
         [Date(Name = "ud")]
         public DateTime UpdateTime { get; set; }
 
-        [Text(Name = "on")]
+        [Text(Name = "on"), Keyword]
         public string OriginalName { get; set; }
 
-        [Text(Name = "rn")]
+        [Text(Name = "rn"), Keyword]
         public string RomanizedName { get; set; }
 
-        [Text(Name = "en")]
+        [Text(Name = "en"), Keyword]
         public string EnglishName { get; set; }
 
         [Number(Name = "sc")]
