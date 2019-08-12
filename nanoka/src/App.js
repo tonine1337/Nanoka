@@ -83,7 +83,7 @@ function App() {
                 <i className="icon cog"></i>
                 <div className="menu" style={{ minWidth: "15em", marginRight: "2px" }}>
                   <div className="header">Nanoka</div>
-                  <NavLink to="/account/profile" className="item"><i className="icon user"></i> Profile</NavLink>
+                  <NavLink to="/account" className="item"><i className="icon user"></i> Account</NavLink>
                   <NavLink to="/account/dashboard" className="item"><i className="icon dashboard"></i> Dashboard</NavLink>
                   <NavLink to="/account/uploads" className="item"><i className="icon upload"></i> My uploads</NavLink>
                   <NavLink to="/settings/language" className="item"><i className="icon globe"></i> Language</NavLink>
