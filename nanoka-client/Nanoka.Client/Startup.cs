@@ -128,6 +128,9 @@ namespace Nanoka.Client
             if (app.ApplicationServices.GetService<IHostingEnvironment>().IsDevelopment())
                 app.UseDeveloperExceptionPage();
 
+            // cors
+            app.UseCors(p => p.WithOrigins("localhost", "nanoka.chiya.dev"));
+
             // mvc
             app.UseMvc();
         }
