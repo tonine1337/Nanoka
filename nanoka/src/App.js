@@ -61,38 +61,38 @@ export default class App extends React.Component {
             <Icon name="book" /> Doujinshi
             <Menu style={{ minWidth: "15em" }}>
               <Header>Doujinshi</Header>
-              <NavLink to="/doujinshi/listby/name" className="item"><Icon name="sort alphabet down" /> Name</NavLink>
-              <NavLink to="/doujinshi/listby/upload" className="item"><Icon name="clock" /> Newest</NavLink>
-              <NavLink to="/doujinshi/listby/trending" className="item"><Icon name="chart line" /> Trending</NavLink>
-              <NavLink to="/doujinshi/listby/viewed" className="item"><Icon name="eye" /> Most Viewed</NavLink>
+              <NavLink to="/doujinshi/all/name" className="item"><Icon name="sort alphabet down" /> Name</NavLink>
+              <NavLink to="/doujinshi/all/upload" className="item"><Icon name="clock" /> Newest</NavLink>
+              <NavLink to="/doujinshi/all/trending" className="item"><Icon name="chart line" /> Trending</NavLink>
+              <NavLink to="/doujinshi/all/viewed" className="item"><Icon name="eye" /> Most Viewed</NavLink>
               <NavLink to="/doujinshi/random" className="item"><Icon name="random" /> Random</NavLink>
               <Divider />
               <Header>Meta</Header>
-              <NavLink to="/doujinshi/listmeta/artist" className="item"><Icon name="paint brush" /> Artist</NavLink>
-              <NavLink to="/doujinshi/listmeta/group" className="item"><Icon name="users" /> Group</NavLink>
-              <NavLink to="/doujinshi/listmeta/parody" className="item"><Icon name="linkify" /> Parody</NavLink>
-              <NavLink to="/doujinshi/listmeta/character" className="item"><Icon name="odnoklassniki" /> Character</NavLink>
-              <NavLink to="/doujinshi/listmeta/category" className="item"><Icon name="th large" /> Category</NavLink>
-              <NavLink to="/doujinshi/listmeta/language" className="item"><Icon name="globe" /> Language</NavLink>
-              <NavLink to="/doujinshi/listmeta/tag" className="item"><Icon name="tag" /> Tag</NavLink>
-              <NavLink to="/doujinshi/listmeta/convention" className="item"><Icon name="calendar" /> Convention</NavLink>
+              <NavLink to="/doujinshi/meta/artist" className="item"><Icon name="paint brush" /> Artist</NavLink>
+              <NavLink to="/doujinshi/meta/group" className="item"><Icon name="users" /> Group</NavLink>
+              <NavLink to="/doujinshi/meta/parody" className="item"><Icon name="linkify" /> Parody</NavLink>
+              <NavLink to="/doujinshi/meta/character" className="item"><Icon name="odnoklassniki" /> Character</NavLink>
+              <NavLink to="/doujinshi/meta/category" className="item"><Icon name="th large" /> Category</NavLink>
+              <NavLink to="/doujinshi/meta/language" className="item"><Icon name="globe" /> Language</NavLink>
+              <NavLink to="/doujinshi/meta/tag" className="item"><Icon name="tag" /> Tag</NavLink>
+              <NavLink to="/doujinshi/meta/convention" className="item"><Icon name="calendar" /> Convention</NavLink>
             </Menu>
           </Menu.Item>
           <Menu.Item className="ui simple dropdown">
             <Icon name="image" /> Booru
             <Menu style={{ minWidth: "15em" }}>
               <Header>Booru</Header>
-              <NavLink to="/booru/listby/upload" className="item"><Icon name="clock" /> Newest</NavLink>
-              <NavLink to="/booru/listby/trending" className="item"><Icon name="chart line" /> Trending</NavLink>
-              <NavLink to="/booru/listby/viewed" className="item"><Icon name="eye" /> Most Viewed</NavLink>
+              <NavLink to="/booru/all/upload" className="item"><Icon name="clock" /> Newest</NavLink>
+              <NavLink to="/booru/all/trending" className="item"><Icon name="chart line" /> Trending</NavLink>
+              <NavLink to="/booru/all/viewed" className="item"><Icon name="eye" /> Most Viewed</NavLink>
               <NavLink to="/booru/random" className="item"><Icon name="random" /> Random</NavLink>
               <Divider />
               <Header>Tag</Header>
-              <NavLink to="/booru/listtag/general" className="item"><Icon name="tag" /> General</NavLink>
-              <NavLink to="/booru/listtag/artist" className="item"><Icon name="paint brush" /> Artist</NavLink>
-              <NavLink to="/booru/listtag/character" className="item"><Icon name="odnoklassniki" /> Character</NavLink>
-              <NavLink to="/booru/listtag/copyright" className="item"><Icon name="copyright" /> Copyright</NavLink>
-              <NavLink to="/booru/listtag/metadata" className="item"><Icon name="info" /> Metadata</NavLink>
+              <NavLink to="/booru/tag/general" className="item"><Icon name="tag" /> General</NavLink>
+              <NavLink to="/booru/tag/artist" className="item"><Icon name="paint brush" /> Artist</NavLink>
+              <NavLink to="/booru/tag/character" className="item"><Icon name="odnoklassniki" /> Character</NavLink>
+              <NavLink to="/booru/tag/copyright" className="item"><Icon name="copyright" /> Copyright</NavLink>
+              <NavLink to="/booru/tag/metadata" className="item"><Icon name="info" /> Metadata</NavLink>
             </Menu>
           </Menu.Item>
           <Menu.Item className="ui simple dropdown">
