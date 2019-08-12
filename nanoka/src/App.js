@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
 import Index from './Index/Index';
 import { Button, Icon, Menu, Header, Divider, Input, Container } from 'semantic-ui-react';
+import * as api from './Api';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -15,7 +16,7 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    fetch('https://nanoka.localhost.chiya.dev:7230')
+    api.getClientInfo()
       .then(r => {
         this.setState({
           client: r.json(),
