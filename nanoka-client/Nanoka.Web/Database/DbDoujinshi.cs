@@ -18,13 +18,14 @@ namespace Nanoka.Web.Database
         [Date(Name = "ud")]
         public DateTime UpdateTime { get; set; }
 
-        [Text(Name = "on", Fielddata = true)]
+        // instead of using TextAttribute, let NEST configure multi-field for us
+        [PropertyName("on")]
         public string OriginalName { get; set; }
 
-        [Text(Name = "rn", Fielddata = true)]
+        [PropertyName("rn")]
         public string RomanizedName { get; set; }
 
-        [Text(Name = "en", Fielddata = true)]
+        [PropertyName("en")]
         public string EnglishName { get; set; }
 
         [Number(Name = "sc")]
