@@ -41,13 +41,13 @@ function Index() {
         display: "flex",
         justifyContent: "center"
       }}>
-        <img src="assets/counters/1.png" />
-        <img src="assets/counters/2.png" />
-        <img src="assets/counters/3.png" />
-        <img src="assets/counters/4.png" />
-        <img src="assets/counters/5.png" />
-        <img src="assets/counters/6.png" />
-        <img src="assets/counters/7.png" />
+        <img alt="counter" src="assets/counters/1.png" />
+        <img alt="counter" src="assets/counters/2.png" />
+        <img alt="counter" src="assets/counters/3.png" />
+        <img alt="counter" src="assets/counters/4.png" />
+        <img alt="counter" src="assets/counters/5.png" />
+        <img alt="counter" src="assets/counters/6.png" />
+        <img alt="counter" src="assets/counters/7.png" />
       </div>
       <br />
     </div>
