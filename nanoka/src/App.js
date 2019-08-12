@@ -69,6 +69,7 @@ export default class App extends React.Component {
               <NavLink to="/doujinshi/all/trending" className="item"><Icon name="chart line" /> Trending</NavLink>
               <NavLink to="/doujinshi/all/viewed" className="item"><Icon name="eye" /> Most Viewed</NavLink>
               <NavLink to="/doujinshi/random" className="item"><Icon name="random" /> Random</NavLink>
+              <NavLink to="/doujinshi/upload" className="item"><Icon name="upload" /> Upload</NavLink>
               <Divider />
               <Header>Meta</Header>
               <NavLink to="/doujinshi/meta/artist" className="item"><Icon name="paint brush" /> Artist</NavLink>
@@ -89,6 +90,7 @@ export default class App extends React.Component {
               <NavLink to="/booru/all/trending" className="item"><Icon name="chart line" /> Trending</NavLink>
               <NavLink to="/booru/all/viewed" className="item"><Icon name="eye" /> Most Viewed</NavLink>
               <NavLink to="/booru/random" className="item"><Icon name="random" /> Random</NavLink>
+              <NavLink to="/booru/upload" className="item"><Icon name="upload" /> Upload</NavLink>
               <Divider />
               <Header>Tag</Header>
               <NavLink to="/booru/tag/general" className="item"><Icon name="tag" /> General</NavLink>
