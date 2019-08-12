@@ -5,6 +5,8 @@ import { Button, Icon, Menu, Header, Divider, Container } from 'semantic-ui-reac
 import * as api from './Api';
 import SearchBar from './SearchBar';
 
+import { ListByName as DoujinshiListByName } from './Doujinshi/ListByName';
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -17,19 +19,20 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    api.getClientInfo()
-      .then(r => {
+    api.getClientInfo({
+      success: r => {
         this.setState({
-          client: r.json(),
+          client: r,
           fetched: true
         });
-      })
-      .catch(err => {
+      },
+      error: e => {
         this.setState({
-          error: err,
+          error: e,
           fetched: true
         })
-      });
+      }
+    });
   }
 
   render() {
@@ -141,6 +144,7 @@ export default class App extends React.Component {
 
         <Container as="main" style={{ marginTop: "3rem", marginBottom: "3rem" }}>
           <Route path="/" exact component={Index} />
+          <Route path="/doujinshi/all/name" exact component={DoujinshiListByName} />
         </Container>
       </Router>
     );
