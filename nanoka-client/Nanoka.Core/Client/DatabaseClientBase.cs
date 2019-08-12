@@ -44,7 +44,7 @@ namespace Nanoka.Core.Client
         void LinkToken(ref CancellationToken token)
             => token = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token, token).Token;
 
-        DateTime _nextAuthTime = DateTime.Now;
+        DateTime _nextAuthTime = DateTime.UtcNow;
 
         public async Task ConnectAsync(CancellationToken cancellationToken = default)
         {
@@ -52,7 +52,7 @@ namespace Nanoka.Core.Client
 
             using (await _semaphore.EnterAsync(cancellationToken))
             {
-                if (DateTime.Now < _nextAuthTime.AddSeconds(-5)) // reauthenticate slightly earlier
+                if (DateTime.UtcNow < _nextAuthTime.AddSeconds(-5)) // reauthenticate slightly earlier
                     return;
 
                 var response = await Send<AuthenticationResponse>(
