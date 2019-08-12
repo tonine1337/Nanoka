@@ -6,7 +6,9 @@ namespace Nanoka.Client.Controllers
     [Route("/")]
     public class DefaultController : ControllerBase
     {
+        public class ClientInfo { }
+
         [HttpGet]
-        public object Get() => null;
+        public ClientInfo Get() => new ClientInfo();
     }
 }
