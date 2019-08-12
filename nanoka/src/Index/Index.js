@@ -13,8 +13,8 @@ function Index() {
       <div className="links" style={{
         textAlign: "center"
       }}>
-        <NavLink to="/doujinshi/listby/upload">Doujinshi</NavLink>
-        <NavLink to="/booru/listby/upload">Booru</NavLink>
+        <NavLink to="/doujinshi/all/upload">Doujinshi</NavLink>
+        <NavLink to="/booru/all/upload">Booru</NavLink>
         <NavLink to="/activity/comment">Comments</NavLink>
         <a href="#" className="ui simple dropdown">
           Forum
