@@ -180,9 +180,9 @@ namespace Nanoka.Web.Database
                                      {
                                          case DoujinshiQuerySort.UploadTime:    return d => d.UploadTime;
                                          case DoujinshiQuerySort.UpdateTime:    return d => d.UpdateTime;
-                                         case DoujinshiQuerySort.OriginalName:  return d => d.OriginalName;
-                                         case DoujinshiQuerySort.RomanizedName: return d => d.RomanizedName;
-                                         case DoujinshiQuerySort.EnglishName:   return d => d.EnglishName;
+                                         case DoujinshiQuerySort.OriginalName:  return d => d.OriginalName.Suffix("keyword");
+                                         case DoujinshiQuerySort.RomanizedName: return d => d.RomanizedName.Suffix("keyword");
+                                         case DoujinshiQuerySort.EnglishName:   return d => d.EnglishName.Suffix("keyword");
                                          case DoujinshiQuerySort.Score:         return d => d.Score;
                                          case DoujinshiQuerySort.PageCount:     return d => d.PageCounts;
 
