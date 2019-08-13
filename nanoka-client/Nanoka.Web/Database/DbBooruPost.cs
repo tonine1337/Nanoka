@@ -12,7 +12,7 @@ namespace Nanoka.Web.Database
         [Keyword]
         public string Id { get; set; }
 
-        [Keyword(Name = "cid")]
+        [Keyword(Name = "cid", Index = false)]
         public string Cid { get; set; }
 
         [Keyword(Name = "upu")]
