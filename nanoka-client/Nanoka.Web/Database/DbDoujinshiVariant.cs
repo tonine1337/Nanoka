@@ -8,6 +8,12 @@ namespace Nanoka.Web.Database
     // nested object of doujinshi
     public class DbDoujinshiVariant
     {
+        [Keyword(Name = "id")]
+        public string Id { get; set; }
+
+        [Keyword(Name = "cid", Index = false)]
+        public string Cid { get; set; }
+
         [Keyword(Name = "upu")]
         public string UploaderId { get; set; }
 
@@ -46,7 +52,10 @@ namespace Nanoka.Web.Database
             if (variant == null)
                 return null;
 
+            Id         = variant.Id.ToShortString();
+            Cid        = variant.Cid ?? Cid;
             UploaderId = variant.UploaderId.ToShortString();
+
             Artist     = variant.Metas?.GetOrDefault(DoujinshiMeta.Artist) ?? Artist;
             Group      = variant.Metas?.GetOrDefault(DoujinshiMeta.Group) ?? Group;
             Parody     = variant.Metas?.GetOrDefault(DoujinshiMeta.Parody) ?? Parody;
@@ -55,14 +64,17 @@ namespace Nanoka.Web.Database
             Language   = variant.Metas?.GetOrDefault(DoujinshiMeta.Language) ?? Language;
             Tag        = variant.Metas?.GetOrDefault(DoujinshiMeta.Tag) ?? Tag;
             Convention = variant.Metas?.GetOrDefault(DoujinshiMeta.Convention) ?? Convention;
-            Source     = variant.Source ?? Source;
-            PageCount  = variant.PageCount;
+
+            Source    = variant.Source ?? Source;
+            PageCount = variant.PageCount;
 
             return this;
         }
 
         public DoujinshiVariant ApplyTo(DoujinshiVariant variant)
         {
+            variant.Id         = Id.ToGuid();
+            variant.Cid        = Cid ?? variant.Cid;
             variant.UploaderId = UploaderId.ToGuid();
 
             variant.Metas = new Dictionary<DoujinshiMeta, string[]>
