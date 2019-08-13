@@ -11,9 +11,10 @@ namespace Nanoka.Web.Database
         /// <summary>
         /// This is not a true ID.
         /// It is only used to discriminate the variants in the same doujinshi.
+        /// It is named "Id2" because NEST will infer "Id" to be _id.
         /// </summary>
-        [Keyword(Name = "d", Index = false)]
-        public string Id { get; set; }
+        [Keyword(Name = "id", Index = false)]
+        public string Id2 { get; set; }
 
         [Keyword(Name = "cid", Index = false)]
         public string Cid { get; set; }
@@ -45,7 +46,7 @@ namespace Nanoka.Web.Database
         [Text(Name = "src")]
         public string Source { get; set; }
 
-        [Number(Name = "pg")]
+        [Number(Name = "pg", Index = false)] // cached in DbDoujinshi
         public int PageCount { get; set; }
 
         public DbDoujinshiVariant Apply(DoujinshiVariant variant)
@@ -53,7 +54,7 @@ namespace Nanoka.Web.Database
             if (variant == null)
                 return null;
 
-            Id         = variant.Id.ToShortString();
+            Id2        = variant.Id.ToShortString();
             Cid        = variant.Cid ?? Cid;
             UploaderId = variant.UploaderId.ToShortString();
 
@@ -73,7 +74,7 @@ namespace Nanoka.Web.Database
 
         public DoujinshiVariant ApplyTo(DoujinshiVariant variant)
         {
-            variant.Id         = Id.ToGuid();
+            variant.Id         = Id2.ToGuid();
             variant.Cid        = Cid ?? variant.Cid;
             variant.UploaderId = UploaderId.ToGuid();
 

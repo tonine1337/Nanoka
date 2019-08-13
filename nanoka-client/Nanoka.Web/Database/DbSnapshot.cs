@@ -9,7 +9,7 @@ namespace Nanoka.Web.Database
     [ElasticsearchType(RelationName = nameof(Snapshot), IdProperty = nameof(Id))]
     public class DbSnapshot
     {
-        [Keyword]
+        [Keyword(Name = "id", Index = false)]
         public string Id { get; set; }
 
         [Keyword(Name = "t")]

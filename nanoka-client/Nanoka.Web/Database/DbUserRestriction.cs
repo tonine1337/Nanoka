@@ -1,4 +1,5 @@
 using System;
+using Nanoka.Core;
 using Nanoka.Core.Models;
 using Nest;
 
@@ -16,15 +17,15 @@ namespace Nanoka.Web.Database
         [Text(Name = "r")]
         public string Reason { get; set; }
 
-        [Keyword(Name = "src")]
-        public Guid Source { get; set; }
+        [Keyword(Name = "src", Index = false)]
+        public string Source { get; set; }
 
         public DbUserRestriction Apply(UserRestriction restriction)
         {
             Start  = restriction.Start;
             End    = restriction.End;
             Reason = restriction.Reason ?? Reason;
-            Source = restriction.Source;
+            Source = restriction.Source.ToShortString();
 
             return this;
         }
@@ -34,7 +35,7 @@ namespace Nanoka.Web.Database
             restriction.Start  = Start;
             restriction.End    = End;
             restriction.Reason = Reason ?? restriction.Reason;
-            restriction.Source = Source;
+            restriction.Source = Source.ToGuid();
 
             return restriction;
         }

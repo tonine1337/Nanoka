@@ -9,13 +9,13 @@ namespace Nanoka.Web.Database
     [ElasticsearchType(RelationName = nameof(User), IdProperty = nameof(Id))]
     public class DbUser
     {
-        [Keyword]
+        [Keyword(Name = "id", Index = false)]
         public string Id { get; set; }
 
         [Keyword(Name = "sec", Index = false)]
         public string Secret { get; set; }
 
-        [Text(Name = "un")]
+        [Keyword(Name = "un")]
         public string Username { get; set; }
 
         [Date(Name = "r")]
