@@ -77,11 +77,17 @@ namespace Nanoka.Web.Database
                         // we are the last reference to this lock
                         // return this semaphore to the pool if capacity not reached (to be reused later)
                         if (_pool.Count != _poolCapacity)
+                        {
+                            Semaphore.Release();
+
                             _pool.Push(Semaphore);
+                        }
 
                         // pool is full, so dispose
                         else
+                        {
                             Semaphore.Dispose();
+                        }
 
                         Trace.Assert(_semaphores.Remove(_id), "someone hacked our semaphore dictionary");
                     }
