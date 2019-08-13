@@ -26,10 +26,15 @@ namespace Nanoka.Client
 
             foreach (var entry in archive.Entries)
             {
+                var filename  = Path.GetFileName(entry.Name);
                 var extension = Path.GetExtension(entry.Name);
 
-                if (string.IsNullOrWhiteSpace(extension))
-                    throw new FormatException($"File '{entry.Name}' does not specify an extension.");
+                if (entry.Name != filename)
+                    throw new NotSupportedException($"File '{filename}' belongs in a nested directory '{Path.GetDirectoryName(entry.Name)}'.\n" +
+                                                    "All files must be placed in the top level directory.");
+
+                if (string.IsNullOrWhiteSpace(entry.Name) || entry.Name.Length > 64 || extension.Length == 0)
+                    throw new FormatException($"Filename '{entry.Name}' is invalid.");
 
                 // validate image
                 using (var stream = entry.Open())

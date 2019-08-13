@@ -129,7 +129,7 @@ namespace Nanoka.Web.Controllers
                 if (node.IsDirectory)
                     throw new NotSupportedException($"CID '{variant.Cid}' references another directory '{node.Id}'.");
 
-                if (node.Name == null || node.Name.Length > 64 || Path.GetExtension(node.Name).Length == 0)
+                if (string.IsNullOrWhiteSpace(node.Name) || node.Name.Length > 64 || Path.GetExtension(node.Name).Length == 0)
                     throw new FormatException($"CID '{variant.Cid}' references a file with an invalid filename '{node.Name}'.");
             }
 
