@@ -5,7 +5,7 @@ function getEndpoint(path) {
   // *.localhost.chiya.dev resolves to 127.0.0.1 (loopback address).
   // this allows making requests to the client via HTTPS using a self-signed preinstalled certificate.
   // subdomains are used to circumvent browser request rate limiting.
-  let base = `https://${requestNum++}.localhost.chiya.dev:7230`;
+  const base = `https://${requestNum++}.localhost.chiya.dev:7230`;
 
   if (path)
     return new URL(path, base);
@@ -14,7 +14,7 @@ function getEndpoint(path) {
 }
 
 function get(path, events) {
-  let promise = fetch(getEndpoint(path), {
+  const promise = fetch(getEndpoint(path), {
     method: 'GET'
   });
 
@@ -22,7 +22,7 @@ function get(path, events) {
 }
 
 function post(path, data, events) {
-  let promise = fetch(getEndpoint(path), {
+  const promise = fetch(getEndpoint(path), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -60,4 +60,19 @@ export function searchDoujinshiAsync(query, events) {
     query.limit = 100;
 
   post('doujinshi/search', query, events);
+}
+
+export function uploadDoujinshiAsync(request, events) {
+  var form = new FormData();
+
+  form.append('doujinshi', new Blob([JSON.stringify(request.doujinshi)], { type: 'application/json' }));
+  form.append('variant', new Blob([JSON.stringify(request.variant)], { type: 'application/json' }));
+  form.append('file', request.file);
+
+  const promise = fetch(getEndpoint('doujinshi'), {
+    method: 'POST',
+    body: form
+  });
+
+  configureEvents(promise, events);
 }

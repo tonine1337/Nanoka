@@ -35,7 +35,7 @@ export class Uploader extends React.Component {
       <div>
         <h1>Upload a Doujinshi</h1>
         <Form>
-          <Form.Group className="three">
+          <Form.Group grouped className="two">
             <Form.Field required>
               <label>Original Name</label>
               <input placeholder="Original Name" {...getNameProps('originalName')} />
@@ -60,7 +60,30 @@ export class Uploader extends React.Component {
               </small>
             </Form.Field>
           </Form.Group>
-          <Form.Group grouped className="two">
+          <Form.Field required className="four wide">
+            <label>Category</label>
+            <Dropdown selection defaultValue={0} options={[{
+              text: 'Doujinshi',
+              value: 0
+            }, {
+              text: 'Manga',
+              value: 1
+            }, {
+              text: 'Artist CG',
+              value: 2
+            }, {
+              text: 'Game CG',
+              value: 3
+            }, {
+              text: 'Image Set',
+              value: 4
+            }
+            ]} onChange={(_, { value }) => this.state.category = value} />
+            <small>
+              Special category that this doujinshi belongs to.
+            </small>
+          </Form.Field>
+          <Form.Group className="three">
             <Form.Field required>
               <label>Artist</label>
               <Dropdown placeholder="Artist" {...getMetaDropProps('artist')} />
@@ -75,27 +98,6 @@ export class Uploader extends React.Component {
                 Doujin circle that published this doujinshi.
               </small>
             </Form.Field>
-            <Form.Field>
-              <label>Parody</label>
-              <Dropdown placeholder="Parody" {...getMetaDropProps('parody')} />
-              <small>
-                Name of the anime series, manga or other copyrighted work that this doujinshi is the parody of.
-              </small>
-            </Form.Field>
-            <Form.Field required>
-              <label>Characters</label>
-              <Dropdown placeholder="Character" {...getMetaDropProps('character')} />
-              <small>
-                Characters that appear in this doujinshi.
-              </small>
-            </Form.Field>
-            <Form.Field required>
-              <label>Category</label>
-              <Dropdown placeholder="Category" {...getMetaDropProps('category')} />
-              <small>
-                Special category that this doujinshi belongs to.
-              </small>
-            </Form.Field>
             <Form.Field required>
               <label>Language</label>
               <Dropdown placeholder="Language" {...getMetaDropProps('language')} />
@@ -103,11 +105,13 @@ export class Uploader extends React.Component {
                 Language in which this doujinshi is written, or the target language if translated.
               </small>
             </Form.Field>
-            <Form.Field required>
-              <label>Tags</label>
-              <Dropdown placeholder="Tag" {...getMetaDropProps('tag')} />
+          </Form.Group>
+          <Form.Group className="three">
+            <Form.Field>
+              <label>Parody</label>
+              <Dropdown placeholder="Parody" {...getMetaDropProps('parody')} />
               <small>
-                Tags that describe this doujinshi appropriately.
+                Name of the anime series, manga or other copyrighted work that this doujinshi is the parody of.
               </small>
             </Form.Field>
             <Form.Field>
@@ -117,14 +121,28 @@ export class Uploader extends React.Component {
                 Convention where this doujinshi was available.
               </small>
             </Form.Field>
-            <Form.Field>
-              <label>Source</label>
-              <input placeholder="URL" {...getNameProps('source', 'url')} />
+            <Form.Field required>
+              <label>Characters</label>
+              <Dropdown placeholder="Character" {...getMetaDropProps('character')} />
               <small>
-                URL of the web page where this doujinshi was transferred from.
+                Characters that appear in this doujinshi.
               </small>
             </Form.Field>
           </Form.Group>
+          <Form.Field required>
+            <label>Tags</label>
+            <Dropdown placeholder="Tag" {...getMetaDropProps('tag')} />
+            <small>
+              Tags that describe this doujinshi appropriately.
+              </small>
+          </Form.Field>
+          <Form.Field>
+            <label>Source</label>
+            <input placeholder="URL" {...getNameProps('source', 'url')} />
+            <small>
+              URL of the web page where this doujinshi was transferred from.
+              </small>
+          </Form.Field>
           <Form.Field required>
             <label>File</label>
             {createDropzone.call(this)}
@@ -143,18 +161,18 @@ export class Uploader extends React.Component {
         doujinshi: {
           name_original: state.originalName,
           name_romanized: state.romanizedName,
-          name_english: state.englishname
+          name_english: state.englishname,
+          category: state.category
         },
         variant: {
           metas: {
             artist: state.artist,
             group: state.group,
-            parody: state.parody,
-            character: state.character,
-            category: state.category,
             language: state.language,
-            tag: state.tag,
-            convention: state.convention
+            parody: state.parody,
+            convention: state.convention,
+            character: state.character,
+            tag: state.tag
           }
         },
         file: state.file
