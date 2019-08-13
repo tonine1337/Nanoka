@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Nanoka.Core.Models;
 
 namespace Nanoka.Web
@@ -97,7 +98,7 @@ namespace Nanoka.Web
 
                         // worker function should have set the progress to 1 when it finished
                         if (_isRunning)
-                            SetFailure("Upload worker ended prematurely due to an unknown reason.");
+                            throw new InvalidOperationException("Worker ended prematurely due to an unknown reason.");
                     }
                     catch (TaskCanceledException)
                     {
@@ -105,6 +106,8 @@ namespace Nanoka.Web
                     }
                     catch (Exception e)
                     {
+                        _services.GetService<ILogger<UploadWorker>>().LogWarning(e, $"Upload worker '{_id}' died with exception");
+
                         SetFailure(e.Message);
                     }
                 },
