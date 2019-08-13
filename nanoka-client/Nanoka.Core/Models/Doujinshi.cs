@@ -23,9 +23,9 @@ namespace Nanoka.Core.Models
         public List<DoujinshiVariant> Variants { get; set; }
     }
 
-    public class DoujinshiBase : IValidatableObject
+    public class DoujinshiBase
     {
-        [JsonProperty("name_original")]
+        [JsonProperty("name_original"), Required]
         public string OriginalName { get; set; }
 
         [JsonProperty("name_romanized")]
@@ -33,13 +33,5 @@ namespace Nanoka.Core.Models
 
         [JsonProperty("name_english")]
         public string EnglishName { get; set; }
-
-        IEnumerable<ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
-        {
-            if (OriginalName == null &&
-                RomanizedName == null &&
-                EnglishName == null)
-                yield return new ValidationResult("Must specify at least one name of a doujinshi.");
-        }
     }
 }
