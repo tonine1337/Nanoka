@@ -15,11 +15,11 @@ namespace Nanoka.Core.Models
         /// <summary>
         /// The snapshot was taken before the deletion of an object.
         /// </summary>
-        Deletion,
+        Deletion = 2,
 
         /// <summary>
         /// The snapshot was taken before an object was reverted to its previous state.
         /// </summary>
-        Rollback
+        Rollback = 3
     }
 }

@@ -4,10 +4,10 @@ namespace Nanoka.Core.Models
 {
     public enum BooruTag
     {
-        [EnumMember(Value = "artist")] Artist,
-        [EnumMember(Value = "character")] Character,
-        [EnumMember(Value = "copyright")] Copyright,
-        [EnumMember(Value = "metadata")] Metadata,
-        [EnumMember(Value = "general")] General
+        [EnumMember(Value = "artist")] Artist = 0,
+        [EnumMember(Value = "character")] Character = 1,
+        [EnumMember(Value = "copyright")] Copyright = 2,
+        [EnumMember(Value = "metadata")] Metadata = 3,
+        [EnumMember(Value = "general")] General = 4
     }
 }

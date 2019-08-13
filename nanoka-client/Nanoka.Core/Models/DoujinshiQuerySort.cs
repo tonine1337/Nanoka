@@ -8,12 +8,12 @@ namespace Nanoka.Core.Models
     public enum DoujinshiQuerySort
     {
         [EnumMember(Value = "relevance")] Relevance = 0,
-        [EnumMember(Value = "upload")] UploadTime,
-        [EnumMember(Value = "update")] UpdateTime,
-        [EnumMember(Value = "name_original")] OriginalName,
-        [EnumMember(Value = "name_romanized")] RomanizedName,
-        [EnumMember(Value = "name_english")] EnglishName,
-        [EnumMember(Value = "score")] Score,
-        [EnumMember(Value = "pages")] PageCount
+        [EnumMember(Value = "upload")] UploadTime = 1,
+        [EnumMember(Value = "update")] UpdateTime = 2,
+        [EnumMember(Value = "name_original")] OriginalName = 3,
+        [EnumMember(Value = "name_romanized")] RomanizedName = 4,
+        [EnumMember(Value = "name_english")] EnglishName = 5,
+        [EnumMember(Value = "score")] Score = 6,
+        [EnumMember(Value = "pages")] PageCount = 7
     }
 }
