@@ -96,11 +96,11 @@ namespace Nanoka.Web.Database
 
             post.Tags = new Dictionary<BooruTag, string[]>
             {
-                { BooruTag.Artist, Artist ?? post.Tags.GetOrDefault(BooruTag.Artist) },
-                { BooruTag.Character, Character ?? post.Tags.GetOrDefault(BooruTag.Character) },
-                { BooruTag.Copyright, Copyright ?? post.Tags.GetOrDefault(BooruTag.Copyright) },
-                { BooruTag.Metadata, Metadata ?? post.Tags.GetOrDefault(BooruTag.Metadata) },
-                { BooruTag.General, General ?? post.Tags.GetOrDefault(BooruTag.General) }
+                { BooruTag.Artist, Artist ?? post.Tags?.GetOrDefault(BooruTag.Artist) },
+                { BooruTag.Character, Character ?? post.Tags?.GetOrDefault(BooruTag.Character) },
+                { BooruTag.Copyright, Copyright ?? post.Tags?.GetOrDefault(BooruTag.Copyright) },
+                { BooruTag.Metadata, Metadata ?? post.Tags?.GetOrDefault(BooruTag.Metadata) },
+                { BooruTag.General, General ?? post.Tags?.GetOrDefault(BooruTag.General) }
             };
 
             post.Rating     = Rating;
