@@ -12,7 +12,6 @@ const DropzoneStyle = {
   borderColor: '#eeeeee',
   borderStyle: 'dashed',
   backgroundColor: '#fafafa',
-  color: '#bdbdbd',
   outline: 'none'
 };
 
@@ -32,7 +31,7 @@ export function createDropzone() {
                 <span>{(this.state.file.size / 1000000).toFixed(1)} KB</span>
               </div>
             ) : (
-              <div>Click here to select a file, or drag-drop it.</div>
+              <div style={{ opacity: 0.4 }}>Click here to select a file, or drag-drop it.</div>
             )}
         </div>
       )}
