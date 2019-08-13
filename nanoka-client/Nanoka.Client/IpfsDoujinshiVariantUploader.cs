@@ -57,6 +57,8 @@ namespace Nanoka.Client
                 var node = await _ipfs.FileSystem.AddDirectoryAsync(dir.Path, true, null, cancellationToken);
 
                 request.Cid = node.Id;
+
+                await _ipfs.Pin.AddAsync(node.Id, true, cancellationToken);
             }
         }
     }
