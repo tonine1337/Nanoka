@@ -31,18 +31,19 @@ namespace Nanoka.Core.Client
             doujinshi.Validate();
             variant.Validate();
 
-            await PrepareVariantArchiveAsync(variant, archive, cancellationToken);
+            var cid = await PrepareVariantArchiveAsync(variant, archive, cancellationToken);
 
             return await _client.CreateDoujinshiAsync(
                 new CreateDoujinshiRequest
                 {
                     Doujinshi = doujinshi,
-                    Variant   = variant
+                    Variant   = variant,
+                    Cid       = cid
                 },
                 cancellationToken);
         }
 
-        async Task PrepareVariantArchiveAsync(DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default)
+        async Task<string> PrepareVariantArchiveAsync(DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default)
         {
             if (archive == null || archive.Mode == ZipArchiveMode.Create)
                 throw new NotSupportedException($"{nameof(archive)} is write-only.");
@@ -79,7 +80,7 @@ namespace Nanoka.Core.Client
                 // upload to ipfs
                 var node = await _ipfs.FileSystem.AddDirectoryAsync(dir.Path, true, null, cancellationToken);
 
-                variant.Cid = node.Id;
+                return node.Id;
             }
         }
 
@@ -90,19 +91,29 @@ namespace Nanoka.Core.Client
             await _client.UpdateDoujinshiAsync(doujinshi.Id, doujinshi, cancellationToken);
         }
 
-        public Task DeleteAsync(Doujinshi doujinshi, string reason, CancellationToken cancellationToken = default)
+        public Task DeleteAsync(Doujinshi doujinshi, string reason = null, CancellationToken cancellationToken = default)
             => _client.DeleteDoujinshiAsync(doujinshi.Id, reason, cancellationToken);
 
         public async Task<UploadState> UploadVariantAsync(Doujinshi doujinshi, DoujinshiVariantBase variant, ZipArchive archive, CancellationToken cancellationToken = default)
         {
             variant.Validate();
 
-            await PrepareVariantArchiveAsync(variant, archive, cancellationToken);
+            var cid = await PrepareVariantArchiveAsync(variant, archive, cancellationToken);
 
-            return await _client.CreateDoujinshiVariantAsync(doujinshi.Id, variant, cancellationToken);
+            return await _client.CreateDoujinshiVariantAsync(
+                doujinshi.Id,
+                new CreateDoujinshiVariantRequest
+                {
+                    Variant = variant,
+                    Cid     = cid
+                },
+                cancellationToken);
         }
 
-        public Task DeleteVariantAsync(Doujinshi doujinshi, DoujinshiVariant variant, CancellationToken cancellationToken = default)
-            => _client.DeleteDoujinshiVariantAsync(doujinshi.Id, variant.Id, cancellationToken);
+        public Task UpdateVariantAsync(Doujinshi doujinshi, DoujinshiVariant variant, CancellationToken cancellationToken = default)
+            => _client.UpdateDoujinshiVariantAsync(doujinshi.Id, variant.Id, variant, cancellationToken);
+
+        public Task DeleteVariantAsync(Doujinshi doujinshi, DoujinshiVariant variant, string reason = null, CancellationToken cancellationToken = default)
+            => _client.DeleteDoujinshiVariantAsync(doujinshi.Id, variant.Id, reason, cancellationToken);
     }
 }

@@ -10,6 +10,12 @@ namespace Nanoka.Core.Models
         [JsonProperty("id")]
         public Guid Id { get; set; }
 
+        /// <summary>
+        /// CID referencing the directory containing image files of this variant.
+        /// </summary>
+        [JsonProperty("cid"), Required]
+        public string Cid { get; set; }
+
         [JsonProperty("uploader")]
         public Guid UploaderId { get; set; }
 
@@ -19,12 +25,6 @@ namespace Nanoka.Core.Models
 
     public class DoujinshiVariantBase
     {
-        /// <summary>
-        /// CID referencing the directory containing image files of this variant.
-        /// </summary>
-        [JsonProperty("cid"), Required]
-        public string Cid { get; set; }
-
         [JsonProperty("metas"), Required]
         public Dictionary<DoujinshiMeta, string[]> Metas { get; set; }
 

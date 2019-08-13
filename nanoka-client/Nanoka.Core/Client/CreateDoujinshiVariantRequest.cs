@@ -4,11 +4,8 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Core.Client
 {
-    public class CreateDoujinshiRequest
+    public class CreateDoujinshiVariantRequest
     {
-        [JsonProperty("doujinshi"), Required]
-        public DoujinshiBase Doujinshi { get; set; }
-
         [JsonProperty("variant"), Required]
         public DoujinshiVariantBase Variant { get; set; }
 

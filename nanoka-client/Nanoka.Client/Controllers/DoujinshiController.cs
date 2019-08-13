@@ -108,6 +108,22 @@ namespace Nanoka.Client.Controllers
                 return await _client.Doujinshi.UploadVariantAsync(doujinshi, request.Variant, archive);
         }
 
+        [HttpPut("{id}/variants/{variantId}")]
+        public async Task<Result<DoujinshiVariant>> UpdateVariantAsync(Guid id, Guid variantId, DoujinshiVariantBase model)
+        {
+            var doujinshi = await _client.Doujinshi.GetAsync(id);
+            var variant   = doujinshi?.Variants.FirstOrDefault(v => v.Id == variantId);
+
+            if (variant == null)
+                return Result.NotFound<DoujinshiVariant>(id, variantId);
+
+            _mapper.Map(model, variant);
+
+            await _client.Doujinshi.UpdateVariantAsync(doujinshi, variant);
+
+            return variant;
+        }
+
         [HttpDelete("{id}/variants/{variantId}")]
         public async Task<Result> DeleteVariantAsync(Guid id, Guid variantId)
         {

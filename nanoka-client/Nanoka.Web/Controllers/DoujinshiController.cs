@@ -88,6 +88,7 @@ namespace Nanoka.Web.Controllers
                     new DoujinshiVariant
                     {
                         Id         = Guid.NewGuid(),
+                        Cid        = request.Cid,
                         UploaderId = UserId
                     }
                 }
@@ -197,7 +198,7 @@ namespace Nanoka.Web.Controllers
         }
 
         [HttpPost("{id}/variants"), RequireUnrestricted]
-        public async Task<Result<UploadState>> CreateVariantAsync(Guid id, DoujinshiVariantBase model)
+        public async Task<Result<UploadState>> CreateVariantAsync(Guid id, CreateDoujinshiVariantRequest request)
         {
             using (await NanokaLock.EnterAsync(id))
             {
@@ -210,10 +211,11 @@ namespace Nanoka.Web.Controllers
             var variant = new DoujinshiVariant
             {
                 Id         = Guid.NewGuid(),
+                Cid        = request.Cid,
                 UploaderId = UserId
             };
 
-            _mapper.Map(model, variant);
+            _mapper.Map(request.Variant, variant);
 
             return _uploadManager.CreateWorker(async (services, worker, token) =>
             {
@@ -238,6 +240,29 @@ namespace Nanoka.Web.Controllers
             });
         }
 
+        [HttpPut("{id}/variants/{variantId}"), RequireUnrestricted]
+        public async Task<Result<DoujinshiVariant>> UpdateVariantAsync(Guid id, Guid variantId, DoujinshiVariantBase model)
+        {
+            using (await NanokaLock.EnterAsync(id))
+            {
+                var doujinshi = await _db.GetDoujinshiAsync(id);
+                var variant   = doujinshi?.Variants.FirstOrDefault(v => v.Id == variantId);
+
+                if (variant == null)
+                    return Result.NotFound<DoujinshiVariant>(id, variantId);
+
+                await CreateSnapshotAsync(doujinshi, SnapshotEvent.Modification);
+
+                _mapper.Map(model, variant);
+
+                doujinshi.UpdateTime = DateTime.UtcNow;
+
+                await _db.IndexAsync(doujinshi);
+
+                return variant;
+            }
+        }
+
         [HttpDelete("{id}/variants/{variantId}"), RequireUnrestricted, RequireReputation(100)]
         public async Task<Result> DeleteVariantAsync(Guid id, Guid variantId, [FromQuery] string reason)
         {
@@ -252,6 +277,8 @@ namespace Nanoka.Web.Controllers
                 await CreateSnapshotAsync(doujinshi, SnapshotEvent.Modification, reason);
 
                 doujinshi.Variants.Remove(variant);
+
+                doujinshi.UpdateTime = DateTime.UtcNow;
 
                 await _db.IndexAsync(doujinshi);
 
