@@ -1,12 +1,10 @@
 import React from 'react';
 import { Form, Button, Dropdown, Icon } from 'semantic-ui-react';
 import { createDropzone } from '../DropzoneStyle';
+import * as api from '../Api';
 
 export class Uploader extends React.Component {
   state = {
-    originalName: null,
-    romanizedName: null,
-    englishName: null,
     file: null
   };
 
@@ -14,7 +12,7 @@ export class Uploader extends React.Component {
     const getNameProps = (name, type) => ({
       type: type || 'text',
       onChange: e => this.setState({ [name]: e.target.value }),
-      value: this.state[name]
+      value: this.state[name] || ''
     });
 
     const getMetaDropProps = name => ({
@@ -29,8 +27,8 @@ export class Uploader extends React.Component {
           return { [name + 'options']: [{ text: value, value }, ...p[name + 'options']] };
         return { [name + 'options']: [{ text: value, value }] };
       }),
-      options: this.state[name + 'options'],
-      value: this.state[name]
+      options: this.state[name + 'options'] || [],
+      value: this.state[name] || []
     });
 
     return (
@@ -92,6 +90,13 @@ export class Uploader extends React.Component {
               </small>
             </Form.Field>
             <Form.Field required>
+              <label>Category</label>
+              <Dropdown placeholder="Category" {...getMetaDropProps('category')} />
+              <small>
+                Special category that this doujinshi belongs to.
+              </small>
+            </Form.Field>
+            <Form.Field required>
               <label>Language</label>
               <Dropdown placeholder="Language" {...getMetaDropProps('language')} />
               <small>
@@ -124,9 +129,42 @@ export class Uploader extends React.Component {
             <label>File</label>
             {createDropzone.call(this)}
           </Form.Field>
-          <Button type="submit" className="labeled icon primary"><Icon name="upload" /> Upload</Button>
+          <Button type="submit" className="labeled icon primary" onClick={() => this.handleSubmit()}><Icon name="upload" /> Upload</Button>
         </Form>
       </div>
+    );
+  }
+
+  handleSubmit() {
+    const state = this.state;
+
+    api.uploadDoujinshiAsync(
+      {
+        doujinshi: {
+          name_original: state.originalName,
+          name_romanized: state.romanizedName,
+          name_english: state.englishname
+        },
+        variant: {
+          metas: {
+            artist: state.artist,
+            group: state.group,
+            parody: state.parody,
+            character: state.character,
+            category: state.category,
+            language: state.language,
+            tag: state.tag,
+            convention: state.convention
+          }
+        },
+        file: state.file
+      },
+      {
+        success: r => {
+          console.log("yay");
+          console.log(r)
+        }
+      }
     );
   }
 }
