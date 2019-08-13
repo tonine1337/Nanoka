@@ -34,10 +34,10 @@ namespace Nanoka.Client.Controllers
 
         public class UploadDoujinshiRequest
         {
-            [FromForm(Name = "doujinshi")]
+            [FromForm(Name = "doujinshi"), ModelBinder(typeof(FileModelBinder))]
             public DoujinshiBase Doujinshi { get; set; }
 
-            [FromForm(Name = "variant")]
+            [FromForm(Name = "variant"), ModelBinder(typeof(FileModelBinder))]
             public DoujinshiVariantBase Variant { get; set; }
 
             [FromForm(Name = "file")]
@@ -47,6 +47,9 @@ namespace Nanoka.Client.Controllers
         [HttpPost]
         public async Task<Result<UploadState>> UploadAsync([FromForm] UploadDoujinshiRequest request)
         {
+            if (request.Archive == null)
+                return Result.BadRequest("File is not selected.");
+
             using (var stream = request.Archive.OpenReadStream())
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, false))
                 return await _client.Doujinshi.UploadAsync(request.Doujinshi, request.Variant, archive);
@@ -82,7 +85,7 @@ namespace Nanoka.Client.Controllers
 
         public class UploadVariantRequest
         {
-            [FromForm(Name = "variant")]
+            [FromForm(Name = "variant"), ModelBinder(typeof(FileModelBinder))]
             public DoujinshiVariantBase Variant { get; set; }
 
             [FromForm(Name = "file")]
@@ -92,6 +95,9 @@ namespace Nanoka.Client.Controllers
         [HttpPost("{id}/variants")]
         public async Task<Result<UploadState>> UploadVariantAsync(Guid id, [FromForm] UploadVariantRequest request)
         {
+            if (request.Archive == null)
+                return Result.BadRequest("File is not selected.");
+
             var doujinshi = await _client.Doujinshi.GetAsync(id);
 
             if (doujinshi == null)
