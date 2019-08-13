@@ -8,7 +8,11 @@ namespace Nanoka.Web.Database
     // nested object of doujinshi
     public class DbDoujinshiVariant
     {
-        [Keyword(Name = "id", Index = false)]
+        /// <summary>
+        /// This is not a true ID.
+        /// It is only used to discriminate the variants in the same doujinshi.
+        /// </summary>
+        [Keyword(Name = "d", Index = false)]
         public string Id { get; set; }
 
         [Keyword(Name = "cid", Index = false)]
