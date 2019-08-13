@@ -129,6 +129,7 @@ namespace Nanoka.Web.Database
                                  .Text(query.OriginalName, d => d.OriginalName)
                                  .Text(query.RomanizedName, d => d.RomanizedName)
                                  .Text(query.EnglishName, d => d.EnglishName)
+                                 .Filter(query.Category, d => d.Category)
                                  .Range(query.Score, d => d.Score)
                                  .Range(query.PageCount, d => d.PageCounts))
                       .NestedMultiQuery(
@@ -153,9 +154,6 @@ namespace Nanoka.Web.Database
                                                break;
                                            case DoujinshiMeta.Character:
                                                q.Text(metaQuery, d => d.Variants.First().Character);
-                                               break;
-                                           case DoujinshiMeta.Category:
-                                               q.Text(metaQuery, d => d.Variants.First().Category);
                                                break;
                                            case DoujinshiMeta.Language:
                                                q.Text(metaQuery, d => d.Variants.First().Language);

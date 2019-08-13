@@ -28,6 +28,9 @@ namespace Nanoka.Web.Database
         [PropertyName("en")]
         public string EnglishName { get; set; }
 
+        [Number(Name = "ca")]
+        public DoujinshiCategory Category { get; set; }
+
         [Number(Name = "sc")]
         public int Score { get; set; }
 
@@ -51,6 +54,7 @@ namespace Nanoka.Web.Database
             OriginalName  = doujinshi.OriginalName ?? OriginalName;
             RomanizedName = doujinshi.RomanizedName ?? RomanizedName;
             EnglishName   = doujinshi.EnglishName ?? EnglishName;
+            Category      = doujinshi.Category;
             Score         = doujinshi.Score;
 
             Variants   = doujinshi.Variants?.ToList(v => new DbDoujinshiVariant().Apply(v)) ?? Variants;
@@ -67,6 +71,7 @@ namespace Nanoka.Web.Database
             doujinshi.OriginalName  = OriginalName ?? doujinshi.OriginalName;
             doujinshi.RomanizedName = RomanizedName ?? doujinshi.RomanizedName;
             doujinshi.EnglishName   = EnglishName ?? doujinshi.EnglishName;
+            doujinshi.Category      = Category;
             doujinshi.Score         = Score;
 
             doujinshi.Variants = Variants?.ToList(v => v.ApplyTo(new DoujinshiVariant())) ?? doujinshi.Variants;

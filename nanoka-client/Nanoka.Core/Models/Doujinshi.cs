@@ -33,5 +33,8 @@ namespace Nanoka.Core.Models
 
         [JsonProperty("name_english")]
         public string EnglishName { get; set; }
+
+        [JsonProperty("category")]
+        public DoujinshiCategory Category { get; set; }
     }
 }

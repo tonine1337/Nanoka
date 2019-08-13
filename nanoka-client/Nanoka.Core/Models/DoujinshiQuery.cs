@@ -22,6 +22,9 @@ namespace Nanoka.Core.Models
         [JsonProperty("name_english")]
         public TextQuery EnglishName { get; set; }
 
+        [JsonProperty("category")]
+        public FilterQuery<DoujinshiCategory> Category { get; set; }
+
         [JsonProperty("score")]
         public RangeQuery<int> Score { get; set; }
 

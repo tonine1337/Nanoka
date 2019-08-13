@@ -29,9 +29,6 @@ namespace Nanoka.Web.Database
         [Text(Name = "c")]
         public string[] Character { get; set; }
 
-        [Text(Name = "ca")]
-        public string[] Category { get; set; }
-
         [Text(Name = "l")]
         public string[] Language { get; set; }
 
@@ -60,7 +57,6 @@ namespace Nanoka.Web.Database
             Group      = variant.Metas?.GetOrDefault(DoujinshiMeta.Group) ?? Group;
             Parody     = variant.Metas?.GetOrDefault(DoujinshiMeta.Parody) ?? Parody;
             Character  = variant.Metas?.GetOrDefault(DoujinshiMeta.Character) ?? Character;
-            Category   = variant.Metas?.GetOrDefault(DoujinshiMeta.Category) ?? Category;
             Language   = variant.Metas?.GetOrDefault(DoujinshiMeta.Language) ?? Language;
             Tag        = variant.Metas?.GetOrDefault(DoujinshiMeta.Tag) ?? Tag;
             Convention = variant.Metas?.GetOrDefault(DoujinshiMeta.Convention) ?? Convention;
@@ -83,7 +79,6 @@ namespace Nanoka.Web.Database
                 { DoujinshiMeta.Group, Group ?? variant.Metas.GetOrDefault(DoujinshiMeta.Group) },
                 { DoujinshiMeta.Parody, Parody ?? variant.Metas.GetOrDefault(DoujinshiMeta.Parody) },
                 { DoujinshiMeta.Character, Character ?? variant.Metas.GetOrDefault(DoujinshiMeta.Character) },
-                { DoujinshiMeta.Category, Category ?? variant.Metas.GetOrDefault(DoujinshiMeta.Category) },
                 { DoujinshiMeta.Language, Language ?? variant.Metas.GetOrDefault(DoujinshiMeta.Language) },
                 { DoujinshiMeta.Tag, Tag ?? variant.Metas.GetOrDefault(DoujinshiMeta.Tag) },
                 { DoujinshiMeta.Convention, Convention ?? variant.Metas.GetOrDefault(DoujinshiMeta.Convention) }
