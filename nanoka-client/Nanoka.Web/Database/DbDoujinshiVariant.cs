@@ -8,7 +8,7 @@ namespace Nanoka.Web.Database
     // nested object of doujinshi
     public class DbDoujinshiVariant
     {
-        [Keyword(Name = "id")]
+        [Keyword(Name = "id", Index = false)]
         public string Id { get; set; }
 
         [Keyword(Name = "cid", Index = false)]
