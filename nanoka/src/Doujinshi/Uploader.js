@@ -1,7 +1,12 @@
 import React from 'react';
 import { Form, Button, Dropdown } from 'semantic-ui-react';
+import Dropzone from "react-dropzone";
 
 export class Uploader extends React.Component {
+  state = {
+    file: null
+  };
+
   render() {
     return (
       <div>
@@ -90,6 +95,38 @@ export class Uploader extends React.Component {
               </small>
             </Form.Field>
           </Form.Group>
+          <Form.Field required>
+            <Dropzone onDrop={f => this.setState({ file: f[0] })} accept="application/x-zip-compressed">
+              {({ getRootProps, getInputProps }) => (
+                <div {...getRootProps()} style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  padding: '5rem',
+                  borderWidth: 2,
+                  borderRadius: 10,
+                  borderColor: '#eeeeee',
+                  borderStyle: 'dashed',
+                  backgroundColor: '#fafafa',
+                  color: '#bdbdbd',
+                  outline: 'none'
+                }}>
+                  <input {...getInputProps()} />
+                  {this.state.file
+                    ? (
+                      <div style={{ textAlign: 'center' }}>
+                        <strong>{this.state.file.name}</strong>
+                        <br />
+                        <span>{(this.state.file.size / 1000000).toFixed(1)} KB</span>
+                      </div>
+                    ) : (
+                      <div>Click here to select a file, or drag-drop it.</div>
+                    )}
+                </div>
+              )}
+            </Dropzone>
+          </Form.Field>
           <Button type="submit">Submit</Button>
         </Form>
       </div>
