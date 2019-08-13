@@ -9,6 +9,8 @@ namespace Nanoka.Web
 
         public string ElasticEndpoint { get; set; } = "http://localhost:9200";
         public string ElasticIndexPrefix { get; set; } = "nanoka-";
+        public int ElasticShardCount { get; set; } = 5;
+        public int ElasticReplicaCount { get; set; } = 2;
 
         public string IpfsEndpoint { get; set; } = "http://localhost:5001";
         public string IpfsIdentity { get; set; }

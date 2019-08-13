@@ -86,7 +86,12 @@ namespace Nanoka.Web.Database
             if ((await _client.Indices.ExistsAsync(name, ct: cancellationToken)).Exists)
                 return false;
 
-            var response = await _client.Indices.CreateAsync(name, x => x.Map(m => m.AutoMap<T>()), cancellationToken);
+            var response = await _client.Indices.CreateAsync(
+                name,
+                x => x.Map(m => m.AutoMap<T>())
+                      .Settings(s => s.NumberOfShards(_options.ElasticShardCount)
+                                      .NumberOfReplicas(_options.ElasticReplicaCount)),
+                cancellationToken);
 
             ValidateResponse(response);
 
