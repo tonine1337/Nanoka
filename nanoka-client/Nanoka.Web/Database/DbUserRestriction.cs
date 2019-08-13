@@ -2,22 +2,23 @@ using System;
 using Nanoka.Core;
 using Nanoka.Core.Models;
 using Nest;
+using Newtonsoft.Json;
 
 namespace Nanoka.Web.Database
 {
     // nested object of user
     public class DbUserRestriction
     {
-        [Date(Name = "s")]
+        [Date(Name = "s"), JsonProperty("s")]
         public DateTime Start { get; set; }
 
-        [Date(Name = "e")]
+        [Date(Name = "e"), JsonProperty("e")]
         public DateTime End { get; set; }
 
-        [Text(Name = "r")]
+        [Text(Name = "r"), JsonProperty("r")]
         public string Reason { get; set; }
 
-        [Keyword(Name = "src", Index = false)]
+        [Keyword(Name = "src", Index = false), JsonProperty("src")]
         public string Source { get; set; }
 
         public DbUserRestriction Apply(UserRestriction restriction)

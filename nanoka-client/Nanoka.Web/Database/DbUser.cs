@@ -3,40 +3,41 @@ using System.Collections.Generic;
 using Nanoka.Core;
 using Nanoka.Core.Models;
 using Nest;
+using Newtonsoft.Json;
 
 namespace Nanoka.Web.Database
 {
     [ElasticsearchType(RelationName = nameof(User), IdProperty = nameof(Id))]
     public class DbUser
     {
-        [Keyword(Name = "id", Index = false)]
+        [Keyword(Name = "id", Index = false), JsonProperty("id")]
         public string Id { get; set; }
 
-        [Keyword(Name = "sec", Index = false)]
+        [Keyword(Name = "sec", Index = false), JsonProperty("sec")]
         public string Secret { get; set; }
 
-        [Keyword(Name = "un")]
+        [Keyword(Name = "un"), JsonProperty("un")]
         public string Username { get; set; }
 
-        [Date(Name = "r")]
+        [Date(Name = "r"), JsonProperty("r")]
         public DateTime Registered { get; set; }
 
-        [Nested(Name = "res")]
+        [Nested(Name = "res"), JsonProperty("res")]
         public List<DbUserRestriction> Restrictions { get; set; }
 
-        [Number(Name = "perm")]
+        [Number(Name = "perm"), JsonProperty("perm")]
         public UserPermissions Permissions { get; set; }
 
-        [Number(Name = "c_up")]
+        [Number(Name = "c_up"), JsonProperty("c_up")]
         public int UploadCount { get; set; }
 
-        [Number(Name = "c_ed")]
+        [Number(Name = "c_ed"), JsonProperty("c_ed")]
         public int EditCount { get; set; }
 
-        [Number(Name = "c_uv")]
+        [Number(Name = "c_uv"), JsonProperty("c_uv")]
         public int UpvotedCount { get; set; }
 
-        [Number(Name = "c_dv")]
+        [Number(Name = "c_dv"), JsonProperty("c_dv")]
         public int DownvotedCount { get; set; }
 
         public DbUser Apply(User user)

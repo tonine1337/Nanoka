@@ -3,44 +3,45 @@ using System.Collections.Generic;
 using Nanoka.Core;
 using Nanoka.Core.Models;
 using Nest;
+using Newtonsoft.Json;
 
 namespace Nanoka.Web.Database
 {
     [ElasticsearchType(RelationName = nameof(Doujinshi), IdProperty = nameof(Id))]
     public class DbDoujinshi
     {
-        [Keyword(Name = "id", Index = false)]
+        [Keyword(Name = "id", Index = false), JsonProperty("id")]
         public string Id { get; set; }
 
-        [Date(Name = "up")]
+        [Date(Name = "up"), JsonProperty("up")]
         public DateTime UploadTime { get; set; }
 
-        [Date(Name = "ud")]
+        [Date(Name = "ud"), JsonProperty("ud")]
         public DateTime UpdateTime { get; set; }
 
-        // instead of using TextAttribute, let NEST configure multi-field for us
-        [PropertyName("on")]
+        // instead of using TextAttribute, let NEST configure multi-field for us without using fluent builder
+        [PropertyName("on"), JsonProperty("on")]
         public string OriginalName { get; set; }
 
-        [PropertyName("rn")]
+        [PropertyName("rn"), JsonProperty("rn")]
         public string RomanizedName { get; set; }
 
-        [PropertyName("en")]
+        [PropertyName("en"), JsonProperty("en")]
         public string EnglishName { get; set; }
 
-        [Number(Name = "ca")]
+        [Number(Name = "ca"), JsonProperty("ca")]
         public DoujinshiCategory Category { get; set; }
 
-        [Number(Name = "sc")]
+        [Number(Name = "sc"), JsonProperty("sc")]
         public int Score { get; set; }
 
-        [Nested(Name = "var")]
+        [Nested(Name = "var"), JsonProperty("var")]
         public List<DbDoujinshiVariant> Variants { get; set; }
 
         /// <summary>
         /// Cached values of the number of pages in each <see cref="Variants"/>.
         /// </summary>
-        [Number(Name = "pg_n")]
+        [Number(Name = "pg_n"), JsonProperty("pg_n")]
         public int[] PageCounts { get; set; }
 
         public DbDoujinshi Apply(Doujinshi doujinshi)

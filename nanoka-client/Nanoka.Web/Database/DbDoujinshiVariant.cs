@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Nanoka.Core;
 using Nanoka.Core.Models;
 using Nest;
+using Newtonsoft.Json;
 
 namespace Nanoka.Web.Database
 {
@@ -13,40 +14,40 @@ namespace Nanoka.Web.Database
         /// It is only used to discriminate the variants in the same doujinshi.
         /// It is named "Id2" because NEST will infer "Id" to be _id.
         /// </summary>
-        [Keyword(Name = "id", Index = false)]
+        [Keyword(Name = "id", Index = false), JsonProperty("id")]
         public string Id2 { get; set; }
 
-        [Keyword(Name = "cid", Index = false)]
+        [Keyword(Name = "cid", Index = false), JsonProperty("cid")]
         public string Cid { get; set; }
 
-        [Keyword(Name = "upu")]
+        [Keyword(Name = "upu"), JsonProperty("upu")]
         public string UploaderId { get; set; }
 
-        [Text(Name = "a")]
+        [Text(Name = "a"), JsonProperty("a")]
         public string[] Artist { get; set; }
 
-        [Text(Name = "g")]
+        [Text(Name = "g"), JsonProperty("g")]
         public string[] Group { get; set; }
 
-        [Text(Name = "p")]
+        [Text(Name = "p"), JsonProperty("p")]
         public string[] Parody { get; set; }
 
-        [Text(Name = "c")]
+        [Text(Name = "c"), JsonProperty("c")]
         public string[] Character { get; set; }
 
-        [Text(Name = "l")]
+        [Text(Name = "l"), JsonProperty("l")]
         public string[] Language { get; set; }
 
-        [Text(Name = "t")]
+        [Text(Name = "t"), JsonProperty("t")]
         public string[] Tag { get; set; }
 
-        [Text(Name = "co")]
+        [Text(Name = "co"), JsonProperty("co")]
         public string[] Convention { get; set; }
 
-        [Text(Name = "src")]
+        [Text(Name = "src"), JsonProperty("src")]
         public string Source { get; set; }
 
-        [Number(Name = "pg", Index = false)] // cached in DbDoujinshi
+        [Number(Name = "pg", Index = false), JsonProperty("pg")] // cached in DbDoujinshi
         public int PageCount { get; set; }
 
         public DbDoujinshiVariant Apply(DoujinshiVariant variant)

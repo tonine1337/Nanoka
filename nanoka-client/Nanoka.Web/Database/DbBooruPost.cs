@@ -3,61 +3,62 @@ using System.Collections.Generic;
 using Nanoka.Core;
 using Nanoka.Core.Models;
 using Nest;
+using Newtonsoft.Json;
 
 namespace Nanoka.Web.Database
 {
     [ElasticsearchType(RelationName = nameof(BooruPost), IdProperty = nameof(Id))]
     public class DbBooruPost
     {
-        [Keyword(Name = "id", Index = false)]
+        [Keyword(Name = "id", Index = false), JsonProperty("id")]
         public string Id { get; set; }
 
-        [Keyword(Name = "cid", Index = false)]
+        [Keyword(Name = "cid", Index = false), JsonProperty("cid")]
         public string Cid { get; set; }
 
-        [Keyword(Name = "upu")]
+        [Keyword(Name = "upu"), JsonProperty("upu")]
         public string UploaderId { get; set; }
 
-        [Date(Name = "up")]
+        [Date(Name = "up"), JsonProperty("up")]
         public DateTime UploadTime { get; set; }
 
-        [Date(Name = "ud")]
+        [Date(Name = "ud"), JsonProperty("ud")]
         public DateTime UpdateTime { get; set; }
 
-        [Text(Name = "a")]
+        [Text(Name = "a"), JsonProperty("a")]
         public string[] Artist { get; set; }
 
-        [Text(Name = "c")]
+        [Text(Name = "c"), JsonProperty("c")]
         public string[] Character { get; set; }
 
-        [Text(Name = "cp")]
+        [Text(Name = "cp"), JsonProperty("cp")]
         public string[] Copyright { get; set; }
 
-        [Text(Name = "m")]
+        [Text(Name = "m"), JsonProperty("m")]
         public string[] Metadata { get; set; }
 
-        [Text(Name = "g")]
+        [Text(Name = "g"), JsonProperty("g")]
         public string[] General { get; set; }
 
-        [Number(Name = "ra")]
+        [Number(Name = "ra"), JsonProperty("ga")]
         public BooruRating Rating { get; set; }
 
-        [Number(Name = "sc")]
+        [Number(Name = "sc"), JsonProperty("sc")]
         public int Score { get; set; }
 
-        [Text(Name = "src")]
+        [Text(Name = "src"), JsonProperty("src")]
         public string Source { get; set; }
 
-        [Number(Name = "w")]
+        [Number(Name = "w"), JsonProperty("w")]
         public int Width { get; set; }
 
-        [Number(Name = "h")]
+        [Number(Name = "h"), JsonProperty("h")]
         public int Height { get; set; }
 
-        [Keyword(Name = "t")]
+        [Keyword(Name = "t"), JsonProperty("t")]
         public string MediaType { get; set; }
 
-        [Keyword(Name = "sib")]
+        [Keyword(Name = "sib"), JsonProperty("sib")]
         public string[] SiblingIds { get; set; }
 
         public DbBooruPost Apply(BooruPost post)

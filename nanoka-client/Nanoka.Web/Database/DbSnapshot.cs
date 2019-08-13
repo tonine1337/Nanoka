@@ -9,25 +9,25 @@ namespace Nanoka.Web.Database
     [ElasticsearchType(RelationName = nameof(Snapshot), IdProperty = nameof(Id))]
     public class DbSnapshot
     {
-        [Keyword(Name = "id", Index = false)]
+        [Keyword(Name = "id", Index = false), JsonProperty("id")]
         public string Id { get; set; }
 
-        [Keyword(Name = "t")]
+        [Keyword(Name = "t"), JsonProperty("t")]
         public string TargetId { get; set; }
 
-        [Keyword(Name = "c")]
+        [Keyword(Name = "c"), JsonProperty("c")]
         public string CommitterId { get; set; }
 
-        [Date(Name = "tm")]
+        [Date(Name = "tm"), JsonProperty("tm")]
         public DateTime Time { get; set; }
 
-        [Number(Name = "e")]
+        [Number(Name = "e"), JsonProperty("e")]
         public SnapshotEvent Event { get; set; }
 
-        [Text(Name = "r")]
+        [Text(Name = "r"), JsonProperty("r")]
         public string Reason { get; set; }
 
-        [Keyword(Name = "v", Index = false)]
+        [Keyword(Name = "v", Index = false), JsonProperty("v")]
         public string Value { get; set; }
 
         public DbSnapshot Apply(Snapshot<Doujinshi> snapshot, JsonSerializer serializer)
