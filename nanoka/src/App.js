@@ -6,6 +6,7 @@ import * as api from './Api';
 import SearchBar from './SearchBar';
 
 import { ListByName as DoujinshiListByName } from './Doujinshi/ListByName';
+import { Uploader as DoujinshiUploader } from './Doujinshi/Uploader';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -146,7 +147,8 @@ export default class App extends React.Component {
 
         <Container as="main" style={{ marginTop: "3rem", marginBottom: "3rem" }}>
           <Route path="/" exact component={Index} />
-          <Route path="/doujinshi/all/name" exact component={DoujinshiListByName} />
+          <Route path="/doujinshi/all/name" component={DoujinshiListByName} />
+          <Route path="/doujinshi/upload" component={DoujinshiUploader} />
         </Container>
       </Router>
     );
