@@ -35,51 +35,58 @@ export class Uploader extends React.Component {
           <Form.Group grouped className="two">
             <Form.Field required>
               <label>Artist</label>
-              <Dropdown search selection multiple allowAdditions placeholder="Artist" />
+              <Dropdown search selection multiple allowAdditions placeholder="Artist" noResultsMessage={null} />
               <small>
                 Artist of this doujinshi.
               </small>
             </Form.Field>
             <Form.Field>
               <label>Group</label>
-              <Dropdown search selection multiple allowAdditions placeholder="Group" />
+              <Dropdown search selection multiple allowAdditions placeholder="Group" noResultsMessage={null} />
               <small>
                 Doujin circle that published this doujinshi.
               </small>
             </Form.Field>
             <Form.Field>
               <label>Parody</label>
-              <Dropdown search selection multiple allowAdditions placeholder="Parody" />
+              <Dropdown search selection multiple allowAdditions placeholder="Parody" noResultsMessage={null} />
               <small>
                 Name of the anime series, manga or other copyrighted work that this doujinshi is the parody of.
               </small>
             </Form.Field>
             <Form.Field required>
               <label>Characters</label>
-              <Dropdown search selection multiple allowAdditions placeholder="Character" />
+              <Dropdown search selection multiple allowAdditions placeholder="Character" noResultsMessage={null} />
               <small>
                 Characters that appear in this doujinshi.
               </small>
             </Form.Field>
             <Form.Field required>
               <label>Language</label>
-              <Dropdown search selection multiple allowAdditions placeholder="Language" />
+              <Dropdown search selection multiple allowAdditions placeholder="Language" noResultsMessage={null} />
               <small>
                 Language in which this doujinshi is written, or the target language if translated.
               </small>
             </Form.Field>
             <Form.Field required>
               <label>Tags</label>
-              <Dropdown search selection multiple allowAdditions placeholder="Tag" />
+              <Dropdown search selection multiple allowAdditions placeholder="Tag" noResultsMessage={null} />
               <small>
                 Tags that describe this doujinshi appropriately.
               </small>
             </Form.Field>
             <Form.Field>
               <label>Convention</label>
-              <Dropdown search selection multiple allowAdditions placeholder="Convention" />
+              <Dropdown search selection multiple allowAdditions placeholder="Convention" noResultsMessage={null} />
               <small>
                 Convention where this doujinshi was available.
+              </small>
+            </Form.Field>
+            <Form.Field>
+              <label>Source</label>
+              <input type="url" placeholder="URL" />
+              <small>
+                URL of the web page where this doujinshi was transferred from.
               </small>
             </Form.Field>
           </Form.Group>
