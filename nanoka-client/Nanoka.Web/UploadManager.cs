@@ -3,17 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nanoka.Core;
-using Nanoka.Core.Models;
 
 namespace Nanoka.Web
 {
-    public delegate Task UploadWorkerDelegate(IServiceProvider services,
-                                              UploadWorker worker,
-                                              CancellationToken cancellationToken = default);
-
     public class UploadManager : BackgroundService
     {
         readonly Dictionary<Guid, UploadWorker> _workers = new Dictionary<Guid, UploadWorker>();
@@ -34,37 +28,14 @@ namespace Nanoka.Web
                 return _workers.GetOrDefault(id);
         }
 
-        public UploadState CreateWorker(UploadWorkerDelegate func)
+        public UploadWorker CreateWorker(Guid id)
         {
-            // create worker object
-            var worker = new UploadWorker();
+            var worker = new UploadWorker(id, _services);
 
             lock (_workers)
-                _workers[worker.Id] = worker;
+                _workers[id] = worker;
 
-            // run worker in background
-            Task.Run(async () =>
-            {
-                try
-                {
-                    using (var scope = _services.CreateScope())
-                        await func(scope.ServiceProvider, worker, worker.CancellationToken);
-
-                    // worker function should have set the progress to 1 when it finished
-                    if (worker.IsRunning)
-                        worker.SetFailure("Upload worker ended prematurely due to an unknown reason.");
-                }
-                catch (TaskCanceledException)
-                {
-                    worker.SetFailure("Upload worker has been canceled.");
-                }
-                catch (Exception e)
-                {
-                    worker.SetFailure(e.Message);
-                }
-            });
-
-            return worker.CreateState();
+            return worker;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

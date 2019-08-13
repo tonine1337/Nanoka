@@ -97,7 +97,9 @@ namespace Nanoka.Web.Controllers
             _mapper.Map(request.Doujinshi, doujinshi);
             _mapper.Map(request.Variant, doujinshi.Variants[0]);
 
-            return _uploadManager.CreateWorker(async (services, worker, token) =>
+            var worker = _uploadManager.CreateWorker(doujinshi.Id);
+
+            return worker.Start(async (services, token) =>
             {
                 await LoadVariantAsync(doujinshi.Variants[0], worker, token);
 
@@ -217,7 +219,9 @@ namespace Nanoka.Web.Controllers
 
             _mapper.Map(request.Variant, variant);
 
-            return _uploadManager.CreateWorker(async (services, worker, token) =>
+            var worker = _uploadManager.CreateWorker(variant.Id);
+
+            return worker.Start(async (services, token) =>
             {
                 await LoadVariantAsync(variant, worker, token);
 

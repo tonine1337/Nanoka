@@ -1,14 +1,18 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Nanoka.Core.Models;
-using Newtonsoft.Json;
 
 namespace Nanoka.Web
 {
     public class UploadWorker : IDisposable
     {
         readonly object _lock = new object();
-        readonly CancellationTokenSource _cancellationToken = new CancellationTokenSource();
+        readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+        readonly Guid _id;
+        readonly IServiceProvider _services;
 
         readonly DateTime _start = DateTime.UtcNow;
         DateTime? _end;
@@ -16,7 +20,11 @@ namespace Nanoka.Web
         double _progress;
         string _message;
 
-        public Guid Id { get; } = Guid.NewGuid();
+        public UploadWorker(Guid id, IServiceProvider services)
+        {
+            _id       = id;
+            _services = services;
+        }
 
         public DateTime? End
         {
@@ -27,10 +35,7 @@ namespace Nanoka.Web
             }
         }
 
-        public bool IsRunning { get; private set; } = true;
-
-        [JsonIgnore]
-        public CancellationToken CancellationToken => _cancellationToken.Token;
+        bool _isRunning = true;
 
         public void SetMessage(string message)
         {
@@ -44,7 +49,7 @@ namespace Nanoka.Web
             {
                 value = Math.Clamp(value, 0, 1);
 
-                IsRunning = false; // value < 1; 1 does not necessarily indicate completion
+                _isRunning = false; // value < 1; 1 does not necessarily indicate completion
 
                 _message  = message ?? _message;
                 _end      = null;
@@ -56,7 +61,7 @@ namespace Nanoka.Web
         {
             lock (_lock)
             {
-                IsRunning = false;
+                _isRunning = false;
 
                 _message = message;
                 _end     = DateTime.UtcNow;
@@ -67,7 +72,7 @@ namespace Nanoka.Web
         {
             lock (_lock)
             {
-                IsRunning = true;
+                _isRunning = true;
 
                 _message  = message ?? _message;
                 _end      = DateTime.UtcNow;
@@ -75,7 +80,38 @@ namespace Nanoka.Web
             }
         }
 
-        public void Cancel() => _cancellationToken.Cancel();
+        public void Cancel() => _cancellationTokenSource.Cancel();
+
+        public delegate Task UploadWorkerDelegate(IServiceProvider services,
+                                                  CancellationToken cancellationToken = default);
+
+        public UploadState Start(UploadWorkerDelegate func)
+        {
+            Task.Run(
+                async () =>
+                {
+                    try
+                    {
+                        using (var scope = _services.CreateScope())
+                            await func(scope.ServiceProvider, _cancellationTokenSource.Token);
+
+                        // worker function should have set the progress to 1 when it finished
+                        if (_isRunning)
+                            SetFailure("Upload worker ended prematurely due to an unknown reason.");
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        SetFailure("Upload worker has been canceled.");
+                    }
+                    catch (Exception e)
+                    {
+                        SetFailure(e.Message);
+                    }
+                },
+                _cancellationTokenSource.Token);
+
+            return CreateState();
+        }
 
         public UploadState CreateState()
         {
@@ -83,11 +119,11 @@ namespace Nanoka.Web
             {
                 return new UploadState
                 {
-                    Id        = Id,
+                    Id        = _id,
                     Progress  = _progress,
                     Start     = _start,
                     End       = _end ?? EstimateEndTime(),
-                    IsRunning = IsRunning,
+                    IsRunning = _isRunning,
                     Message   = _message
                 };
             }
@@ -109,8 +145,8 @@ namespace Nanoka.Web
 
         public void Dispose()
         {
-            _cancellationToken.Cancel();
-            _cancellationToken.Dispose();
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
         }
     }
 }
