@@ -7,8 +7,6 @@ namespace Nanoka.Core.Client
 {
     public interface IDatabaseClient : IDisposable
     {
-        IDatabaseClientDoujinshiHandler Doujinshi { get; }
-
         Task ConnectAsync(CancellationToken cancellationToken = default);
 
         Task<DatabaseInfo> GetDatabaseInfoAsync(CancellationToken cancellationToken = default);

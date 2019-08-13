@@ -103,7 +103,8 @@ namespace Nanoka.Client
 
             // ipfs subsystem
             services.AddSingleton<IpfsClient>()
-                    .AddSingleton<IpfsManager>();
+                    .AddSingleton<IpfsManager>()
+                    .AddSingleton<IpfsDoujinshiVariantUploader>();
 
             // database
             services.AddSingleton<IDatabaseClient, DatabaseClient>();

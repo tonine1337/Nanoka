@@ -3,7 +3,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using Ipfs.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,19 +17,19 @@ namespace Nanoka.Client.Controllers
     public class DoujinshiController : ControllerBase
     {
         readonly IDatabaseClient _client;
-        readonly IMapper _mapper;
         readonly IpfsClient _ipfs;
+        readonly IpfsDoujinshiVariantUploader _uploader;
 
-        public DoujinshiController(IDatabaseClient client, IMapper mapper, IpfsClient ipfs)
+        public DoujinshiController(IDatabaseClient client, IpfsClient ipfs, IpfsDoujinshiVariantUploader uploader)
         {
-            _client = client;
-            _mapper = mapper;
-            _ipfs   = ipfs;
+            _client   = client;
+            _ipfs     = ipfs;
+            _uploader = uploader;
         }
 
         [HttpPost("search")]
         public async Task<Result<SearchResult<Doujinshi>>> SearchAsync(DoujinshiQuery query)
-            => await _client.Doujinshi.SearchAsync(q => query);
+            => await _client.SearchDoujinshiAsync(query);
 
         public class UploadDoujinshiRequest
         {
@@ -50,35 +49,27 @@ namespace Nanoka.Client.Controllers
             if (request.Archive == null)
                 return Result.BadRequest("File is not selected.");
 
+            var dbRequest = new CreateDoujinshiRequest
+            {
+                Doujinshi = request.Doujinshi,
+                Variant   = request.Variant
+            };
+
             using (var stream = request.Archive.OpenReadStream())
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, false))
-                return await _client.Doujinshi.UploadAsync(request.Doujinshi, request.Variant, archive);
+                await _uploader.InitializeRequestAsync(archive, dbRequest);
+
+            return await _client.CreateDoujinshiAsync(dbRequest);
         }
 
         [HttpPut("{id}")]
-        public async Task<Result<Doujinshi>> UpdateAsync(Guid id, DoujinshiBase model)
-        {
-            var doujinshi = await _client.Doujinshi.GetAsync(id);
-
-            if (doujinshi == null)
-                return Result.NotFound<Doujinshi>(id);
-
-            _mapper.Map(model, doujinshi);
-
-            await _client.Doujinshi.UpdateAsync(doujinshi);
-
-            return doujinshi;
-        }
+        public async Task<Result<Doujinshi>> UpdateAsync(Guid id, DoujinshiBase doujinshi)
+            => await _client.UpdateDoujinshiAsync(id, doujinshi);
 
         [HttpDelete("{id}")]
         public async Task<Result> DeleteAsync(Guid id, [FromQuery] string reason)
         {
-            var doujinshi = await _client.Doujinshi.GetAsync(id);
-
-            if (doujinshi == null)
-                return Result.NotFound<Doujinshi>(id);
-
-            await _client.Doujinshi.DeleteAsync(doujinshi, reason);
+            await _client.DeleteDoujinshiAsync(id, reason);
 
             return Result.Ok();
         }
@@ -98,42 +89,26 @@ namespace Nanoka.Client.Controllers
             if (request.Archive == null)
                 return Result.BadRequest("File is not selected.");
 
-            var doujinshi = await _client.Doujinshi.GetAsync(id);
-
-            if (doujinshi == null)
-                return Result.NotFound<Doujinshi>(id);
+            var dbRequest = new CreateDoujinshiVariantRequest
+            {
+                Variant = request.Variant
+            };
 
             using (var stream = request.Archive.OpenReadStream())
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, false))
-                return await _client.Doujinshi.UploadVariantAsync(doujinshi, request.Variant, archive);
+                await _uploader.InitializeRequestAsync(archive, dbRequest);
+
+            return await _client.CreateDoujinshiVariantAsync(id, dbRequest);
         }
 
         [HttpPut("{id}/variants/{variantId}")]
-        public async Task<Result<DoujinshiVariant>> UpdateVariantAsync(Guid id, Guid variantId, DoujinshiVariantBase model)
-        {
-            var doujinshi = await _client.Doujinshi.GetAsync(id);
-            var variant   = doujinshi?.Variants.FirstOrDefault(v => v.Id == variantId);
-
-            if (variant == null)
-                return Result.NotFound<DoujinshiVariant>(id, variantId);
-
-            _mapper.Map(model, variant);
-
-            await _client.Doujinshi.UpdateVariantAsync(doujinshi, variant);
-
-            return variant;
-        }
+        public async Task<Result<DoujinshiVariant>> UpdateVariantAsync(Guid id, Guid variantId, DoujinshiVariantBase variant)
+            => await _client.UpdateDoujinshiVariantAsync(id, variantId, variant);
 
         [HttpDelete("{id}/variants/{variantId}")]
-        public async Task<Result> DeleteVariantAsync(Guid id, Guid variantId)
+        public async Task<Result> DeleteVariantAsync(Guid id, Guid variantId, [FromQuery] string reason)
         {
-            var doujinshi = await _client.Doujinshi.GetAsync(id);
-            var variant   = doujinshi?.Variants.FirstOrDefault(v => v.Id == variantId);
-
-            if (variant == null)
-                return Result.NotFound<DoujinshiVariant>(id, variantId);
-
-            await _client.Doujinshi.DeleteVariantAsync(doujinshi, variant);
+            await _client.DeleteDoujinshiVariantAsync(id, variantId, reason);
 
             return Result.Ok();
         }
@@ -142,7 +117,7 @@ namespace Nanoka.Client.Controllers
         public async Task<IActionResult> GetImageAsync(Guid id, Guid variantId, int index)
         {
             // todo: cache
-            var doujinshi = await _client.Doujinshi.GetAsync(id);
+            var doujinshi = await _client.GetDoujinshiAsync(id);
             var variant   = doujinshi?.Variants.FirstOrDefault(v => v.Id == variantId);
 
             if (variant == null)
