@@ -50,7 +50,7 @@ namespace Nanoka.Web
             {
                 value = Math.Clamp(value, 0, 1);
 
-                _isRunning = false; // value < 1; 1 does not necessarily indicate completion
+                _isRunning = true;
 
                 _message  = message ?? _message;
                 _end      = null;
@@ -73,7 +73,7 @@ namespace Nanoka.Web
         {
             lock (_lock)
             {
-                _isRunning = true;
+                _isRunning = false;
 
                 _message  = message ?? _message;
                 _end      = DateTime.UtcNow;
