@@ -164,7 +164,7 @@ export class Uploader extends React.Component {
           <Message.Content content="This may take a while depending on your internet speed." />
         </Message>
 
-        {this.state.uploadProgress ?
+        {this.state.uploadMessage ?
           <Progress progress indicating
             percent={this.state.uploadProgress * 100}
             active={this.state.uploadProgress !== 1}
