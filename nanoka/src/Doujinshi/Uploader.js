@@ -1,11 +1,15 @@
 import React from 'react';
-import { Form, Button, Dropdown, Icon } from 'semantic-ui-react';
+import { Form, Button, Dropdown, Icon, Message, Progress } from 'semantic-ui-react';
 import { createDropzone } from '../DropzoneStyle';
 import * as api from '../Api';
 
 export class Uploader extends React.Component {
   state = {
-    file: null
+    file: null,
+    isSubmitting: false,
+    uploadProgress: 0,
+    uploadMessage: null,
+    errors: []
   };
 
   render() {
@@ -78,7 +82,7 @@ export class Uploader extends React.Component {
               text: 'Image Set',
               value: 4
             }
-            ]} onChange={(_, { value }) => this.state.category = value} />
+            ]} onChange={(_, { value }) => this.setState({ category: value })} />
             <small>
               Special category that this doujinshi belongs to.
             </small>
@@ -147,8 +151,26 @@ export class Uploader extends React.Component {
             <label>File</label>
             {createDropzone.call(this)}
           </Form.Field>
-          <Button type="submit" className="labeled icon primary" onClick={() => this.handleSubmit()}><Icon name="upload" /> Upload</Button>
+          <Button type="submit" className="labeled icon primary" loading={this.state.isSubmitting} onClick={() => this.handleSubmit()}>
+            <Icon name="upload" disabled={this.state.isSubmitting} /> Upload
+          </Button>
         </Form>
+        <Message negative hidden={this.state.errors.length === 0}>
+          <Message.Header content="There were some errors with your submission." />
+          <Message.List items={this.state.errors} />
+        </Message>
+        <Message success hidden={!this.state.isSubmitting}>
+          <Message.Header content="Your submission is being uploaded." />
+          <Message.Content content="This may take a while depending on your internet speed." />
+        </Message>
+
+        {this.state.uploadProgress ? <div>
+          <br />
+          <Progress progress indicating
+            percent={this.state.uploadProgress * 100}
+            active={this.state.uploadProgress !== 1}
+            label={this.state.uploadMessage} />
+        </div> : <span />}
       </div>
     );
   }
@@ -156,33 +178,93 @@ export class Uploader extends React.Component {
   handleSubmit() {
     const state = this.state;
 
-    api.uploadDoujinshiAsync(
-      {
-        doujinshi: {
-          name_original: state.originalName,
-          name_romanized: state.romanizedName,
-          name_english: state.englishname,
-          category: state.category
-        },
-        variant: {
-          metas: {
-            artist: state.artist,
-            group: state.group,
-            language: state.language,
-            parody: state.parody,
-            convention: state.convention,
-            character: state.character,
-            tag: state.tag
-          }
-        },
-        file: state.file
+    if (state.isSubmitting)
+      return;
+
+    const errors = [];
+
+    // validate input first
+    if (!state.originalName)
+      errors.push('Original name is not specified.');
+
+    if (!state.artist || state.artist.length === 0)
+      errors.push('Artist is not specified.');
+
+    if (!state.language || state.language.length === 0)
+      errors.push('Language is not specified.');
+
+    if (!state.character || state.character.length === 0)
+      errors.push('Doujinshi must have at least one character.');
+
+    if (!state.tag || state.tag.length === 0)
+      errors.push('Doujinshi must have at least one tag.');
+
+    if (!state.file)
+      errors.push('Please select a file to upload.');
+
+    if (errors.length !== 0) {
+      this.setState({
+        isSubmitting: false,
+        errors
+      });
+      return;
+    }
+
+    this.setState({
+      isSubmitting: true,
+      errors
+    });
+
+    api.uploadDoujinshiAsync({
+      doujinshi: {
+        name_original: state.originalName,
+        name_romanized: state.romanizedName,
+        name_english: state.englishname,
+        category: state.category
       },
-      {
-        success: r => {
-          console.log("yay");
-          console.log(r)
+      variant: {
+        metas: {
+          artist: state.artist,
+          group: state.group,
+          language: state.language,
+          parody: state.parody,
+          convention: state.convention,
+          character: state.character,
+          tag: state.tag
+        }
+      },
+      file: state.file
+    }, {
+        success: r => this.updateProgress(r),
+        error: e => {
+          this.setState({
+            isSubmitting: false,
+            errors: [e]
+          });
         }
       }
     );
+  }
+
+  updateProgress(uploadState) {
+    api.getUploadStateAsync(uploadState.id, {
+      success: r => {
+        this.setState({
+          uploadProgress: r.progress,
+          uploadMessage: r.message
+        });
+
+        // continuously update
+        this.updateProgress(r);
+      },
+      error: e => {
+        this.setState({
+          uploadProgress: 0,
+          uploadMessage: null,
+          isSubmitting: false,
+          errors: [e]
+        });
+      }
+    })
   }
 }
