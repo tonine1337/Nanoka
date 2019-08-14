@@ -27,6 +27,10 @@ namespace Nanoka.Client.Controllers
             _uploader = uploader;
         }
 
+        [HttpGet("{id}")]
+        public Task<Doujinshi> GetAsync(Guid id)
+            => _client.GetDoujinshiAsync(id);
+
         [HttpPost("search")]
         public Task<SearchResult<Doujinshi>> SearchAsync(DoujinshiQuery query)
             => _client.SearchDoujinshiAsync(query);
