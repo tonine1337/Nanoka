@@ -48,7 +48,7 @@ function configureEvents(promise, events) {
       })
       .catch(e => {
         if (typeof events.error === 'function')
-          events.error(e);
+          events.error(e.message);
       })
       .finally(() => {
         if (typeof events.finish === 'function')
