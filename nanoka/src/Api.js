@@ -35,23 +35,25 @@ function post(path, data, events) {
 
 function configureEvents(promise, events) {
   if (events) {
-    if (typeof events.success === 'function')
-      promise = promise
-        .then(r => {
-          if (!r.ok)
-            throw Error(r.text());
+    promise
+      .then(r => {
+        if (!r.ok)
+          throw Error(r.text());
 
-          return r.json();
-        })
-        .then(r => events.success(r));
-
-    if (typeof events.error === 'function')
-      promise = promise
-        .catch(e => events.error(e));
-
-    if (typeof events.finish === 'function')
-      promise = promise
-        .finally(() => events.finish());
+        return r.json();
+      })
+      .then(r => {
+        if (typeof events.success === 'function')
+          events.success(r);
+      })
+      .catch(e => {
+        if (typeof events.error === 'function')
+          events.error(e);
+      })
+      .finally(() => {
+        if (typeof events.finish === 'function')
+          events.finish();
+      });
   }
 }
 
@@ -80,4 +82,8 @@ export function uploadDoujinshiAsync(request, events) {
   });
 
   configureEvents(promise, events);
+}
+
+export function getUploadStateAsync(uploadId, events) {
+  get(`uploads/${uploadId}/next`, events);
 }
