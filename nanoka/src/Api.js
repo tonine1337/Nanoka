@@ -38,11 +38,15 @@ function configureEvents(promise, events) {
     promise
       .then(r => {
         if (!r.ok)
-          throw Error(r.text());
+          return r.text();
 
         return r.json();
       })
       .then(r => {
+        // errors are parsed as text
+        if (typeof r === 'string')
+          throw Error(r);
+
         if (typeof events.success === 'function')
           events.success(r);
       })
