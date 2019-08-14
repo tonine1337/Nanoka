@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -94,7 +93,7 @@ namespace Nanoka.Core.Client
             return await ConvertResponseAsync<TResponse>(responseMessage);
         }
 
-        sealed class ResponseWrapper<TBody>
+        sealed class StatusObject
         {
             [JsonProperty("error")]
             public bool Error { get; set; }
@@ -104,28 +103,28 @@ namespace Nanoka.Core.Client
 
             [JsonProperty("message")]
             public string Message { get; set; }
-
-            [JsonProperty("body")]
-            public TBody Body { get; set; }
         }
 
         async Task<TResponse> ConvertResponseAsync<TResponse>(HttpResponseMessage responseMessage)
         {
-            if (!responseMessage.IsSuccessStatusCode)
-                throw new DatabaseClientException((int) responseMessage.StatusCode, responseMessage.ReasonPhrase);
+            var responseStr = await responseMessage.Content.ReadAsStringAsync();
 
-            ResponseWrapper<TResponse> response;
+            try
+            {
+                var status = _serializer.Deserialize<StatusObject>(responseStr);
 
-            using (var reader = new StringReader(await responseMessage.Content.ReadAsStringAsync()))
-                response = _serializer.Deserialize<ResponseWrapper<TResponse>>(reader);
+                if (status.Status == 404)
+                    return default;
 
-            if (response.Status == 404)
-                return default;
+                if (status.Error)
+                    throw new DatabaseClientException(status.Status, status.Message);
 
-            if (response.Error)
-                throw new DatabaseClientException(response.Status, response.Message);
-
-            return response.Body;
+                return _serializer.Deserialize<TResponse>(responseStr);
+            }
+            catch (JsonSerializationException e)
+            {
+                throw new DatabaseClientException($"Could not deserialize response as JSON: '{responseStr}'", e);
+            }
         }
 
         public Task<DatabaseInfo> GetDatabaseInfoAsync(CancellationToken cancellationToken = default)
