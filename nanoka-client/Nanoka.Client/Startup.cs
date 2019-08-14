@@ -118,14 +118,12 @@ namespace Nanoka.Client
 
             logger.LogInformation($"Nanoka client server: {Localhost.Url()}");
 
-            // development page
-            var isDev = app.ApplicationServices.GetService<IHostingEnvironment>().IsDevelopment();
-
-            if (isDev)
-                app.UseDeveloperExceptionPage();
+            // global exception handling
+            app.UseExceptionHandler("/error")
+               .UseStatusCodePages();
 
             // cors
-            if (isDev)
+            if (app.ApplicationServices.GetService<IHostingEnvironment>().IsDevelopment())
                 app.UseCors(p => p.AllowAnyOrigin()
                                   .AllowAnyHeader()
                                   .AllowAnyMethod());
