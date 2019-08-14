@@ -1,15 +1,18 @@
-using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Nanoka.Core;
 
 namespace Nanoka.Web.Controllers
 {
-    // https://medium.com/@matteocontrini/consistent-error-responses-in-asp-net-core-web-apis-bb70b435d1f8
     [ApiController]
-    [Route("errors")]
+    [Route("error")]
     public class ErrorController : ControllerBase
     {
-        [Route("{code}")]
-        public ActionResult Error(int code) => Result.StatusCode((HttpStatusCode) code, null);
+        public Result Handle()
+        {
+            var exception = HttpContext.Features.Get<IExceptionHandlerFeature>().Error;
+
+            return Result.InternalServerError("An internal server error caused this request to fail. " +
+                                              $"{exception.Message ?? "<unknown reason>"}");
+        }
     }
 }

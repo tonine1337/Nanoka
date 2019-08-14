@@ -8,9 +8,7 @@ namespace Nanoka.Web
 {
     public class Result : Result<object>
     {
-        Result(HttpStatusCode status, string message) : base(status, message) { }
-
-        public Result<T> ToGeneric<T>() => new Result<T>((HttpStatusCode) Status, Message);
+        Result(HttpStatusCode status, string message) : base(status, message, null) { }
 
         public static Result StatusCode(HttpStatusCode status, string message) => new Result(status, message);
 
@@ -18,6 +16,7 @@ namespace Nanoka.Web
         public static Result NotFound(string message = null) => StatusCode(HttpStatusCode.NotFound, message);
         public static Result Forbidden(string message = null) => StatusCode(HttpStatusCode.Forbidden, message);
         public static Result BadRequest(string message = null) => StatusCode(HttpStatusCode.BadRequest, message);
+        public static Result InternalServerError(string message = null) => StatusCode(HttpStatusCode.InternalServerError, message);
 
 #region Helpers
 
@@ -31,7 +30,10 @@ namespace Nanoka.Web
     }
 
     public class Result<T> : IActionResult
+        where T : class
     {
+        readonly T _value;
+
         [JsonProperty("error")]
         public bool Error => !(200 <= Status && Status < 300);
 
@@ -41,26 +43,24 @@ namespace Nanoka.Web
         [JsonProperty("message")]
         public string Message { get; set; }
 
-        [JsonProperty("body")]
-        public T Body { get; set; }
-
-        public Result(HttpStatusCode status, string message = null, T body = default)
+        public Result(HttpStatusCode status, string message, T value)
         {
+            _value = value;
+
             Status  = (int) status;
             Message = message ?? status.ToString();
-            Body    = body;
         }
 
         public static implicit operator Result<T>(T value) => new Result<T>(HttpStatusCode.OK, null, value);
-
-        public static implicit operator Result<T>(Result result) => result.ToGeneric<T>();
+        public static implicit operator Result<T>(Result result) => new Result<T>((HttpStatusCode) result.Status, result.Message, null);
 
         public static implicit operator ActionResult(Result<T> result)
-            => new ObjectResult(result)
+            => new ObjectResult(result._value ?? result)
             {
                 StatusCode = result.Status
             };
 
-        public Task ExecuteResultAsync(ActionContext context) => ((ActionResult) this).ExecuteResultAsync(context);
+        public Task ExecuteResultAsync(ActionContext context)
+            => ((ActionResult) this).ExecuteResultAsync(context);
     }
 }
