@@ -164,13 +164,11 @@ export class Uploader extends React.Component {
           <Message.Content content="This may take a while depending on your internet speed." />
         </Message>
 
-        {this.state.uploadProgress ? <div>
-          <br />
+        {this.state.uploadProgress ?
           <Progress progress indicating
             percent={this.state.uploadProgress * 100}
             active={this.state.uploadProgress !== 1}
-            label={this.state.uploadMessage} />
-        </div> : <span />}
+            label={this.state.uploadMessage} /> : <span />}
       </div>
     );
   }
@@ -247,13 +245,25 @@ export class Uploader extends React.Component {
   }
 
   updateProgress(uploadState) {
+    if (uploadState.failed) {
+      this.setState({
+        uploadProgress: 0,
+        uploadMessage: null,
+        isSubmitting: false,
+        errors: [uploadState.message]
+      });
+    }
+
+    this.setState({
+      uploadProgress: Math.round(uploadState.progress),
+      uploadMessage: uploadState.message
+    });
+
+    if (!uploadState.running)
+      return;
+
     api.getUploadStateAsync(uploadState.id, {
       success: r => {
-        this.setState({
-          uploadProgress: r.progress,
-          uploadMessage: r.message
-        });
-
         // continuously update
         this.updateProgress(r);
       },
