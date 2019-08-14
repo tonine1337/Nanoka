@@ -255,7 +255,7 @@ export class Uploader extends React.Component {
     }
 
     this.setState({
-      uploadProgress: Math.round(uploadState.progress),
+      uploadProgress: Math.round(uploadState.progress * 100) / 100,
       uploadMessage: uploadState.message
     });
 
