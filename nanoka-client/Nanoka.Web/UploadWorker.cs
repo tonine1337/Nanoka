@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +12,7 @@ namespace Nanoka.Web
     {
         readonly object _lock = new object();
         readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        readonly List<TaskCompletionSource<UploadState>> _changeListeners = new List<TaskCompletionSource<UploadState>>();
 
         readonly Guid _id;
         readonly IServiceProvider _services;
@@ -42,6 +44,8 @@ namespace Nanoka.Web
         {
             lock (_lock)
                 _message = message;
+
+            SignalChange();
         }
 
         public void SetProgress(double value, string message = null)
@@ -56,6 +60,8 @@ namespace Nanoka.Web
                 _end      = null;
                 _progress = value;
             }
+
+            SignalChange();
         }
 
         public void SetFailure(string message)
@@ -67,6 +73,8 @@ namespace Nanoka.Web
                 _message = message;
                 _end     = DateTime.UtcNow;
             }
+
+            SignalChange();
         }
 
         public void SetSuccess(string message = null)
@@ -79,6 +87,32 @@ namespace Nanoka.Web
                 _end      = DateTime.UtcNow;
                 _progress = 1;
             }
+
+            SignalChange();
+        }
+
+        void SignalChange()
+        {
+            lock (_lock)
+            {
+                var state = CreateState();
+
+                foreach (var source in _changeListeners)
+                    source.TrySetResult(state);
+
+                _changeListeners.Clear();
+            }
+        }
+
+        public async Task<UploadState> WaitForStateChangeAsync(CancellationToken cancellationToken = default)
+        {
+            var source = new TaskCompletionSource<UploadState>();
+
+            lock (_lock)
+                _changeListeners.Add(source);
+
+            using (cancellationToken.Register(() => source.TrySetCanceled(cancellationToken), useSynchronizationContext: false))
+                return await source.Task;
         }
 
         public void Cancel() => _cancellationTokenSource.Cancel();
