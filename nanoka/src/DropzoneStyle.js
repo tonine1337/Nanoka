@@ -28,7 +28,7 @@ export function createDropzone() {
               <div style={{ textAlign: 'center' }}>
                 <strong>{this.state.file.name}</strong>
                 <br />
-                <span>{(this.state.file.size / 1000000).toFixed(1)} KB</span>
+                <span>{(this.state.file.size / 1000000).toFixed(1)} MB</span>
               </div>
             ) : (
               <div style={{ opacity: 0.4 }}>Click here to select a file, or drag-drop it.</div>
