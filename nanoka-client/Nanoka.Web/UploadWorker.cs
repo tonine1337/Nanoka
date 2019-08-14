@@ -39,6 +39,7 @@ namespace Nanoka.Web
         }
 
         bool _isRunning = true;
+        bool _isFailed = false;
 
         public void SetMessage(string message)
         {
@@ -55,6 +56,7 @@ namespace Nanoka.Web
                 value = Math.Clamp(value, 0, 1);
 
                 _isRunning = true;
+                _isFailed  = false;
 
                 _message  = message ?? _message;
                 _end      = null;
@@ -69,6 +71,7 @@ namespace Nanoka.Web
             lock (_lock)
             {
                 _isRunning = false;
+                _isFailed  = true;
 
                 _message = message;
                 _end     = DateTime.UtcNow;
@@ -82,6 +85,7 @@ namespace Nanoka.Web
             lock (_lock)
             {
                 _isRunning = false;
+                _isFailed  = false;
 
                 _message  = message ?? _message;
                 _end      = DateTime.UtcNow;
@@ -168,6 +172,7 @@ namespace Nanoka.Web
                     Start     = _start,
                     End       = _end ?? EstimateEndTime(),
                     IsRunning = _isRunning,
+                    IsFailed  = _isFailed,
                     Message   = _message
                 };
             }

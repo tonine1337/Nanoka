@@ -20,6 +20,9 @@ namespace Nanoka.Core.Models
         [JsonProperty("running")]
         public bool IsRunning { get; set; }
 
+        [JsonProperty("failed")]
+        public bool IsFailed { get; set; }
+
         [JsonProperty("message")]
         public string Message { get; set; }
     }
