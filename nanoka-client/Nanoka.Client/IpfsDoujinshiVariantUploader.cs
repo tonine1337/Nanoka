@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 using Ipfs.Http;
+using Microsoft.Extensions.Options;
 using Nanoka.Core;
 using Nanoka.Core.Client;
 using SixLabors.ImageSharp;
@@ -13,10 +14,12 @@ namespace Nanoka.Client
     public class IpfsDoujinshiVariantUploader
     {
         readonly IpfsClient _ipfs;
+        readonly DatabaseOptions _options;
 
-        public IpfsDoujinshiVariantUploader(IpfsClient ipfs)
+        public IpfsDoujinshiVariantUploader(IpfsClient ipfs, IOptions<DatabaseOptions> options)
         {
-            _ipfs = ipfs;
+            _ipfs    = ipfs;
+            _options = options.Value;
         }
 
         public async Task InitializeRequestAsync(ZipArchive archive, CreateDoujinshiVariantRequest request, CancellationToken cancellationToken = default)
@@ -35,6 +38,9 @@ namespace Nanoka.Client
 
                 if (string.IsNullOrWhiteSpace(entry.Name) || entry.Name.Length > 64 || extension.Length == 0)
                     throw new FormatException($"Filename '{entry.Name}' is invalid.");
+
+                if (_options.SkipUploadContentValidation)
+                    continue;
 
                 // validate image
                 using (var stream = entry.Open())

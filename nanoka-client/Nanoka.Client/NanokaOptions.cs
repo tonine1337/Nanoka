@@ -18,5 +18,7 @@ namespace Nanoka.Client
 
         public Guid UserId { get; set; }
         public Guid UserSecret { get; set; }
+
+        public bool SkipUploadContentValidation { get; set; } = true; // it tends to be slow esp. on older devices
     }
 }
