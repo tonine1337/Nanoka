@@ -106,10 +106,17 @@ namespace Nanoka.Web
 
         public async Task<UploadState> WaitForStateChangeAsync(CancellationToken cancellationToken = default)
         {
-            var source = new TaskCompletionSource<UploadState>();
+            TaskCompletionSource<UploadState> source;
 
             lock (_lock)
+            {
+                if (!_isRunning)
+                    return CreateState();
+
+                source = new TaskCompletionSource<UploadState>();
+
                 _changeListeners.Add(source);
+            }
 
             using (cancellationToken.Register(() => source.TrySetCanceled(cancellationToken), useSynchronizationContext: false))
                 return await source.Task;
