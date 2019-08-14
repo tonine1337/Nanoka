@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nanoka.Core.Models;
 using Newtonsoft.Json;
 
-namespace Nanoka.Core
+namespace Nanoka.Web
 {
     public class Result : Result<object>
     {

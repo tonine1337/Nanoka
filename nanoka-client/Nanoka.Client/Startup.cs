@@ -118,10 +118,6 @@ namespace Nanoka.Client
 
             logger.LogInformation($"Nanoka client server: {Localhost.Url()}");
 
-            // global exception handling
-            app.UseExceptionHandler("/errors/500")
-               .UseStatusCodePagesWithReExecute("/errors/{0}");
-
             // development page
             var isDev = app.ApplicationServices.GetService<IHostingEnvironment>().IsDevelopment();
 

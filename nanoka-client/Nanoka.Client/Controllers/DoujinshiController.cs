@@ -28,8 +28,8 @@ namespace Nanoka.Client.Controllers
         }
 
         [HttpPost("search")]
-        public async Task<Result<SearchResult<Doujinshi>>> SearchAsync(DoujinshiQuery query)
-            => await _client.SearchDoujinshiAsync(query);
+        public Task<SearchResult<Doujinshi>> SearchAsync(DoujinshiQuery query)
+            => _client.SearchDoujinshiAsync(query);
 
         public class UploadDoujinshiRequest
         {
@@ -44,10 +44,10 @@ namespace Nanoka.Client.Controllers
         }
 
         [HttpPost]
-        public async Task<Result<UploadState>> UploadAsync([FromForm] UploadDoujinshiRequest request)
+        public async Task<ActionResult<UploadState>> UploadAsync([FromForm] UploadDoujinshiRequest request)
         {
             if (request.Archive == null)
-                return Result.BadRequest("File is not selected.");
+                return BadRequest("File is not selected.");
 
             var dbRequest = new CreateDoujinshiRequest
             {
@@ -63,16 +63,12 @@ namespace Nanoka.Client.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<Result<Doujinshi>> UpdateAsync(Guid id, DoujinshiBase doujinshi)
-            => await _client.UpdateDoujinshiAsync(id, doujinshi);
+        public Task<Doujinshi> UpdateAsync(Guid id, DoujinshiBase doujinshi)
+            => _client.UpdateDoujinshiAsync(id, doujinshi);
 
         [HttpDelete("{id}")]
-        public async Task<Result> DeleteAsync(Guid id, [FromQuery] string reason)
-        {
-            await _client.DeleteDoujinshiAsync(id, reason);
-
-            return Result.Ok();
-        }
+        public Task DeleteAsync(Guid id, [FromQuery] string reason)
+            => _client.DeleteDoujinshiAsync(id, reason);
 
         public class UploadVariantRequest
         {
@@ -84,10 +80,10 @@ namespace Nanoka.Client.Controllers
         }
 
         [HttpPost("{id}/variants")]
-        public async Task<Result<UploadState>> UploadVariantAsync(Guid id, [FromForm] UploadVariantRequest request)
+        public async Task<ActionResult<UploadState>> UploadVariantAsync(Guid id, [FromForm] UploadVariantRequest request)
         {
             if (request.Archive == null)
-                return Result.BadRequest("File is not selected.");
+                return BadRequest("File is not selected.");
 
             var dbRequest = new CreateDoujinshiVariantRequest
             {
@@ -102,31 +98,27 @@ namespace Nanoka.Client.Controllers
         }
 
         [HttpPut("{id}/variants/{variantId}")]
-        public async Task<Result<DoujinshiVariant>> UpdateVariantAsync(Guid id, Guid variantId, DoujinshiVariantBase variant)
-            => await _client.UpdateDoujinshiVariantAsync(id, variantId, variant);
+        public Task<DoujinshiVariant> UpdateVariantAsync(Guid id, Guid variantId, DoujinshiVariantBase variant)
+            => _client.UpdateDoujinshiVariantAsync(id, variantId, variant);
 
         [HttpDelete("{id}/variants/{variantId}")]
-        public async Task<Result> DeleteVariantAsync(Guid id, Guid variantId, [FromQuery] string reason)
-        {
-            await _client.DeleteDoujinshiVariantAsync(id, variantId, reason);
-
-            return Result.Ok();
-        }
+        public Task DeleteVariantAsync(Guid id, Guid variantId, [FromQuery] string reason)
+            => _client.DeleteDoujinshiVariantAsync(id, variantId, reason);
 
         [HttpGet("{id}/variants/{variantId}/{index}")]
-        public async Task<IActionResult> GetImageAsync(Guid id, Guid variantId, int index)
+        public async Task<ActionResult> GetImageAsync(Guid id, Guid variantId, int index)
         {
             // todo: cache
             var doujinshi = await _client.GetDoujinshiAsync(id);
             var variant   = doujinshi?.Variants.FirstOrDefault(v => v.Id == variantId);
 
             if (variant == null)
-                return Result.NotFound<DoujinshiVariant>(id, variantId);
+                return NotFound($"Variant '{id}/{variantId}' not found.");
 
             var links = (await _ipfs.FileSystem.ListFileAsync(variant.Cid))?.Links.ToArray();
 
             if (links == null || index < 0 || index >= links.Length)
-                return Result.NotFound($"Image index '{id}/{variantId}/{index}' is out of range.");
+                return NotFound($"Image index '{id}/{variantId}/{index}' is out of range.");
 
             var node = links[index];
 
