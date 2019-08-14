@@ -70,7 +70,8 @@ namespace Nanoka.Web
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             // global exception handling
-            app.UseExceptionHandler("/error");
+            app.UseExceptionHandler("/error")
+               .UseStatusCodePagesWithReExecute("/error/{0}");
 
             // development page
             if (env.IsDevelopment())
