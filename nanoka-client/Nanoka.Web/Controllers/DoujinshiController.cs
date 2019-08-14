@@ -146,7 +146,8 @@ namespace Nanoka.Web.Controllers
                     var mime = format.DefaultMimeType;
 
                     if (MimeTypeMap.GetMimeType(Path.GetExtension(node.Name)) != mime)
-                        throw new NotSupportedException($"File extension '{node.Name}' is invalid for '{mime}'.");
+                        throw new NotSupportedException($"File extension '{node.Name}' is invalid for '{mime}'. " +
+                                                        $"Use '{MimeTypeMap.GetExtension(mime)}' instead.");
 
                     if (image.Frames.Count != 1)
                         throw new FormatException($"File '{node.Name}' is not a static image.");
