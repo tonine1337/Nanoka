@@ -37,8 +37,13 @@ function configureEvents(promise, events) {
   if (events) {
     if (typeof events.success === 'function')
       promise = promise
-        .then(r => r.json())
-        .then(r => events.success(r.body));
+        .then(r => {
+          if (!r.ok)
+            throw Error(r.text());
+
+          return r.json();
+        })
+        .then(r => events.success(r));
 
     if (typeof events.error === 'function')
       promise = promise
