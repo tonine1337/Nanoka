@@ -32,7 +32,7 @@ namespace Nanoka.Web
     public class Result<T> : IActionResult
         where T : class
     {
-        readonly T _value;
+        readonly object _value;
 
         [JsonProperty("error")]
         public bool Error => !(200 <= Status && Status < 300);
