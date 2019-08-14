@@ -65,7 +65,7 @@ export function getClientInfo(events) {
   get(null, events);
 }
 
-export function searchDoujinshiAsync(query, events) {
+export function searchDoujinshi(query, events) {
   // limit to 100 by default
   if (!query.limit)
     query.limit = 100;
@@ -73,7 +73,7 @@ export function searchDoujinshiAsync(query, events) {
   post('doujinshi/search', query, events);
 }
 
-export function uploadDoujinshiAsync(request, events) {
+export function uploadDoujinshi(request, events) {
   var form = new FormData();
 
   form.append('doujinshi', new Blob([JSON.stringify(request.doujinshi)], { type: 'application/json' }));
@@ -88,6 +88,6 @@ export function uploadDoujinshiAsync(request, events) {
   configureEvents(promise, events);
 }
 
-export function getUploadStateAsync(uploadId, events) {
+export function getUploadState(uploadId, events) {
   get(`uploads/${uploadId}/next`, events);
 }

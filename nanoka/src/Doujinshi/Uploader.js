@@ -213,7 +213,7 @@ export class Uploader extends React.Component {
       errors
     });
 
-    api.uploadDoujinshiAsync({
+    api.uploadDoujinshi({
       doujinshi: {
         name_original: state.originalName,
         name_romanized: state.romanizedName,
@@ -262,7 +262,7 @@ export class Uploader extends React.Component {
     if (!uploadState.running)
       return;
 
-    api.getUploadStateAsync(uploadState.id, {
+    api.getUploadState(uploadState.id, {
       success: r => {
         // continuously update
         this.updateProgress(r);
