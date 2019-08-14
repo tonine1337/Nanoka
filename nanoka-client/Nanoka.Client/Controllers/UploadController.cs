@@ -17,8 +17,12 @@ namespace Nanoka.Client.Controllers
             _client = client;
         }
 
-        [HttpGet("uploads/{id}")]
+        [HttpGet("{id}")]
         public async Task<UploadState> GetUploadStateAsync(Guid id)
             => await _client.GetUploadStateAsync(id);
+
+        [HttpGet("{id}/next")]
+        public async Task<UploadState> GetNextUploadStateAsync(Guid id)
+            => await _client.GetNextUploadStateAsync(id);
     }
 }

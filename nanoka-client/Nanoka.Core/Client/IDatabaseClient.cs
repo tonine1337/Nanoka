@@ -24,5 +24,6 @@ namespace Nanoka.Core.Client
         Task<BooruPost> GetBooruPostAsync(Guid id, CancellationToken cancellationToken = default);
 
         Task<UploadState> GetUploadStateAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<UploadState> GetNextUploadStateAsync(Guid id, CancellationToken cancellationToken = default);
     }
 }

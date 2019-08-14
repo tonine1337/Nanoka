@@ -161,6 +161,9 @@ namespace Nanoka.Core.Client
         public Task<UploadState> GetUploadStateAsync(Guid id, CancellationToken cancellationToken = default)
             => Send<UploadState>($"uploads/{id}", HttpMethod.Get, null, cancellationToken);
 
+        public Task<UploadState> GetNextUploadStateAsync(Guid id, CancellationToken cancellationToken = default)
+            => Send<UploadState>($"uploads/{id}/next", HttpMethod.Get, null, cancellationToken);
+
         public void Dispose()
         {
             _cancellationTokenSource.Cancel();
