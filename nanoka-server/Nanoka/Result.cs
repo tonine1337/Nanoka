@@ -26,6 +26,9 @@ namespace Nanoka
         public static Result Forbidden(params UserPermissions[] required)
             => Forbidden($"Insufficient permissions. Required: {string.Join(", ", required)}");
 
+        public static Result InvalidRecaptchaToken(string token)
+            => BadRequest($"Failed reCAPTCHA verification. Token: {token ?? "<not specified>"}");
+
 #endregion
     }
 
