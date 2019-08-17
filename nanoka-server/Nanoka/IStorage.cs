@@ -14,7 +14,7 @@ namespace Nanoka
 
         Task<StorageFile> GetAsync(string name, CancellationToken cancellationToken = default);
 
-        Task<bool> AddAsync(string name, StorageFile file, CancellationToken cancellationToken = default);
+        Task<bool> AddAsync(StorageFile file, CancellationToken cancellationToken = default);
 
         Task<bool> RemoveAsync(string name, CancellationToken cancellationToken = default);
     }

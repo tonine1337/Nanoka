@@ -51,6 +51,7 @@ namespace Nanoka
 
                 return new StorageFile
                 {
+                    Name        = file.FileName,
                     Stream      = new MemoryStream(file.FileData),
                     ContentType = file.FileInfo.GetValueOrDefault("type")
                 };
@@ -62,7 +63,7 @@ namespace Nanoka
             }
         }
 
-        public async Task<bool> AddAsync(string name, StorageFile file, CancellationToken cancellationToken = default)
+        public async Task<bool> AddAsync(StorageFile file, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -84,13 +85,13 @@ namespace Nanoka
 
                 var upload = await _client.Files.GetUploadUrl(_bucketId, cancellationToken);
 
-                await _client.Files.Upload(buffer, name, upload, _bucketId, fileInfo, cancellationToken);
+                await _client.Files.Upload(buffer, file.Name, upload, _bucketId, fileInfo, cancellationToken);
 
                 return true;
             }
             catch (Exception e)
             {
-                _logger.LogWarning($"Could not upload file '{name}'.", e);
+                _logger.LogWarning($"Could not upload file '{file.Name}'.", e);
                 return false;
             }
         }

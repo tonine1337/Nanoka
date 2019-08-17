@@ -68,6 +68,7 @@ namespace Nanoka
                 // read content stream
                 return new StorageFile
                 {
+                    Name        = name,
                     Stream      = File.OpenRead(GetHashPath(entry.Hash)),
                     ContentType = entry.ContentType
                 };
@@ -83,12 +84,12 @@ namespace Nanoka
             }
         }
 
-        public async Task<bool> AddAsync(string name, StorageFile file, CancellationToken cancellationToken = default)
+        public async Task<bool> AddAsync(StorageFile file, CancellationToken cancellationToken = default)
         {
             await _semaphore.WaitAsync(cancellationToken);
             try
             {
-                var entryPath = GetEntryPath(name);
+                var entryPath = GetEntryPath(file.Name);
 
                 if (File.Exists(entryPath))
                     return true;
@@ -158,7 +159,7 @@ namespace Nanoka
             }
             catch (Exception e)
             {
-                _logger.LogWarning($"Failed to write file '{name}'.", e);
+                _logger.LogWarning($"Failed to write file '{file.Name}'.", e);
                 return false;
             }
             finally
