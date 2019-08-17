@@ -29,13 +29,13 @@ namespace Nanoka.Database
         [Keyword(Name = "v", Index = false), JsonProperty("v")]
         public string Value { get; set; }
 
-        public DbSnapshot Apply(Models.Snapshot<Doujinshi> snapshot, JsonSerializer serializer)
+        public DbSnapshot Apply(Snapshot<Doujinshi> snapshot, JsonSerializer serializer)
             => ApplyInternal(snapshot, serializer, new DbDoujinshi().Apply);
 
-        public DbSnapshot Apply(Models.Snapshot<BooruPost> snapshot, JsonSerializer serializer)
+        public DbSnapshot Apply(Snapshot<BooruPost> snapshot, JsonSerializer serializer)
             => ApplyInternal(snapshot, serializer, new DbBooruPost().Apply);
 
-        DbSnapshot ApplyInternal<T>(Models.Snapshot<T> snapshot,
+        DbSnapshot ApplyInternal<T>(Snapshot<T> snapshot,
                                     JsonSerializer serializer,
                                     Func<T, object> project)
         {
@@ -54,15 +54,15 @@ namespace Nanoka.Database
             return this;
         }
 
-        public Models.Snapshot<Doujinshi> ApplyTo(Models.Snapshot<Doujinshi> snapshot, JsonSerializer serializer)
+        public Snapshot<Doujinshi> ApplyTo(Snapshot<Doujinshi> snapshot, JsonSerializer serializer)
             => ApplyToInternal<Doujinshi, DbDoujinshi>(snapshot, serializer, d => d.ApplyTo(new Doujinshi()));
 
-        public Models.Snapshot<BooruPost> ApplyTo(Models.Snapshot<BooruPost> snapshot, JsonSerializer serializer)
+        public Snapshot<BooruPost> ApplyTo(Snapshot<BooruPost> snapshot, JsonSerializer serializer)
             => ApplyToInternal<BooruPost, DbBooruPost>(snapshot, serializer, p => p.ApplyTo(new BooruPost()));
 
-        Models.Snapshot<T> ApplyToInternal<T, TProjection>(Models.Snapshot<T> snapshot,
-                                                           JsonSerializer serializer,
-                                                           Func<TProjection, T> project)
+        Snapshot<T> ApplyToInternal<T, TProjection>(Snapshot<T> snapshot,
+                                                    JsonSerializer serializer,
+                                                    Func<TProjection, T> project)
         {
             snapshot.Id          = Id.ToGuid();
             snapshot.TargetId    = TargetId.ToGuid();

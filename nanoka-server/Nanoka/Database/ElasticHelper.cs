@@ -147,7 +147,7 @@ namespace Nanoka.Database
                 });
 
         public static QueryWrapper<T> Filter<T, TField>(this QueryWrapper<T> wrapper,
-                                                        Models.Query.FilterQuery<TField> query,
+                                                        FilterQuery<TField> query,
                                                         Expression<Func<T, object>> path)
             where T : class
             where TField : struct
@@ -185,7 +185,7 @@ namespace Nanoka.Database
                 });
 
         public static QueryWrapper<T> Range<T, TField>(this QueryWrapper<T> wrapper,
-                                                       Models.Query.RangeQuery<TField> query,
+                                                       RangeQuery<TField> query,
                                                        Expression<Func<T, object>> path)
             where T : class
             where TField : struct
@@ -201,7 +201,7 @@ namespace Nanoka.Database
 
                         switch (range)
                         {
-                            case Models.Query.RangeQueryItem<DateTime> dateTimeRange:
+                            case RangeQueryItem<DateTime> dateTimeRange:
                                 c = descriptor.DateRange(q =>
                                 {
                                     q = q.Field(path);
@@ -222,7 +222,7 @@ namespace Nanoka.Database
                                 break;
 
                             //todo: how to DRY
-                            case Models.Query.RangeQueryItem<int> intRange:
+                            case RangeQueryItem<int> intRange:
                                 c = descriptor.Range(q =>
                                 {
                                     q = q.Field(path);
@@ -242,7 +242,7 @@ namespace Nanoka.Database
 
                                 break;
 
-                            case Models.Query.RangeQueryItem<double> doubleRange:
+                            case RangeQueryItem<double> doubleRange:
                                 c = descriptor.Range(q =>
                                 {
                                     q = q.Field(path);
