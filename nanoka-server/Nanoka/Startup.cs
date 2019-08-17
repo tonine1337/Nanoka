@@ -25,7 +25,9 @@ namespace Nanoka
             var options = _configuration.Get<NanokaOptions>();
 
             // options
-            services.Configure<NanokaOptions>(_configuration);
+            services.Configure<NanokaOptions>(_configuration)
+                    .Configure<ElasticOptions>(_configuration.GetSection("Elastic"))
+                    .Configure<B2Options>(_configuration.GetSection("Storage").GetSection("B2"));
 
             // mvc
             services.AddMvc()

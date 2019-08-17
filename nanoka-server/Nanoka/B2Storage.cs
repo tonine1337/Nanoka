@@ -10,15 +10,15 @@ namespace Nanoka
 {
     public class B2Storage : IStorage
     {
-        readonly NanokaOptions _options;
+        readonly B2Options _options;
 
         readonly B2Client _client;
 
-        public B2Storage(IOptions<NanokaOptions> options)
+        public B2Storage(IOptions<B2Options> options)
         {
             _options = options.Value;
 
-            _client = new B2Client(_options.B2AccountId, _options.B2ApplicationKey);
+            _client = new B2Client(_options.AccountId, _options.ApplicationKey);
         }
 
         string _bucketName;
@@ -27,10 +27,10 @@ namespace Nanoka
         public async Task InitializeAsync(CancellationToken cancellationToken = default)
         {
             var buckets = await _client.Buckets.GetList(cancellationToken);
-            var bucket  = buckets.FirstOrDefault(b => b.BucketName.Equals(_options.B2BucketName, StringComparison.Ordinal));
+            var bucket  = buckets.FirstOrDefault(b => b.BucketName.Equals(_options.BucketName, StringComparison.Ordinal));
 
             if (bucket == null)
-                throw new B2StorageException($"Bucket '{_options.B2BucketName}' not found.");
+                throw new B2StorageException($"Bucket '{_options.BucketName}' not found.");
 
             _bucketName = bucket.BucketName;
             _bucketId   = bucket.BucketId;

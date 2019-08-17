@@ -17,11 +17,11 @@ namespace Nanoka.Database
     {
         readonly ElasticClient _client;
 
-        readonly NanokaOptions _options;
+        readonly ElasticOptions _options;
         readonly ILogger<NanokaDatabase> _logger;
         readonly JsonSerializer _serializer;
 
-        public NanokaDatabase(IOptions<NanokaOptions> options,
+        public NanokaDatabase(IOptions<ElasticOptions> options,
                               ILogger<NanokaDatabase> logger,
                               JsonSerializer serializer)
         {
@@ -29,10 +29,10 @@ namespace Nanoka.Database
             _logger     = logger;
             _serializer = serializer;
 
-            if (_options.ElasticEndpoint == null)
+            if (_options.Endpoint == null)
                 throw new NanokaDatabaseException("Elasticsearch endpoint is not configured.");
 
-            var pool       = new SingleNodeConnectionPool(new Uri(_options.ElasticEndpoint));
+            var pool       = new SingleNodeConnectionPool(new Uri(_options.Endpoint));
             var connection = new ConnectionSettings(pool).DisableDirectStreaming(); // maybe enable?
 
             _client = new ElasticClient(connection);
@@ -72,7 +72,7 @@ namespace Nanoka.Database
             {
                 var name = typeof(T).GetCustomAttribute<ElasticsearchTypeAttribute>()?.RelationName;
 
-                _indexNames[typeof(T)] = index = (_options.ElasticIndexPrefix + name).ToLowerInvariant();
+                _indexNames[typeof(T)] = index = (_options.IndexPrefix + name).ToLowerInvariant();
             }
 
             return index;
@@ -88,8 +88,8 @@ namespace Nanoka.Database
             var response = await _client.Indices.CreateAsync(
                 name,
                 x => x.Map(m => m.AutoMap<T>())
-                      .Settings(s => s.NumberOfShards(_options.ElasticShardCount)
-                                      .NumberOfReplicas(_options.ElasticReplicaCount)),
+                      .Settings(s => s.NumberOfShards(_options.ShardCount)
+                                      .NumberOfReplicas(_options.ReplicaCount)),
                 cancellationToken);
 
             ValidateResponse(response);
