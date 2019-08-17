@@ -21,10 +21,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Nanoka.Core\Nanoka.Core.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <EmbeddedResource Include="Controllers\Recaptcha\form.html"/>
     </ItemGroup>
 
