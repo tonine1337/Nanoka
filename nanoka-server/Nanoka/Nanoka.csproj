@@ -10,6 +10,9 @@
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection">
             <Version>6.1.1</Version>
         </PackageReference>
+        <PackageReference Include="B2Net">
+            <Version>0.6.1</Version>
+        </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.App"/>
         <PackageReference Include="NEST">
             <Version>7.1.0</Version>

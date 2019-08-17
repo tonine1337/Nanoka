@@ -22,5 +22,9 @@ namespace Nanoka
         public UserPermissions DefaultUserPermissions { get; set; }
 
         public int MaxResultCount { get; set; } = 30;
+
+        public string B2AccountId { get; set; }
+        public string B2ApplicationKey { get; set; }
+        public string B2BucketName { get; set; }
     }
 }
