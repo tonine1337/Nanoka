@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Nanoka.Core.Models.Query;
+using Nanoka.Models.Query;
 using Nest;
 
 namespace Nanoka.Database
@@ -147,7 +147,7 @@ namespace Nanoka.Database
                 });
 
         public static QueryWrapper<T> Filter<T, TField>(this QueryWrapper<T> wrapper,
-                                                        FilterQuery<TField> query,
+                                                        Models.Query.FilterQuery<TField> query,
                                                         Expression<Func<T, object>> path)
             where T : class
             where TField : struct
@@ -185,7 +185,7 @@ namespace Nanoka.Database
                 });
 
         public static QueryWrapper<T> Range<T, TField>(this QueryWrapper<T> wrapper,
-                                                       RangeQuery<TField> query,
+                                                       Models.Query.RangeQuery<TField> query,
                                                        Expression<Func<T, object>> path)
             where T : class
             where TField : struct
@@ -201,7 +201,7 @@ namespace Nanoka.Database
 
                         switch (range)
                         {
-                            case RangeQueryItem<DateTime> dateTimeRange:
+                            case Models.Query.RangeQueryItem<DateTime> dateTimeRange:
                                 c = descriptor.DateRange(q =>
                                 {
                                     q = q.Field(path);
@@ -222,7 +222,7 @@ namespace Nanoka.Database
                                 break;
 
                             //todo: how to DRY
-                            case RangeQueryItem<int> intRange:
+                            case Models.Query.RangeQueryItem<int> intRange:
                                 c = descriptor.Range(q =>
                                 {
                                     q = q.Field(path);
@@ -242,7 +242,7 @@ namespace Nanoka.Database
 
                                 break;
 
-                            case RangeQueryItem<double> doubleRange:
+                            case Models.Query.RangeQueryItem<double> doubleRange:
                                 c = descriptor.Range(q =>
                                 {
                                     q = q.Field(path);

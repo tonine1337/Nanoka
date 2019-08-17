@@ -1,4 +1,4 @@
-using Nanoka.Core.Models;
+using Nanoka.Models;
 
 namespace Nanoka
 {

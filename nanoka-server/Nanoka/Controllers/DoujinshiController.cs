@@ -8,10 +8,9 @@ using AutoMapper;
 using Ipfs.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Nanoka.Core;
-using Nanoka.Core.Client;
-using Nanoka.Core.Models;
+using Nanoka.Client;
 using Nanoka.Database;
+using Nanoka.Models;
 using SixLabors.ImageSharp;
 
 namespace Nanoka.Controllers
@@ -40,27 +39,27 @@ namespace Nanoka.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<Result<Doujinshi>> GetAsync(Guid id)
+        public async Task<Result<Models.Doujinshi>> GetAsync(Guid id)
         {
             var doujinshi = await _db.GetDoujinshiAsync(id);
 
             if (doujinshi == null)
-                return Result.NotFound<Doujinshi>(id);
+                return Result.NotFound<Models.Doujinshi>(id);
 
             return doujinshi;
         }
 
         [HttpPost("search")]
-        public async Task<Result<SearchResult<Doujinshi>>> SearchAsync(DoujinshiQuery query)
+        public async Task<Result<Models.SearchResult<Models.Doujinshi>>> SearchAsync(DoujinshiQuery query)
         {
             query.Limit = Math.Min(query.Limit, _options.MaxResultCount);
 
             return await _db.SearchAsync(query);
         }
 
-        async Task CreateSnapshotAsync(Doujinshi doujinshi, SnapshotEvent snapshotEvent, string reason = null)
+        async Task CreateSnapshotAsync(Models.Doujinshi doujinshi, SnapshotEvent snapshotEvent, string reason = null)
         {
-            var snapshot = new Snapshot<Doujinshi>
+            var snapshot = new Models.Snapshot<Models.Doujinshi>
             {
                 Id          = Guid.NewGuid(),
                 TargetId    = doujinshi.Id,
@@ -78,7 +77,7 @@ namespace Nanoka.Controllers
         [HttpPost, RequireUnrestricted]
         public Result<UploadState> CreateDoujinshi(CreateDoujinshiRequest request)
         {
-            var doujinshi = new Doujinshi
+            var doujinshi = new Models.Doujinshi
             {
                 Id         = Guid.NewGuid(),
                 UploadTime = DateTime.UtcNow,
@@ -161,14 +160,14 @@ namespace Nanoka.Controllers
         }
 
         [HttpPut("{id}"), RequireUnrestricted]
-        public async Task<Result<Doujinshi>> UpdateDoujinshiAsync(Guid id, DoujinshiBase model)
+        public async Task<Result<Models.Doujinshi>> UpdateDoujinshiAsync(Guid id, DoujinshiBase model)
         {
             using (await NanokaLock.EnterAsync(id))
             {
                 var doujinshi = await _db.GetDoujinshiAsync(id);
 
                 if (doujinshi == null)
-                    return Result.NotFound<Doujinshi>(id);
+                    return Result.NotFound<Models.Doujinshi>(id);
 
                 await CreateSnapshotAsync(doujinshi, SnapshotEvent.Modification);
 
@@ -190,7 +189,7 @@ namespace Nanoka.Controllers
                 var doujinshi = await _db.GetDoujinshiAsync(id);
 
                 if (doujinshi == null)
-                    return Result.NotFound<Doujinshi>(id);
+                    return Result.NotFound<Models.Doujinshi>(id);
 
                 await CreateSnapshotAsync(doujinshi, SnapshotEvent.Deletion, reason);
 
@@ -208,7 +207,7 @@ namespace Nanoka.Controllers
                 var doujinshi = await _db.GetDoujinshiAsync(id);
 
                 if (doujinshi == null)
-                    return Result.NotFound<Doujinshi>(id);
+                    return Result.NotFound<Models.Doujinshi>(id);
             }
 
             var variant = new DoujinshiVariant

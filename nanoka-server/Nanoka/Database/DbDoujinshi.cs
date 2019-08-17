@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Nanoka.Core;
-using Nanoka.Core.Models;
+using Nanoka.Models;
 using Nest;
 using Newtonsoft.Json;
 

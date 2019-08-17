@@ -1,7 +1,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Nanoka.Core.Models;
+using Nanoka.Models;
 using Newtonsoft.Json;
 
 namespace Nanoka

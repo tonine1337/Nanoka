@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Nanoka.Core.Models;
+using Nanoka.Models;
 
 namespace Nanoka.Controllers
 {

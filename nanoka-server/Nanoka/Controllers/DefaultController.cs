@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Nanoka.Core;
-using Nanoka.Core.Models;
+using Nanoka.Models;
 
 namespace Nanoka.Controllers
 {

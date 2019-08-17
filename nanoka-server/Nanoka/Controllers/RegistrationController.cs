@@ -6,12 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Nanoka.Client;
 using Nanoka.Controllers.Recaptcha;
-using Nanoka.Core.Client;
-using Nanoka.Core.Models;
 using Nanoka.Database;
+using Nanoka.Models;
 using Newtonsoft.Json.Linq;
-using Extensions = Nanoka.Core.Extensions;
 
 namespace Nanoka.Controllers
 {

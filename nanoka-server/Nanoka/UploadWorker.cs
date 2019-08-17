@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Nanoka.Core.Models;
+using Nanoka.Models;
 
 namespace Nanoka
 {

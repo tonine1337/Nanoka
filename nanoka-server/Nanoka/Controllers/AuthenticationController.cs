@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Nanoka.Core;
-using Nanoka.Core.Client;
+using Nanoka.Client;
 using Nanoka.Database;
 
 namespace Nanoka.Controllers

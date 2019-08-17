@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 using Elasticsearch.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Nanoka.Core;
-using Nanoka.Core.Models;
+using Nanoka.Models;
 using Nest;
 using Newtonsoft.Json;
 
@@ -112,14 +111,14 @@ namespace Nanoka.Database
         public Task IndexAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
             => IndexAsync(new DbDoujinshi().Apply(doujinshi), cancellationToken);
 
-        public Task IndexSnapshotAsync(Snapshot<Doujinshi> snapshot, CancellationToken cancellationToken = default)
+        public Task IndexSnapshotAsync(Models.Snapshot<Doujinshi> snapshot, CancellationToken cancellationToken = default)
             => IndexAsync(new DbSnapshot().Apply(snapshot, _serializer), cancellationToken);
 
         public Task DeleteAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
             => DeleteAsync<DbDoujinshi>(doujinshi.Id.ToShortString(), cancellationToken);
 
-        public async Task<SearchResult<Doujinshi>> SearchAsync(DoujinshiQuery query,
-                                                               CancellationToken cancellationToken = default)
+        public async Task<Models.SearchResult<Doujinshi>> SearchAsync(DoujinshiQuery query,
+                                                                      CancellationToken cancellationToken = default)
         {
             var measure = new MeasureContext();
 
@@ -213,14 +212,14 @@ namespace Nanoka.Database
         public Task IndexAsync(BooruPost post, CancellationToken cancellationToken = default)
             => IndexAsync(new DbBooruPost().Apply(post), cancellationToken);
 
-        public Task IndexSnapshotAsync(Snapshot<BooruPost> snapshot, CancellationToken cancellationToken = default)
+        public Task IndexSnapshotAsync(Models.Snapshot<BooruPost> snapshot, CancellationToken cancellationToken = default)
             => IndexAsync(new DbSnapshot().Apply(snapshot, _serializer), cancellationToken);
 
         public Task DeleteAsync(BooruPost post, CancellationToken cancellationToken = default)
             => DeleteAsync<DbBooruPost>(post.Id.ToShortString(), cancellationToken);
 
-        public async Task<SearchResult<BooruPost>> SearchAsync(BooruQuery query,
-                                                               CancellationToken cancellationToken = default)
+        public async Task<Models.SearchResult<BooruPost>> SearchAsync(BooruQuery query,
+                                                                      CancellationToken cancellationToken = default)
         {
             var measure = new MeasureContext();
 
@@ -339,11 +338,11 @@ namespace Nanoka.Database
             _logger.LogInformation($"Deleted {typeof(TDocument).Name}: {response.Id}");
         }
 
-        static SearchResult<TResult> ConvertSearchResponse<T, TResult>(ISearchResponse<T> response,
-                                                                       Func<T, TResult> convert,
-                                                                       MeasureContext measure = null)
+        static Models.SearchResult<TResult> ConvertSearchResponse<T, TResult>(ISearchResponse<T> response,
+                                                                              Func<T, TResult> convert,
+                                                                              MeasureContext measure = null)
             where T : class
-            => new SearchResult<TResult>
+            => new Models.SearchResult<TResult>
             {
                 Total = (int) response.Total,
                 Items = response.Documents.Select(convert).ToArray(),
