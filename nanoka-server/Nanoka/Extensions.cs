@@ -3,17 +3,66 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Nanoka.Models;
 using Newtonsoft.Json;
 
 namespace Nanoka
 {
     public static class Extensions
     {
+        public static Guid ParseUserId(this HttpContext context)
+        {
+            var value = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (value == null)
+                throw new InvalidOperationException($"Missing claim '{nameof(ClaimTypes.NameIdentifier)}'.");
+
+            return value.ToGuid();
+        }
+
+        public static UserPermissions ParseUserPermissions(this HttpContext context)
+        {
+            var value = context.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (value == null)
+                throw new InvalidOperationException($"Missing claim '{nameof(ClaimTypes.Role)}'.");
+
+            if (int.TryParse(value, out var permissions))
+                return (UserPermissions) permissions;
+
+            return UserPermissions.None;
+        }
+
+        public static double ParseUserReputation(this HttpContext context)
+        {
+            var value = context.User.FindFirst("rep")?.Value;
+
+            if (value == null)
+                throw new InvalidOperationException("Missing claim 'rep'.");
+
+            if (double.TryParse(value, out var reputation))
+                return reputation;
+
+            return 0;
+        }
+
+        public static bool ParseIsUserRestricted(this HttpContext context)
+        {
+            var value = context.User.FindFirst("rep")?.Value;
+
+            if (value == null)
+                throw new InvalidOperationException("Missing claim 'rep'.");
+
+            return bool.TryParse(value, out var restricted) && restricted;
+        }
+
         // https://stackoverflow.com/a/11124118
         // Returns the human-readable file size for an arbitrary, 64-bit file size 
         // The default format is "0.### XB", e.g. "4.2 KB" or "1.434 GB"

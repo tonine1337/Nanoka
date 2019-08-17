@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -36,9 +35,9 @@ namespace Nanoka
                 if (context.Result != null)
                     return;
 
-                var perms = (UserPermissions) (int.TryParse(context.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value, out var x) ? x : 0);
+                var permissions = context.HttpContext.ParseUserPermissions();
 
-                if (!perms.HasFlag(UserPermissions.Administrator) && _requiredFlags.Any(f => !perms.HasFlag(f)))
+                if (!permissions.HasFlag(UserPermissions.Administrator) && _requiredFlags.Any(f => !permissions.HasFlag(f)))
                     context.Result = new InsufficientPermissionsResult(_requiredFlags);
             }
 

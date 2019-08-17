@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -30,10 +29,10 @@ namespace Nanoka
                 if (context.Result != null)
                     return;
 
-                var perms      = (UserPermissions) (int.TryParse(context.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value, out var x) ? x : 0);
-                var reputation = double.TryParse(context.HttpContext.User.FindFirst("rep")?.Value, out var y) ? y : 0;
+                var permissions = context.HttpContext.ParseUserPermissions();
+                var reputation  = context.HttpContext.ParseUserReputation();
 
-                if (!perms.HasFlag(UserPermissions.Administrator) && reputation < _minimum)
+                if (!permissions.HasFlag(UserPermissions.Administrator) && reputation < _minimum)
                     context.Result = new InsufficientReputationResult(_minimum);
             }
 
