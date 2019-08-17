@@ -14,21 +14,21 @@ namespace Nanoka.Controllers
     {
         readonly NanokaOptions _options;
         readonly NanokaDatabase _db;
-        readonly RecaptchaValidator _recaptchaValidator;
+        readonly RecaptchaValidator _recaptcha;
 
         public RegistrationController(IOptions<NanokaOptions> options,
                                       NanokaDatabase db,
-                                      RecaptchaValidator recaptchaValidator)
+                                      RecaptchaValidator recaptcha)
         {
-            _options            = options.Value;
-            _db                 = db;
-            _recaptchaValidator = recaptchaValidator;
+            _options   = options.Value;
+            _db        = db;
+            _recaptcha = recaptcha;
         }
 
         [HttpPost("register")]
         public async Task<Result<RegistrationResponse>> RegisterAsync(RegistrationRequest request, [FromQuery] string token)
         {
-            if (!await _recaptchaValidator.ValidateAsync(token))
+            if (!await _recaptcha.ValidateAsync(token))
                 return Result.BadRequest("Failed reCAPTCHA verification.");
 
             // create user with random ID and secret
