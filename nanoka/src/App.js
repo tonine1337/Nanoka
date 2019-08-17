@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
+import { BrowserRouter as Router, Route, NavLink, Switch } from "react-router-dom";
 import Index from './Index/Index';
 import { Button, Icon, Menu, Header, Divider, Container } from 'semantic-ui-react';
 import * as api from './Api';
@@ -7,6 +7,7 @@ import SearchBar from './SearchBar';
 
 import { ListByName as DoujinshiListByName } from './Doujinshi/ListByName';
 import { Uploader as DoujinshiUploader } from './Doujinshi/Uploader';
+import { ViewInfo as DoujinshiViewInfo } from './Doujinshi/ViewInfo';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -146,9 +147,12 @@ export default class App extends React.Component {
         </Menu>
 
         <Container as="main" style={{ marginTop: "3rem", marginBottom: "3rem" }}>
-          <Route path="/" exact component={Index} />
-          <Route path="/doujinshi/all/name" component={DoujinshiListByName} />
-          <Route path="/doujinshi/upload" component={DoujinshiUploader} />
+          <Switch>
+            <Route path="/" exact component={Index} />
+            <Route path="/doujinshi/all/name" component={DoujinshiListByName} />
+            <Route path="/doujinshi/upload" component={DoujinshiUploader} />
+            <Route path="/doujinshi/:id" component={({ match }) => <DoujinshiViewInfo id={match.params.id} />} />
+          </Switch>
         </Container>
       </Router>
     );

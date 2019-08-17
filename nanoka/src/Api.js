@@ -1,7 +1,7 @@
 // used to keep track of the number of total requests sent
 var requestNum = 1;
 
-function getEndpoint(path) {
+export function getEndpoint(path) {
   // *.localhost.chiya.dev resolves to 127.0.0.1 (loopback address).
   // this allows making requests to the client via HTTPS using a self-signed preinstalled certificate.
   // subdomains are used to circumvent browser request rate limiting.
@@ -90,4 +90,8 @@ export function uploadDoujinshi(request, events) {
 
 export function getUploadState(uploadId, events) {
   get(`uploads/${uploadId}/next`, events);
+}
+
+export function getDoujinshi(id, events) {
+  get(`doujinshi/${id}`, events);
 }
