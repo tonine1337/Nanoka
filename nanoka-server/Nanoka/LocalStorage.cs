@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace Nanoka
@@ -22,13 +23,18 @@ namespace Nanoka
         readonly DirectoryInfo _contentDir;
         readonly DirectoryInfo _indexDir;
 
-        public LocalStorage(IHostingEnvironment environment, JsonSerializer serializer, ILogger<LocalStorage> logger)
+        public LocalStorage(IHostingEnvironment environment, IOptions<LocalStorageOptions> options, JsonSerializer serializer, ILogger<LocalStorage> logger)
         {
             _serializer = serializer;
             _logger     = logger;
 
-            _contentDir = Directory.CreateDirectory(Path.Combine(environment.ContentRootPath, "storage"));
-            _indexDir   = _contentDir.CreateSubdirectory("_index");
+            _contentDir = Directory.CreateDirectory(options.Value.ContentPath == null
+                                                        ? Path.Combine(environment.ContentRootPath, "storage", "content")
+                                                        : Path.GetFullPath(options.Value.ContentPath));
+
+            _indexDir = Directory.CreateDirectory(options.Value.IndexPath == null
+                                                      ? Path.Combine(environment.ContentRootPath, "storage", "index")
+                                                      : Path.GetFullPath(options.Value.IndexPath));
         }
 
         public Task InitializeAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
