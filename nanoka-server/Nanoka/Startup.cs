@@ -81,7 +81,7 @@ namespace Nanoka
             services.AddSingleton<JsonSerializer>()
                     .AddHttpClient()
                     .AddAutoMapper(typeof(ModelMapperProfile))
-                    .AddSingleton<UploadManager>()
+                    .AddHostedDependencyService<UploadManager>()
                     .AddScoped<RecaptchaValidator>()
                     .AddScoped<ImageProcessor>()
                     .AddScoped<SnapshotManager>()
