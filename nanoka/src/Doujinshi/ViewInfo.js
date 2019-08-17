@@ -1,5 +1,6 @@
 import React from 'react';
 import * as api from '../Api';
+import { DoujinshiImage } from './DoujinshiImage';
 
 export class ViewInfo extends React.Component {
   state = {
@@ -36,6 +37,7 @@ export class ViewInfo extends React.Component {
 
     return (
       <div>
+        <DoujinshiImage doujinshi={this.state.doujinshi} variant={this.state.doujinshi.variants[0]} index={0} />
         <div style={{
           height: '70vh',
           width: '100%',
