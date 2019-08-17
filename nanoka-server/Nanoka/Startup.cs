@@ -63,7 +63,7 @@ namespace Nanoka
 
             // storage
             var storage = _configuration.GetSection("Storage")["Type"];
-            switch (storage.ToLowerInvariant())
+            switch (storage?.ToLowerInvariant())
             {
                 case null:
                 case "":
