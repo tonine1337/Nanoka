@@ -128,7 +128,7 @@ namespace Nanoka.Controllers
             }
         }
 
-        [HttpGet("{id}/variants/{variantId}/{index}")]
+        [HttpGet("{id}/variants/{variantId}/images/{index}")]
         public async Task<ActionResult> GetImageAsync(Guid id, Guid variantId, int index)
         {
             var doujinshi = await _db.GetDoujinshiAsync(id);
