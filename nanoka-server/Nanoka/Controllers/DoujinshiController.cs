@@ -1,17 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using Ipfs.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Nanoka.Client;
 using Nanoka.Database;
 using Nanoka.Models;
-using SixLabors.ImageSharp;
 
 namespace Nanoka.Controllers
 {
@@ -23,19 +19,16 @@ namespace Nanoka.Controllers
         readonly NanokaDatabase _db;
         readonly IMapper _mapper;
         readonly UploadManager _uploadManager;
-        readonly IpfsClient _ipfs;
 
         public DoujinshiController(IOptions<NanokaOptions> options,
                                    NanokaDatabase db,
                                    IMapper mapper,
-                                   UploadManager uploadManager,
-                                   IpfsClient ipfs)
+                                   UploadManager uploadManager)
         {
             _options       = options.Value;
             _db            = db;
             _mapper        = mapper;
             _uploadManager = uploadManager;
-            _ipfs          = ipfs;
         }
 
         [HttpGet("{id}")]
@@ -100,7 +93,7 @@ namespace Nanoka.Controllers
 
             return worker.Start(async (services, token) =>
             {
-                await LoadVariantAsync(doujinshi.Variants[0], worker, token);
+                //await LoadVariantAsync(doujinshi.Variants[0], worker, token);
 
                 doujinshi.UpdateTime = DateTime.UtcNow;
 
@@ -108,55 +101,6 @@ namespace Nanoka.Controllers
 
                 worker.SetSuccess($"Doujinshi '{doujinshi.Id}' was created.");
             });
-        }
-
-        async Task LoadVariantAsync(DoujinshiVariant variant,
-                                    UploadWorker worker,
-                                    CancellationToken cancellationToken = default)
-        {
-            worker.SetMessage($"Listing CID '{variant.Cid}'.");
-
-            var variantNode = await _ipfs.FileSystem.ListFileAsync(variant.Cid, cancellationToken);
-
-            if (!variantNode.IsDirectory)
-                throw new NotSupportedException($"CID '{variant.Cid}' does not reference a directory.");
-
-            var links = variantNode.Links.ToArray();
-
-            foreach (var node in links)
-            {
-                if (node.IsDirectory)
-                    throw new NotSupportedException($"CID '{variant.Cid}' references another directory '{node.Id}'.");
-
-                if (string.IsNullOrWhiteSpace(node.Name) || node.Name.Length > 64 || Path.GetExtension(node.Name).Length == 0)
-                    throw new FormatException($"CID '{variant.Cid}' references a file with an invalid filename '{node.Name}'.");
-            }
-
-            for (var i = 0; i < links.Length; i++)
-            {
-                var node = links[i];
-
-                worker.SetProgress(i / (double) links.Length, $"Processing file '{node.Name}'.");
-
-                // ensure file is a valid image
-                using (var stream = await _ipfs.FileSystem.ReadFileAsync(node.Id, cancellationToken))
-                using (var image = Image.Load(stream, out var format))
-                {
-                    var mime = format.DefaultMimeType;
-
-                    if (MimeTypeMap.GetMimeType(Path.GetExtension(node.Name)) != mime)
-                        throw new NotSupportedException($"File extension '{node.Name}' is invalid for '{mime}'. " +
-                                                        $"Use '{MimeTypeMap.GetExtension(mime)}' instead.");
-
-                    if (image.Frames.Count != 1)
-                        throw new FormatException($"File '{node.Name}' is not a static image.");
-
-                    if (image.Width == 0 || image.Height == 0)
-                        throw new FormatException($"Invalid image dimensions for file '{node.Name}'.");
-                }
-            }
-
-            variant.PageCount = links.Length;
         }
 
         [HttpPut("{id}"), RequireUnrestricted]
@@ -223,7 +167,7 @@ namespace Nanoka.Controllers
 
             return worker.Start(async (services, token) =>
             {
-                await LoadVariantAsync(variant, worker, token);
+                //await LoadVariantAsync(variant, worker, token);
 
                 using (await NanokaLock.EnterAsync(id, token))
                 {

@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using AutoMapper;
-using Ipfs.Http;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -52,10 +51,6 @@ namespace Nanoka
 
             // database
             services.AddSingleton<NanokaDatabase>();
-
-            // ipfs
-            services.AddSingleton<IpfsClient>()
-                    .AddHostedService<IpfsManager>();
 
             // background services
             services.AddHostedDependencyService<UploadManager>();
