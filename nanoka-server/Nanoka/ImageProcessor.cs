@@ -18,7 +18,9 @@ namespace Nanoka
             if (file.Length >= _maxImageSize)
                 throw new ImageProcessorException($"File '{file.FileName}' is too big (must be under {Extensions.GetBytesReadable(_maxImageSize)}).");
 
-            using (var memory = new MemoryStream((int) file.Length))
+            var memory = new MemoryStream((int) file.Length);
+
+            try
             {
                 // load onto memory first
                 using (var stream = file.OpenReadStream())
@@ -47,6 +49,11 @@ namespace Nanoka
                 memory.Position = 0;
 
                 return memory;
+            }
+            catch
+            {
+                memory.Dispose();
+                throw;
             }
         }
 
