@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Nanoka.Database
 {
     /// <summary>
-    /// Centralized locking mechanism to limit access to resources.
+    /// Centralized locking mechanism to limit concurrent access to resources.
     /// </summary>
     public static class NanokaLock
     {
