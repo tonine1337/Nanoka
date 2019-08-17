@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -36,29 +37,38 @@ namespace Nanoka
             _bucketId   = bucket.BucketId;
         }
 
-        public async Task<Stream> GetAsync(string name, CancellationToken cancellationToken = default)
+        public async Task<StorageFile> GetAsync(string name, CancellationToken cancellationToken = default)
         {
             var file = await _client.Files.DownloadByName(name, _bucketName, cancellationToken);
 
-            return new MemoryStream(file.FileData);
+            return new StorageFile
+            {
+                Stream      = new MemoryStream(file.FileData),
+                ContentType = file.FileInfo.GetOrDefault("type")
+            };
         }
 
-        public async Task AddAsync(string name, Stream stream, CancellationToken cancellationToken = default)
+        public async Task AddAsync(string name, StorageFile file, CancellationToken cancellationToken = default)
         {
             byte[] buffer;
 
-            if (stream is MemoryStream memory)
+            if (file.Stream is MemoryStream memory)
                 buffer = memory.ToArray();
             else
                 using (var memory2 = new MemoryStream())
                 {
-                    await stream.CopyToAsync(memory2, cancellationToken);
+                    await file.Stream.CopyToAsync(memory2, cancellationToken);
                     buffer = memory2.ToArray();
                 }
 
+            var fileInfo = new Dictionary<string, string>
+            {
+                { "type", file.ContentType ?? "application/octet-stream" }
+            };
+
             var upload = await _client.Files.GetUploadUrl(_bucketId, cancellationToken);
 
-            await _client.Files.Upload(buffer, name, upload, _bucketId, null, cancellationToken);
+            await _client.Files.Upload(buffer, name, upload, _bucketId, fileInfo, cancellationToken);
         }
 
         public async Task<bool> RemoveAsync(string name, CancellationToken cancellationToken = default)

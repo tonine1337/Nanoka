@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,9 +12,9 @@ namespace Nanoka
     {
         Task InitializeAsync(CancellationToken cancellationToken = default);
 
-        Task<Stream> GetAsync(string name, CancellationToken cancellationToken = default);
+        Task<StorageFile> GetAsync(string name, CancellationToken cancellationToken = default);
 
-        Task AddAsync(string name, Stream stream, CancellationToken cancellationToken = default);
+        Task AddAsync(string name, StorageFile file, CancellationToken cancellationToken = default);
 
         Task<bool> RemoveAsync(string name, CancellationToken cancellationToken = default);
     }
