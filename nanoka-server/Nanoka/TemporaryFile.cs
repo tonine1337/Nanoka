@@ -3,11 +3,11 @@ using System.IO;
 
 namespace Nanoka
 {
-    public class TempFile : IDisposable
+    public class TemporaryFile : IDisposable
     {
         public string Path { get; }
 
-        public TempFile()
+        public TemporaryFile()
         {
             Path = System.IO.Path.GetTempFileName();
         }
