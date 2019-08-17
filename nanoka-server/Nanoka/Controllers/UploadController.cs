@@ -59,13 +59,16 @@ namespace Nanoka.Controllers
         }
 
         [HttpPost("{id}")]
-        public async Task<Result<UploadState>> UploadAsync(Guid id, IFormFile file, [FromQuery] bool final)
+        public async Task<Result<UploadState>> UploadAsync(Guid id, [FromForm(Name = "file")] IFormFile file, [FromQuery] bool final)
         {
             // find upload task
             var task = _uploadManager.GetTask(id);
 
             if (task == null)
                 return Result.InvalidUpload<Doujinshi>(id);
+
+            if (file == null)
+                return Result.BadRequest($"File not attached in multipart/form-data as '{nameof(file)}'.");
 
             // load image file
             Stream stream;
