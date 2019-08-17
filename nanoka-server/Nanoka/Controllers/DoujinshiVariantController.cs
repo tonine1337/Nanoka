@@ -18,18 +18,21 @@ namespace Nanoka.Controllers
         readonly RecaptchaValidator _recaptcha;
         readonly UploadManager _uploadManager;
         readonly SnapshotManager _snapshotManager;
+        readonly IStorage _storage;
 
         public DoujinshiVariantController(NanokaDatabase db,
                                           IMapper mapper,
                                           RecaptchaValidator recaptcha,
                                           UploadManager uploadManager,
-                                          SnapshotManager snapshotManager)
+                                          SnapshotManager snapshotManager,
+                                          IStorage storage)
         {
             _db              = db;
             _mapper          = mapper;
             _recaptcha       = recaptcha;
             _uploadManager   = uploadManager;
             _snapshotManager = snapshotManager;
+            _storage         = storage;
         }
 
         [HttpGet("{id}/variants/{variantId}")]
@@ -123,6 +126,23 @@ namespace Nanoka.Controllers
 
                 return Result.Ok();
             }
+        }
+
+        [HttpGet("{id}/variants/{variantId}/{index}")]
+        public async Task<ActionResult> GetImageAsync(Guid id, Guid variantId, int index)
+        {
+            var doujinshi = await _db.GetDoujinshiAsync(id);
+            var variant   = doujinshi?.Variants.FirstOrDefault(v => v.Id == variantId);
+
+            if (variant == null)
+                return Result.NotFound<DoujinshiVariant>(id, variantId);
+
+            var file = await _storage.GetAsync($"{id.ToShortString()}/{variantId.ToShortString()}/{index}");
+
+            if (file == null)
+                return Result.NotFound($"Could not find page '{index}' in variant '{id}/{variantId}'.");
+
+            return new FileStreamResult(file.Stream, file.ContentType);
         }
     }
 }
