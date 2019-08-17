@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Nanoka.Client;
-using Nanoka.Controllers.Recaptcha;
 using Nanoka.Database;
 using Nanoka.Models;
 using Newtonsoft.Json.Linq;
@@ -30,10 +28,6 @@ namespace Nanoka.Controllers
             _http    = httpClientFactory.CreateClient(nameof(RegistrationController));
             _db      = db;
         }
-
-        [HttpGet("register")]
-        public ContentResult Register()
-            => Content(RecaptchaForm.GetForm(_options.RecaptchaSite), "text/html", Encoding.Default);
 
         [HttpPost("register")]
         public async Task<Result<RegistrationResponse>> RegisterAsync(RegistrationRequest request)

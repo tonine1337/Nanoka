@@ -20,8 +20,4 @@
         </PackageReference>
     </ItemGroup>
 
-    <ItemGroup>
-        <EmbeddedResource Include="Controllers\Recaptcha\form.html"/>
-    </ItemGroup>
-
 </Project>
