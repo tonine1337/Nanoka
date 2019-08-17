@@ -19,13 +19,18 @@ namespace Nanoka.Database
         // contains reusable semaphores to avoid recreating unnecessarily
         static readonly Stack<SemaphoreSlim> _pool = new Stack<SemaphoreSlim>();
 
+        // whether to fill the pool with semaphores on init
+        static readonly bool _preallocatePool = !Debugger.IsAttached; // enable preallocation in production
+
+        // the maximum capacity of the semaphore pool
         const int _poolCapacity = 100;
 
         static NanokaLock()
         {
             // preallocate semaphores
-            for (var i = 0; i < _poolCapacity; i++)
-                _pool.Push(new SemaphoreSlim(1));
+            if (_preallocatePool)
+                for (var i = 0; i < _poolCapacity; i++)
+                    _pool.Push(new SemaphoreSlim(1));
         }
 
         public static async Task<IDisposable> EnterAsync(object id, CancellationToken cancellationToken = default)
@@ -64,9 +69,10 @@ namespace Nanoka.Database
                     Semaphore = new SemaphoreSlim(1);
             }
 
+            // reference counter always modified within lock
             public int References;
 
-            // caller called Lock.Dispose
+            // called Lock.Dispose
             public void Dispose()
             {
                 lock (_lock)
@@ -83,7 +89,7 @@ namespace Nanoka.Database
                             _pool.Push(Semaphore);
                         }
 
-                        // pool is full, so dispose
+                        // pool is full, so dispose semaphore and forget it
                         else
                         {
                             Semaphore.Dispose();
