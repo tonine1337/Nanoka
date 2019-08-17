@@ -8,22 +8,16 @@ namespace Nanoka.Models
         [JsonProperty("id")]
         public Guid Id { get; set; }
 
-        [JsonProperty("progress")]
-        public double Progress { get; set; }
-
         [JsonProperty("start")]
         public DateTime Start { get; set; }
 
-        [JsonProperty("end")]
-        public DateTime End { get; set; }
+        [JsonProperty("update")]
+        public DateTime Update { get; set; }
 
-        [JsonProperty("running")]
-        public bool IsRunning { get; set; }
+        [JsonProperty("count")]
+        public int ItemCount { get; set; }
 
-        [JsonProperty("failed")]
-        public bool IsFailed { get; set; }
-
-        [JsonProperty("message")]
-        public string Message { get; set; }
+        [JsonProperty("active")]
+        public bool IsActive { get; set; }
     }
 }

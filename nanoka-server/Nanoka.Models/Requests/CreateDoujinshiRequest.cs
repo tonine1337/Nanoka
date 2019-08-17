@@ -1,12 +1,10 @@
-using System.ComponentModel.DataAnnotations;
-using Nanoka.Models;
 using Newtonsoft.Json;
 
-namespace Nanoka.Client
+namespace Nanoka.Models.Requests
 {
     public class CreateDoujinshiRequest : CreateDoujinshiVariantRequest
     {
-        [JsonProperty("doujinshi"), Required]
+        [JsonProperty("doujinshi")]
         public DoujinshiBase Doujinshi { get; set; }
     }
 }

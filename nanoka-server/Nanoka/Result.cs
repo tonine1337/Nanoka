@@ -17,17 +17,25 @@ namespace Nanoka
         public static Result Forbidden(string message = null) => StatusCode(HttpStatusCode.Forbidden, message);
         public static Result BadRequest(string message = null) => StatusCode(HttpStatusCode.BadRequest, message);
         public static Result InternalServerError(string message = null) => StatusCode(HttpStatusCode.InternalServerError, message);
+        public static Result UnprocessableEntity(string message = null) => StatusCode(HttpStatusCode.UnprocessableEntity, message);
+        public static Result Conflict(string message = null) => StatusCode(HttpStatusCode.Conflict, message);
 
 #region Helpers
 
         public static Result NotFound<T>(params object[] path)
-            => NotFound($"{typeof(T).Name} '{string.Join("/", path)}' not found.");
+            => NotFound($"{typeof(T).Name} '{string.Join('/', path)}' not found.");
 
         public static Result Forbidden(params UserPermissions[] required)
             => Forbidden($"Insufficient permissions. Required: {string.Join(", ", required)}");
 
         public static Result InvalidRecaptchaToken(string token)
             => BadRequest($"Failed reCAPTCHA verification. Token: {token ?? "<not specified>"}");
+
+        public static Result InvalidUpload<T>(params object[] path)
+            => BadRequest($"{typeof(T).Name} '{string.Join('/', path)}' is not awaiting upload.");
+
+        public static Result UploadDeleted<T>(params object[] path)
+            => Conflict($"{typeof(T).Name} '{string.Join('/', path)}' was deleted before this upload was finalized.");
 
 #endregion
     }

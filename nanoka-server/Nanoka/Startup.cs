@@ -77,11 +77,12 @@ namespace Nanoka
                 default: throw new NotSupportedException($"Unsupported storage type '{storage}'.");
             }
 
-            // other utility
+            // other utilities
             services.AddSingleton<JsonSerializer>()
                     .AddHttpClient()
                     .AddAutoMapper(typeof(ModelMapperProfile))
-                    .AddSingleton<RecaptchaValidator>();
+                    .AddSingleton<RecaptchaValidator>()
+                    .AddSingleton<ImageProcessor>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

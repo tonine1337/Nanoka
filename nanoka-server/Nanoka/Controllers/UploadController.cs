@@ -1,55 +1,167 @@
 using System;
-using System.Threading;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Nanoka.Database;
 using Nanoka.Models;
 
 namespace Nanoka.Controllers
 {
+    public class DoujinshiUploadTask : UploadTask
+    {
+        public Doujinshi Doujinshi { get; }
+
+        /// <summary>
+        /// Indicates whether this upload creates an entirely new doujinshi or a new variant of an existing doujinshi.
+        /// </summary>
+        public bool AddVariantOnly { get; }
+
+        public DoujinshiUploadTask(Doujinshi doujinshi) : base(doujinshi.Id)
+        {
+            Doujinshi = doujinshi;
+        }
+
+        public DoujinshiUploadTask(Guid doujinshiId, DoujinshiVariant variant) : base(variant.Id)
+        {
+            Doujinshi = new Doujinshi
+            {
+                Id       = doujinshiId,
+                Variants = new List<DoujinshiVariant> { variant }
+            };
+
+            AddVariantOnly = true;
+        }
+    }
+
     [ApiController]
     [Route("uploads")]
     public class UploadController : AuthorizedControllerBase
     {
         readonly UploadManager _uploadManager;
+        readonly ImageProcessor _imageProcessor;
+        readonly NanokaDatabase _db;
+        readonly DoujinshiController _doujinshiController;
+        readonly IStorage _storage;
 
-        public UploadController(UploadManager uploadManager)
+        public UploadController(UploadManager uploadManager,
+                                ImageProcessor imageProcessor,
+                                NanokaDatabase db,
+                                DoujinshiController doujinshiController,
+                                IStorage storage)
         {
-            _uploadManager = uploadManager;
+            _uploadManager       = uploadManager;
+            _imageProcessor      = imageProcessor;
+            _db                  = db;
+            _doujinshiController = doujinshiController;
+            _storage             = storage;
         }
 
-        [HttpGet("{workerId}")]
-        public Result<UploadState> GetState(Guid workerId)
+        [HttpPost("{id}")]
+        public async Task<Result<UploadState>> UploadAsync(Guid id, IFormFile file, [FromQuery] bool final)
         {
-            var worker = _uploadManager.FindWorker(workerId);
+            // find upload task
+            var task = _uploadManager.GetTask(id);
 
-            if (worker == null)
-                return Result.NotFound<UploadWorker>(workerId);
+            if (task == null)
+                return Result.InvalidUpload<Doujinshi>(id);
 
-            return worker.CreateState();
-        }
+            // load image file
+            Stream stream;
 
-        [HttpGet("{workerId}/next")]
-        public async Task<Result<UploadState>> GetNextStateAsync(Guid workerId)
-        {
-            var worker = _uploadManager.FindWorker(workerId);
-
-            if (worker == null)
-                return Result.NotFound<UploadWorker>(workerId);
-
-            // timeout after 1 minute (circumvents CloudFlare 100 second 524 timeout)
-            using (var timeoutSource = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
-            using (var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(timeoutSource.Token, HttpContext.RequestAborted))
+            try
             {
-                try
+                stream = await _imageProcessor.LoadAsync(file);
+            }
+            catch (Exception e)
+            {
+                return Result.UnprocessableEntity(e.Message);
+            }
+
+            switch (task)
+            {
+                case DoujinshiUploadTask doujinshi: return await HandleDoujinshiTaskAsync(doujinshi, stream, final);
+
+                default: throw new NotSupportedException($"Unknown upload task type '{task.GetType().FullName}'.");
+            }
+        }
+
+        async Task<Result<UploadState>> HandleDoujinshiTaskAsync(DoujinshiUploadTask task, Stream stream, bool final)
+        {
+            using (stream)
+                await task.AddFileAsync(stream);
+
+            // we are uploading more files
+            if (!final)
+                return task.State;
+
+            try
+            {
+                var doujinshiId = task.Doujinshi.Id;
+                var variantId   = task.Doujinshi.Variants[0].Id;
+
+                // this is an upload for creating a variant of an existing doujinshi
+                if (task.AddVariantOnly)
                 {
-                    // wait for state change
-                    return await worker.WaitForStateChangeAsync(linkedSource.Token);
+                    using (NanokaLock.EnterAsync(task.Doujinshi.Id))
+                    {
+                        var doujinshi = await _db.GetDoujinshiAsync(doujinshiId);
+
+                        if (doujinshi == null)
+                            return Result.UploadDeleted<Doujinshi>(doujinshiId);
+
+                        await processFilesAsync();
+
+                        await _doujinshiController.SnapshotAsync(doujinshi, SnapshotEvent.Modification);
+
+                        doujinshi.Variants.Add(task.Doujinshi.Variants[0]);
+                        doujinshi.UpdateTime = DateTime.UtcNow;
+
+                        await _db.IndexAsync(doujinshi);
+                    }
                 }
-                catch (TaskCanceledException)
+
+                // this is an upload for creating a new doujinshi and a default variant
+                else
                 {
-                    // return current state after timeout
-                    return worker.CreateState();
+                    await processFilesAsync();
+
+                    var doujinshi = task.Doujinshi;
+
+                    doujinshi.UpdateTime = DateTime.UtcNow;
+
+                    await _db.IndexAsync(doujinshi);
                 }
+
+                async Task processFilesAsync()
+                {
+                    var files = task.GetFiles();
+
+                    for (var i = 0; i < files.Length; i++)
+                    {
+                        using (var fileStream = files[i].Open(FileMode.Open, FileAccess.Read))
+                        {
+                            var contentType = _imageProcessor.DetectContentType(fileStream);
+
+                            fileStream.Position = 0;
+
+                            await _storage.AddAsync(new StorageFile
+                            {
+                                Name        = $"{doujinshiId.ToShortString()}/{variantId.ToShortString()}/{i}",
+                                Stream      = fileStream,
+                                ContentType = contentType
+                            });
+                        }
+                    }
+                }
+
+                return task.State;
+            }
+            finally
+            {
+                // this is the final upload, so remove task
+                _uploadManager.RemoveTask(task);
             }
         }
     }

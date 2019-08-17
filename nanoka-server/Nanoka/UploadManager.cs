@@ -9,67 +9,50 @@ namespace Nanoka
 {
     public class UploadManager : BackgroundService
     {
-        readonly Dictionary<Guid, UploadWorker> _workers = new Dictionary<Guid, UploadWorker>();
+        readonly object _lock = new object();
+        readonly Dictionary<Guid, UploadTask> _tasks = new Dictionary<Guid, UploadTask>();
 
-        readonly IServiceProvider _services;
-
-        public UploadManager(IServiceProvider services)
+        public UploadTask AddTask(UploadTask task)
         {
-            _services = services;
+            lock (_tasks)
+                _tasks[task.Id] = task;
+
+            return task;
         }
 
-        /// <summary>
-        /// Finds an upload worker by its identifier, returning null if not found.
-        /// </summary>
-        public UploadWorker FindWorker(Guid id)
+        public UploadTask GetTask(Guid id)
         {
-            lock (_workers)
-                return _workers.GetOrDefault(id);
+            lock (_lock)
+                return _tasks.GetValueOrDefault(id);
         }
 
-        public UploadWorker CreateWorker(Guid id)
+        public void RemoveTask(UploadTask task)
         {
-            var worker = new UploadWorker(id, _services);
+            lock (_lock)
+            {
+                if (_tasks.ContainsKey(task.Id))
+                {
+                    _tasks.Remove(task.Id);
 
-            lock (_workers)
-                _workers[id] = worker;
-
-            return worker;
+                    task.Dispose();
+                }
+            }
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            // periodically prune stopped workers
             while (!stoppingToken.IsCancellationRequested)
             {
-                lock (_workers)
-                {
-                    foreach (var (id, worker) in _workers.ToArray())
-                    {
-                        // make finished worker information available for longer
-                        if (worker.End == null || DateTime.UtcNow < worker.End.Value.AddMinutes(10))
-                            continue;
-
-                        _workers.Remove(id);
-
-                        worker.Dispose();
-                    }
-                }
-
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
-            }
-        }
 
-        public override void Dispose()
-        {
-            base.Dispose();
+                var time = DateTime.UtcNow;
 
-            lock (_workers)
-            {
-                foreach (var (_, worker) in _workers.ToArray())
-                    worker.Dispose();
-
-                _workers.Clear();
+                lock (_lock)
+                {
+                    // find tasks that haven't been updated in a minute
+                    foreach (var task in _tasks.Values.Where(t => t.UpdateTime.AddMinutes(1) <= time).ToArray())
+                        RemoveTask(task);
+                }
             }
         }
     }
