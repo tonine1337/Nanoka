@@ -43,7 +43,7 @@ export class ApiImage extends React.Component {
 
     return (
       <div>
-        <Image src={this.state.url} />
+        <Image src={this.state.url} style={this.props.style} />
       </div>
     );
   }
