@@ -14,6 +14,16 @@ namespace Nanoka
             Directory.CreateDirectory(Path);
         }
 
-        public void Dispose() => Directory.Delete(Path, true);
+        public void Dispose()
+        {
+            try
+            {
+                Directory.Delete(Path, true);
+            }
+            catch
+            {
+                // ignored
+            }
+        }
     }
 }

@@ -15,6 +15,16 @@ namespace Nanoka
         public Stream Open(FileMode mode = FileMode.Open, FileAccess access = FileAccess.ReadWrite)
             => File.Open(Path, mode, access);
 
-        public void Dispose() => File.Delete(Path);
+        public void Dispose()
+        {
+            try
+            {
+                File.Delete(Path);
+            }
+            catch
+            {
+                // ignored
+            }
+        }
     }
 }
