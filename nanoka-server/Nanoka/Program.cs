@@ -15,6 +15,9 @@ namespace Nanoka
 
             using (var host = builder.Build())
             {
+                // initialize storage
+                await host.Services.GetService<IStorage>().InitializeAsync();
+
                 // migrate database
                 await host.Services.GetService<NanokaDatabase>().MigrateAsync();
 
