@@ -1,4 +1,4 @@
-namespace Nanoka
+namespace Nanoka.Models
 {
     public enum NanokaVersion
     {

@@ -40,11 +40,12 @@ namespace Nanoka.Models.Query
             Strictness = QueryStrictness.Must,
             Operator   = QueryOperator.Any,
 
-            Values = ranges.ToArray(x => new RangeQueryItem<T>
-            {
-                Min = x.min,
-                Max = x.max
-            })
+            Values = ranges.Select(x => new RangeQueryItem<T>
+                            {
+                                Min = x.min,
+                                Max = x.max
+                            })
+                           .ToArray()
         };
 
         public static implicit operator RangeQuery<T>(KeyValuePair<T, T>[] pairs) => new RangeQuery<T>
@@ -52,11 +53,12 @@ namespace Nanoka.Models.Query
             Strictness = QueryStrictness.Must,
             Operator   = QueryOperator.Any,
 
-            Values = pairs.ToArray(x => new RangeQueryItem<T>
-            {
-                Min = x.Key,
-                Max = x.Value
-            })
+            Values = pairs.Select(x => new RangeQueryItem<T>
+                           {
+                               Min = x.Key,
+                               Max = x.Value
+                           })
+                          .ToArray()
         };
     }
 

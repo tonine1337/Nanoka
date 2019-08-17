@@ -1,6 +1,8 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nanoka", "Nanoka\Nanoka.csproj", "{71421BBC-4457-4584-8DA4-A291FC72E887}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nanoka.Models", "Nanoka.Models\Nanoka.Models.csproj", "{0660BDE3-35A4-48FB-A92F-089E58B1EF81}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -11,5 +13,9 @@ Global
 		{71421BBC-4457-4584-8DA4-A291FC72E887}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71421BBC-4457-4584-8DA4-A291FC72E887}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71421BBC-4457-4584-8DA4-A291FC72E887}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0660BDE3-35A4-48FB-A92F-089E58B1EF81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0660BDE3-35A4-48FB-A92F-089E58B1EF81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0660BDE3-35A4-48FB-A92F-089E58B1EF81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0660BDE3-35A4-48FB-A92F-089E58B1EF81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
