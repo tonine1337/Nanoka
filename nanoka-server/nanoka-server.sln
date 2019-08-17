@@ -1,7 +1,7 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nanoka.Core", "Nanoka.Core\Nanoka.Core.csproj", "{C648C930-7DF4-49D2-A99D-7A9AF1B065FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nanoka.Web", "Nanoka.Web\Nanoka.Web.csproj", "{71421BBC-4457-4584-8DA4-A291FC72E887}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nanoka", "Nanoka\Nanoka.csproj", "{71421BBC-4457-4584-8DA4-A291FC72E887}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
