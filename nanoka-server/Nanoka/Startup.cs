@@ -31,7 +31,8 @@ namespace Nanoka
             services.Configure<NanokaOptions>(_configuration)
                     .Configure<ElasticOptions>(_configuration.GetSection("Elastic"))
                     .Configure<LocalStorageOptions>(_configuration.GetSection("Storage"))
-                    .Configure<B2Options>(_configuration.GetSection("Storage"));
+                    .Configure<B2Options>(_configuration.GetSection("Storage"))
+                    .Configure<RecaptchaOptions>(_configuration.GetSection("reCAPTCHA"));
 
             // mvc
             services.AddMvc()
@@ -63,6 +64,7 @@ namespace Nanoka
 
             // storage
             var storage = _configuration.GetSection("Storage")["Type"];
+
             switch (storage?.ToLowerInvariant())
             {
                 case null:
@@ -81,7 +83,8 @@ namespace Nanoka
             // other utility
             services.AddSingleton<JsonSerializer>()
                     .AddHttpClient()
-                    .AddAutoMapper(typeof(ModelMapperProfile));
+                    .AddAutoMapper(typeof(ModelMapperProfile))
+                    .AddSingleton<RecaptchaValidator>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
