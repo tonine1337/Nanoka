@@ -9,9 +9,6 @@ namespace Nanoka.Models.Requests
         [JsonProperty("username"), Required]
         [RegularExpression(UserBase.UsernameRegex)]
         public string Username { get; set; }
-
-        [JsonProperty("recaptcha"), Required]
-        public string RecaptchaToken { get; set; }
     }
 
     public class RegistrationResponse

@@ -26,9 +26,9 @@ namespace Nanoka.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<Result<RegistrationResponse>> RegisterAsync(RegistrationRequest request)
+        public async Task<Result<RegistrationResponse>> RegisterAsync(RegistrationRequest request, [FromQuery] string token)
         {
-            if (!await _recaptchaValidator.ValidateAsync(request.RecaptchaToken))
+            if (!await _recaptchaValidator.ValidateAsync(token))
                 return Result.BadRequest("Failed reCAPTCHA verification.");
 
             // create user with random ID and secret

@@ -36,6 +36,9 @@ namespace Nanoka
             if (!_enabled)
                 return true;
 
+            if (string.IsNullOrWhiteSpace(token))
+                return false;
+
             var success = true;
 
             var content = new FormUrlEncodedContent(new Dictionary<string, string>
