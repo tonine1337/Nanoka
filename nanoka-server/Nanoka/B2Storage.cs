@@ -52,7 +52,7 @@ namespace Nanoka
                 return new StorageFile
                 {
                     Stream      = new MemoryStream(file.FileData),
-                    ContentType = file.FileInfo.GetOrDefault("type")
+                    ContentType = file.FileInfo.GetValueOrDefault("type")
                 };
             }
             catch (Exception e)

@@ -66,11 +66,11 @@ namespace Nanoka.Database
             UploaderId = post.UploaderId.ToShortString();
             UploadTime = post.UploadTime;
             UpdateTime = post.UpdateTime;
-            Artist     = post.Tags?.GetOrDefault(BooruTag.Artist) ?? Artist;
-            Character  = post.Tags?.GetOrDefault(BooruTag.Character) ?? Character;
-            Copyright  = post.Tags?.GetOrDefault(BooruTag.Copyright) ?? Copyright;
-            Metadata   = post.Tags?.GetOrDefault(BooruTag.Metadata) ?? Metadata;
-            General    = post.Tags?.GetOrDefault(BooruTag.General) ?? General;
+            Artist     = post.Tags?.GetValueOrDefault(BooruTag.Artist) ?? Artist;
+            Character  = post.Tags?.GetValueOrDefault(BooruTag.Character) ?? Character;
+            Copyright  = post.Tags?.GetValueOrDefault(BooruTag.Copyright) ?? Copyright;
+            Metadata   = post.Tags?.GetValueOrDefault(BooruTag.Metadata) ?? Metadata;
+            General    = post.Tags?.GetValueOrDefault(BooruTag.General) ?? General;
             Rating     = post.Rating;
             Score      = post.Score;
             Source     = post.Source ?? Source;
@@ -91,11 +91,11 @@ namespace Nanoka.Database
 
             post.Tags = new Dictionary<BooruTag, string[]>
             {
-                { BooruTag.Artist, Artist ?? post.Tags?.GetOrDefault(BooruTag.Artist) },
-                { BooruTag.Character, Character ?? post.Tags?.GetOrDefault(BooruTag.Character) },
-                { BooruTag.Copyright, Copyright ?? post.Tags?.GetOrDefault(BooruTag.Copyright) },
-                { BooruTag.Metadata, Metadata ?? post.Tags?.GetOrDefault(BooruTag.Metadata) },
-                { BooruTag.General, General ?? post.Tags?.GetOrDefault(BooruTag.General) }
+                { BooruTag.Artist, Artist ?? post.Tags?.GetValueOrDefault(BooruTag.Artist) },
+                { BooruTag.Character, Character ?? post.Tags?.GetValueOrDefault(BooruTag.Character) },
+                { BooruTag.Copyright, Copyright ?? post.Tags?.GetValueOrDefault(BooruTag.Copyright) },
+                { BooruTag.Metadata, Metadata ?? post.Tags?.GetValueOrDefault(BooruTag.Metadata) },
+                { BooruTag.General, General ?? post.Tags?.GetValueOrDefault(BooruTag.General) }
             };
 
             post.Rating     = Rating;

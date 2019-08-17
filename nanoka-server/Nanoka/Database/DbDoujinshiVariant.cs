@@ -54,13 +54,13 @@ namespace Nanoka.Database
             Id2        = variant.Id.ToShortString();
             UploaderId = variant.UploaderId.ToShortString();
 
-            Artist     = variant.Metas?.GetOrDefault(DoujinshiMeta.Artist) ?? Artist;
-            Group      = variant.Metas?.GetOrDefault(DoujinshiMeta.Group) ?? Group;
-            Parody     = variant.Metas?.GetOrDefault(DoujinshiMeta.Parody) ?? Parody;
-            Character  = variant.Metas?.GetOrDefault(DoujinshiMeta.Character) ?? Character;
-            Language   = variant.Metas?.GetOrDefault(DoujinshiMeta.Language) ?? Language;
-            Tag        = variant.Metas?.GetOrDefault(DoujinshiMeta.Tag) ?? Tag;
-            Convention = variant.Metas?.GetOrDefault(DoujinshiMeta.Convention) ?? Convention;
+            Artist     = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Artist) ?? Artist;
+            Group      = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Group) ?? Group;
+            Parody     = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Parody) ?? Parody;
+            Character  = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Character) ?? Character;
+            Language   = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Language) ?? Language;
+            Tag        = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Tag) ?? Tag;
+            Convention = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Convention) ?? Convention;
 
             Source    = variant.Source ?? Source;
             PageCount = variant.PageCount;
@@ -75,13 +75,13 @@ namespace Nanoka.Database
 
             variant.Metas = new Dictionary<DoujinshiMeta, string[]>
             {
-                { DoujinshiMeta.Artist, Artist ?? variant.Metas?.GetOrDefault(DoujinshiMeta.Artist) },
-                { DoujinshiMeta.Group, Group ?? variant.Metas?.GetOrDefault(DoujinshiMeta.Group) },
-                { DoujinshiMeta.Parody, Parody ?? variant.Metas?.GetOrDefault(DoujinshiMeta.Parody) },
-                { DoujinshiMeta.Character, Character ?? variant.Metas?.GetOrDefault(DoujinshiMeta.Character) },
-                { DoujinshiMeta.Language, Language ?? variant.Metas?.GetOrDefault(DoujinshiMeta.Language) },
-                { DoujinshiMeta.Tag, Tag ?? variant.Metas?.GetOrDefault(DoujinshiMeta.Tag) },
-                { DoujinshiMeta.Convention, Convention ?? variant.Metas?.GetOrDefault(DoujinshiMeta.Convention) }
+                { DoujinshiMeta.Artist, Artist ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Artist) },
+                { DoujinshiMeta.Group, Group ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Group) },
+                { DoujinshiMeta.Parody, Parody ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Parody) },
+                { DoujinshiMeta.Character, Character ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Character) },
+                { DoujinshiMeta.Language, Language ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Language) },
+                { DoujinshiMeta.Tag, Tag ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Tag) },
+                { DoujinshiMeta.Convention, Convention ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Convention) }
             };
 
             variant.Source    = Source ?? variant.Source;
