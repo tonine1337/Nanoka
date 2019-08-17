@@ -1,11 +1,24 @@
+using System;
+using System.Security.Cryptography;
 using Nanoka.Models;
 
 namespace Nanoka
 {
     public class NanokaOptions
     {
-        // development secret; should be overridden in production to something safer
-        public string Secret { get; set; } = "OAcB&fhvjYfb#iHPG4E33OEAV*1X!5jFeZsXvB9zKLsZ$wZWe5$WK75x9t!R";
+        public string Secret { get; set; }
+
+        public NanokaOptions()
+        {
+            // generate a random secret on startup in production
+            using (RandomNumberGenerator rng = new RNGCryptoServiceProvider())
+            {
+                var buffer = new byte[64];
+                rng.GetBytes(buffer);
+
+                Secret = Convert.ToBase64String(buffer);
+            }
+        }
 
         public string ElasticEndpoint { get; set; } = "http://localhost:9200";
         public string ElasticIndexPrefix { get; set; } = "nanoka-";
