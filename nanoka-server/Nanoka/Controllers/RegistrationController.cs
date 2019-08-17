@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -8,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Nanoka.Database;
 using Nanoka.Models;
-using Newtonsoft.Json;
+using Nanoka.Models.Requests;
 using Newtonsoft.Json.Linq;
 
 namespace Nanoka.Controllers
@@ -28,25 +27,6 @@ namespace Nanoka.Controllers
             _options = options.Value;
             _http    = httpClientFactory.CreateClient(nameof(RegistrationController));
             _db      = db;
-        }
-
-        public class RegistrationRequest
-        {
-            [JsonProperty("username"), Required]
-            [RegularExpression(UserBase.UsernameRegex)]
-            public string Username { get; set; }
-
-            [JsonProperty("recaptcha"), Required]
-            public string RecaptchaToken { get; set; }
-        }
-
-        public class RegistrationResponse
-        {
-            [JsonProperty("id")]
-            public Guid Id { get; set; }
-
-            [JsonProperty("secret")]
-            public Guid Secret { get; set; }
         }
 
         [HttpPost("register")]
