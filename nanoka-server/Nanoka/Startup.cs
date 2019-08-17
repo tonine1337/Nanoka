@@ -84,7 +84,8 @@ namespace Nanoka
                     .AddSingleton<UploadManager>()
                     .AddScoped<RecaptchaValidator>()
                     .AddScoped<ImageProcessor>()
-                    .AddScoped<SnapshotManager>();
+                    .AddScoped<SnapshotManager>()
+                    .AddHttpContextAccessor();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
