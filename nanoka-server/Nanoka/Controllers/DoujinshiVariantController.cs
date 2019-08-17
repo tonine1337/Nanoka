@@ -103,13 +103,23 @@ namespace Nanoka.Controllers
                 if (variant == null)
                     return Result.NotFound<DoujinshiVariant>(id, variantId);
 
-                await _snapshotManager.SaveAsync(doujinshi, SnapshotEvent.Modification, reason);
+                // delete the entire doujinshi if we are the only variant
+                if (doujinshi.Variants.Count == 1)
+                {
+                    await _snapshotManager.SaveAsync(doujinshi, SnapshotEvent.Deletion, reason);
 
-                doujinshi.Variants.Remove(variant);
+                    await _db.DeleteAsync(doujinshi);
+                }
+                else
+                {
+                    await _snapshotManager.SaveAsync(doujinshi, SnapshotEvent.Modification, reason);
 
-                doujinshi.UpdateTime = DateTime.UtcNow;
+                    doujinshi.Variants.Remove(variant);
 
-                await _db.IndexAsync(doujinshi);
+                    doujinshi.UpdateTime = DateTime.UtcNow;
+
+                    await _db.IndexAsync(doujinshi);
+                }
 
                 return Result.Ok();
             }
