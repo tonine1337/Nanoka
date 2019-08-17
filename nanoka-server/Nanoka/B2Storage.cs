@@ -22,6 +22,9 @@ namespace Nanoka
             _options = options.Value;
             _logger  = logger;
 
+            if (_options.AccountId == null || _options.ApplicationKey == null)
+                throw new ArgumentException("Backblaze B2 credentials not specified in configuration.");
+
             _client = new B2Client(_options.AccountId, _options.ApplicationKey);
         }
 
