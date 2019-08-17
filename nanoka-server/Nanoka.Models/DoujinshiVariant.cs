@@ -10,12 +10,6 @@ namespace Nanoka.Models
         [JsonProperty("id")]
         public Guid Id { get; set; }
 
-        /// <summary>
-        /// CID referencing the directory containing image files of this variant.
-        /// </summary>
-        [JsonProperty("cid"), Required]
-        public string Cid { get; set; }
-
         [JsonProperty("uploader")]
         public Guid UploaderId { get; set; }
 

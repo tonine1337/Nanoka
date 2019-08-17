@@ -12,9 +12,6 @@ namespace Nanoka.Database
         [Keyword(Name = "id", Index = false), JsonProperty("id")]
         public string Id { get; set; }
 
-        [Keyword(Name = "cid", Index = false), JsonProperty("cid")]
-        public string Cid { get; set; }
-
         [Keyword(Name = "upu"), JsonProperty("upu")]
         public string UploaderId { get; set; }
 
@@ -67,7 +64,6 @@ namespace Nanoka.Database
 
             Id         = post.Id.ToShortString();
             UploaderId = post.UploaderId.ToShortString();
-            Cid        = post.Cid ?? Cid;
             UploadTime = post.UploadTime;
             UpdateTime = post.UpdateTime;
             Artist     = post.Tags?.GetOrDefault(BooruTag.Artist) ?? Artist;
@@ -90,7 +86,6 @@ namespace Nanoka.Database
         {
             post.Id         = Id.ToGuid();
             post.UploaderId = UploaderId.ToGuid();
-            post.Cid        = Cid ?? post.Cid;
             post.UploadTime = UploadTime;
             post.UpdateTime = UpdateTime;
 

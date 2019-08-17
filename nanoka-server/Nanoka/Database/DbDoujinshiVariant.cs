@@ -16,9 +16,6 @@ namespace Nanoka.Database
         [Keyword(Name = "id", Index = false), JsonProperty("id")]
         public string Id2 { get; set; }
 
-        [Keyword(Name = "cid", Index = false), JsonProperty("cid")]
-        public string Cid { get; set; }
-
         [Keyword(Name = "upu"), JsonProperty("upu")]
         public string UploaderId { get; set; }
 
@@ -55,7 +52,6 @@ namespace Nanoka.Database
                 return null;
 
             Id2        = variant.Id.ToShortString();
-            Cid        = variant.Cid ?? Cid;
             UploaderId = variant.UploaderId.ToShortString();
 
             Artist     = variant.Metas?.GetOrDefault(DoujinshiMeta.Artist) ?? Artist;
@@ -75,7 +71,6 @@ namespace Nanoka.Database
         public DoujinshiVariant ApplyTo(DoujinshiVariant variant)
         {
             variant.Id         = Id2.ToGuid();
-            variant.Cid        = Cid ?? variant.Cid;
             variant.UploaderId = UploaderId.ToGuid();
 
             variant.Metas = new Dictionary<DoujinshiMeta, string[]>

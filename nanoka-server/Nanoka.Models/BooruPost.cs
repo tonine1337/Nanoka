@@ -34,12 +34,6 @@ namespace Nanoka.Models
 
     public class BooruPostBase
     {
-        /// <summary>
-        /// CID referencing the image file of this post.
-        /// </summary>
-        [JsonProperty("cid"), Required]
-        public string Cid { get; set; }
-
         [JsonProperty("tags"), Required]
         public Dictionary<BooruTag, string[]> Tags { get; set; }
 

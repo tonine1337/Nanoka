@@ -59,9 +59,6 @@ namespace Nanoka
             // database
             services.AddSingleton<NanokaDatabase>();
 
-            // background services
-            services.AddHostedDependencyService<UploadManager>();
-
             // storage
             var storage = _configuration.GetSection("Storage")["Type"];
 
