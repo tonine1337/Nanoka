@@ -4,7 +4,8 @@ import * as api from '../Api';
 export class ViewInfo extends React.Component {
   state = {
     doujinshi: null,
-    error: null
+    error: null,
+    cover: null
   };
 
   async componentDidMount() {
@@ -18,6 +19,8 @@ export class ViewInfo extends React.Component {
     }
 
     this.setState({ doujinshi });
+
+    this.setState({ cover: await api.downloadImageAsync(doujinshi.id, doujinshi.variants[0].id, 0) });
   }
 
   render() {
@@ -38,7 +41,7 @@ export class ViewInfo extends React.Component {
           width: '100%',
           overflow: 'hidden',
           position: "relative",
-          backgroundImage: `url(${api.getEndpoint(`doujinshi/${doujinshi.id}/variants/${doujinshi.variants[0].id}/images/0`)})`,
+          backgroundImage: `url(${this.state.cover})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }} />

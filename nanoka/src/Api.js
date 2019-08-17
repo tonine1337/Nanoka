@@ -66,17 +66,16 @@ export async function startAsync() {
   setTimeout(startAsync, expiry.getTime() - Date.now() - 10000);
 }
 
-export async function getAsync(path) {
+function getHeaders() {
   const headers = {};
 
   if (accessToken)
     headers['Authorization'] = `Bearer ${accessToken}`;
 
-  const response = await fetch(getEndpoint(path), {
-    method: 'GET',
-    headers: headers
-  });
+  return headers;
+}
 
+async function handleResponseAsync(response) {
   const result = await response.json();
 
   if (!response.ok) {
@@ -87,13 +86,19 @@ export async function getAsync(path) {
   return result;
 }
 
-export async function postAsync(path, data) {
-  const headers = {
-    'Content-Type': 'application/json'
-  };
+export async function getAsync(path) {
+  const response = await fetch(getEndpoint(path), {
+    method: 'GET',
+    headers: getHeaders()
+  });
 
-  if (accessToken)
-    headers['Authorization'] = `Bearer ${accessToken}`;
+  return await handleResponseAsync(response);
+}
+
+export async function postAsync(path, data) {
+  const headers = getHeaders();
+
+  headers['Content-Type'] = 'application/json';
 
   const response = await fetch(getEndpoint(path), {
     method: 'POST',
@@ -101,14 +106,7 @@ export async function postAsync(path, data) {
     body: JSON.stringify(data)
   });
 
-  const result = await response.json();
-
-  if (!response.ok) {
-    result.error = true;
-    result.message = response.statusText;
-  }
-
-  return result;
+  return await handleResponseAsync(response);
 }
 
 // retrieves the cached value of the current user
@@ -135,6 +133,7 @@ export function createDoujinshiAsync(doujinshi, variant) {
   return postAsync('doujinshi', { doujinshi, variant });
 }
 
+// POST uploads/{id}?final={final}
 export async function uploadFileAsync(id, file, final) {
   const form = new FormData();
 
@@ -157,6 +156,21 @@ export async function uploadFileAsync(id, file, final) {
   });
 
   return await response.json();
+}
+
+// GET doujinshi/{doujinshiId}/variants/{variantId}/images/{index}
+export async function downloadImageAsync(doujinshiId, variantId, index) {
+  const response = await fetch(getEndpoint(`doujinshi/${doujinshiId}/variants/${variantId}/images/${index}`), {
+    method: 'GET',
+    headers: getHeaders()
+  });
+
+  if (!response.ok)
+    throw Error(response.statusText);
+
+  const blob = await response.blob();
+
+  return URL.createObjectURL(blob);
 }
 
 // GET doujinshi/{id}
