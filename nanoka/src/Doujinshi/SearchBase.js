@@ -19,18 +19,11 @@ export default class SearchBase extends React.Component {
     };
   }
 
-  componentDidMount() {
-    api.searchDoujinshi(this.state.query, {
-      success: r => {
-        this.setState({
-          result: r.result
-        });
-      },
-      error: e => {
-        this.setState({
-          error: e
-        });
-      }
+  async componentDidMount() {
+    const r = await api.searchDoujinshiAsync(this.state.query);
+
+    this.setState({
+      result: r.result
     });
   }
 

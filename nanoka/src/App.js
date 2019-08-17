@@ -1,9 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, NavLink, Switch } from "react-router-dom";
 import Index from './Index/Index';
-import { Button, Icon, Menu, Header, Divider, Container } from 'semantic-ui-react';
+import { Icon, Menu, Header, Divider, Container } from 'semantic-ui-react';
 import * as api from './Api';
 import SearchBar from './SearchBar';
+import LoginForm from './LoginForm';
 
 import { ListByName as DoujinshiListByName } from './Doujinshi/ListByName';
 import { Uploader as DoujinshiUploader } from './Doujinshi/Uploader';
@@ -14,49 +15,25 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
-      fetched: false,
-      client: null,
-      error: null
+      fetching: true
     };
   }
 
-  componentDidMount() {
-    api.getClientInfo({
-      success: r => {
-        this.setState({
-          client: r,
-          fetched: true
-        });
-      },
-      error: e => {
-        this.setState({
-          error: e,
-          fetched: true
-        })
-      }
+  async componentDidMount() {
+    await api.startAsync();
+
+    this.setState({
+      fetching: false
     });
   }
 
   render() {
-    if (!this.state.fetched)
+    // if credentials not set, show login form
+    if (!api.getCredentials())
+      return <LoginForm />;
+
+    if (this.state.fetching)
       return null;
-
-    if (this.state.error) {
-      return (
-        <Container as="main">
-          <h1 style={{ paddingTop: "3rem" }}>Nanoka</h1>
-          <span>Could not connect to Nanoka client :(</span>
-          <br />
-          <br />
-
-          <Button as="a" href="https://github.com/chiyadev/Nanoka/releases" className="labeled icon primary"><Icon name="download" /> Install</Button>
-          <Button icon labelPosition='left' onClick={() => window.location.reload()}><Icon name='redo' /> Retry</Button>
-          <br />
-
-          <a href="https://github.com/chiyadev/Nanoka"><small>What is this?</small></a>
-        </Container>
-      );
-    }
 
     return (
       <Router>

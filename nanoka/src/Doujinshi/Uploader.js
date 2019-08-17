@@ -2,13 +2,13 @@ import React from 'react';
 import { Form, Button, Dropdown, Icon, Message, Progress } from 'semantic-ui-react';
 import { createDropzone } from '../DropzoneStyle';
 import * as api from '../Api';
+import * as JSZip from 'jszip';
 
 export class Uploader extends React.Component {
   state = {
     file: null,
     isSubmitting: false,
     uploadProgress: 0,
-    uploadMessage: null,
     errors: []
   };
 
@@ -164,16 +164,15 @@ export class Uploader extends React.Component {
           <Message.Content content="This may take a while depending on your internet speed." />
         </Message>
 
-        {this.state.uploadMessage ?
+        {this.state.uploadProgress !== 0 ?
           <Progress progress indicating
             percent={this.state.uploadProgress * 100}
-            active={this.state.uploadProgress !== 1}
-            label={this.state.uploadMessage} /> : <span />}
+            active={this.state.uploadProgress !== 1} /> : <span />}
       </div>
     );
   }
 
-  handleSubmit() {
+  async handleSubmit() {
     const state = this.state;
 
     if (state.isSubmitting)
@@ -210,17 +209,21 @@ export class Uploader extends React.Component {
 
     this.setState({
       isSubmitting: true,
-      errors
+      errors,
+      uploadProgress: 0
     });
 
-    api.uploadDoujinshi({
-      doujinshi: {
+    const zip = await JSZip.loadAsync(this.state.file);
+    const fileCount = Object.keys(zip.files).length;
+
+    let upload = await api.createDoujinshiAsync(
+      {
         name_original: state.originalName,
         name_romanized: state.romanizedName,
         name_english: state.englishname,
         category: state.category
       },
-      variant: {
+      {
         metas: {
           artist: state.artist,
           group: state.group,
@@ -230,51 +233,38 @@ export class Uploader extends React.Component {
           character: state.character,
           tag: state.tag
         }
-      },
-      file: state.file
-    }, {
-        success: r => this.updateProgress(r),
-        error: e => {
-          this.setState({
-            isSubmitting: false,
-            errors: [e]
-          });
-        }
       }
     );
-  }
 
-  updateProgress(uploadState) {
-    if (uploadState.failed) {
+    if (upload.error) {
       this.setState({
-        uploadProgress: 0,
-        uploadMessage: null,
         isSubmitting: false,
-        errors: [uploadState.message]
+        errors: [upload.message]
+      });
+      return;
+    }
+
+    let i = 0;
+
+    for (const entry in zip.files) {
+      const file = zip.files[entry];
+      const blob = await file.async('blob');
+
+      upload = await api.uploadFileAsync(upload.id, blob, ++i === fileCount);
+
+      if (upload.error) {
+        this.setState({
+          isSubmitting: false,
+          errors: [upload.message]
+        });
+        return;
+      }
+
+      this.setState({
+        uploadProgress: (i / fileCount).toFixed(2)
       });
     }
 
-    this.setState({
-      uploadProgress: uploadState.progress.toFixed(2),
-      uploadMessage: uploadState.message
-    });
-
-    if (!uploadState.running)
-      return;
-
-    api.getUploadState(uploadState.id, {
-      success: r => {
-        // continuously update
-        this.updateProgress(r);
-      },
-      error: e => {
-        this.setState({
-          uploadProgress: 0,
-          uploadMessage: null,
-          isSubmitting: false,
-          errors: [e]
-        });
-      }
-    })
+    window.location.replace(`/doujinshi/${upload.id}`);
   }
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from "react-router-dom";
 import './Index.css';
+import * as api from '../Api';
 
 function Index() {
   return (
@@ -31,8 +32,10 @@ function Index() {
       <div className="info" style={{
         textAlign: "center"
       }}>
-        <small>Signed in as <code>phosphene47</code></small>
-        <small>Running Nanoka client 0.1 &mdash; database 0.1</small>
+        <small>Signed in as {api.getCurrentUser().name}</small>
+        <small>Running Nanoka v{api.version}</small>
+        <br />
+        <small><code>{api.getCurrentUser().id}</code></small>
       </div>
       <br />
       <br />
@@ -49,7 +52,6 @@ function Index() {
         <img alt="counter" src="assets/counters/6.png" />
         <img alt="counter" src="assets/counters/7.png" />
       </div>
-      <br />
     </div>
   );
 }

@@ -7,11 +7,17 @@ export class ViewInfo extends React.Component {
     error: null
   };
 
-  componentDidMount() {
-    api.getDoujinshi(this.props.id, {
-      success: r => this.setState({ doujinshi: r }),
-      error: e => this.setState({ error: e })
-    });
+  async componentDidMount() {
+    const doujinshi = await api.getDoujinshiAsync(this.props.id);
+
+    if (doujinshi.error) {
+      this.setState({
+        error: doujinshi.message
+      });
+      return;
+    }
+
+    this.setState({ doujinshi });
   }
 
   render() {
@@ -32,7 +38,7 @@ export class ViewInfo extends React.Component {
           width: '100%',
           overflow: 'hidden',
           position: "relative",
-          backgroundImage: `url(${api.getEndpoint(`doujinshi/${doujinshi.id}/variants/${doujinshi.variants[0].id}/0`)})`,
+          backgroundImage: `url(${api.getEndpoint(`doujinshi/${doujinshi.id}/variants/${doujinshi.variants[0].id}/images/0`)})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }} />
