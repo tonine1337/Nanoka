@@ -12,6 +12,13 @@ namespace Nanoka
         readonly object _lock = new object();
         readonly Dictionary<Guid, UploadTask> _tasks = new Dictionary<Guid, UploadTask>();
 
+        readonly IHostingEnvironment _environment;
+
+        public UploadManager(IHostingEnvironment environment)
+        {
+            _environment = environment;
+        }
+
         public UploadTask AddTask(UploadTask task)
         {
             lock (_tasks)
@@ -41,6 +48,10 @@ namespace Nanoka
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            // don't expire upload tasks in dev env for simplicity
+            if (_environment.IsDevelopment())
+                return;
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
