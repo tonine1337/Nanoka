@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
@@ -8,8 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Nanoka.Client;
 using Nanoka.Database;
+using Nanoka.Models;
+using Newtonsoft.Json;
 
 namespace Nanoka.Controllers
 {
@@ -24,6 +26,33 @@ namespace Nanoka.Controllers
         {
             _options = options.Value;
             _db      = db;
+        }
+
+        public class AuthenticationRequest
+        {
+            [JsonProperty("id"), Required]
+            public Guid Id { get; set; }
+
+            [JsonProperty("secret"), Required]
+            public Guid Secret { get; set; }
+        }
+
+        public class AuthenticationResponse
+        {
+            /// <summary>
+            /// JWT bearer token.
+            /// </summary>
+            [JsonProperty("accessToken")]
+            public string AccessToken { get; set; }
+
+            /// <summary>
+            /// Expiry time of <see cref="AccessToken"/> in UTC.
+            /// </summary>
+            [JsonProperty("expiry")]
+            public DateTime Expiry { get; set; }
+
+            [JsonProperty("user")]
+            public User User { get; set; }
         }
 
         [HttpPost("auth")]
