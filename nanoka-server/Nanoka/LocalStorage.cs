@@ -195,7 +195,7 @@ namespace Nanoka
             }
         }
 
-        string GetEntryPath(string name) => Path.Combine(_indexDir.FullName, name);
+        string GetEntryPath(string name) => Path.Combine(_indexDir.FullName, name.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar));
         string GetHashPath(string hash) => Path.Combine(_contentDir.FullName, hash.Substring(0, 2), hash.Substring(2, 2), hash.Substring(4));
 
         public void Dispose() => _semaphore.Dispose();
