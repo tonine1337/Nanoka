@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using B2Net;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Nanoka
@@ -12,12 +13,14 @@ namespace Nanoka
     public class B2Storage : IStorage
     {
         readonly B2Options _options;
+        readonly ILogger<B2Storage> _logger;
 
         readonly B2Client _client;
 
-        public B2Storage(IOptions<B2Options> options)
+        public B2Storage(IOptions<B2Options> options, ILogger<B2Storage> logger)
         {
             _options = options.Value;
+            _logger  = logger;
 
             _client = new B2Client(_options.AccountId, _options.ApplicationKey);
         }
@@ -39,49 +42,75 @@ namespace Nanoka
 
         public async Task<StorageFile> GetAsync(string name, CancellationToken cancellationToken = default)
         {
-            var file = await _client.Files.DownloadByName(name, _bucketName, cancellationToken);
-
-            return new StorageFile
+            try
             {
-                Stream      = new MemoryStream(file.FileData),
-                ContentType = file.FileInfo.GetOrDefault("type")
-            };
+                var file = await _client.Files.DownloadByName(name, _bucketName, cancellationToken);
+
+                return new StorageFile
+                {
+                    Stream      = new MemoryStream(file.FileData),
+                    ContentType = file.FileInfo.GetOrDefault("type")
+                };
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning($"Failed to retrieve file '{name}'.", e);
+                return null;
+            }
         }
 
-        public async Task AddAsync(string name, StorageFile file, CancellationToken cancellationToken = default)
+        public async Task<bool> AddAsync(string name, StorageFile file, CancellationToken cancellationToken = default)
         {
-            byte[] buffer;
-
-            if (file.Stream is MemoryStream memory)
-                buffer = memory.ToArray();
-            else
-                using (var memory2 = new MemoryStream())
-                {
-                    await file.Stream.CopyToAsync(memory2, cancellationToken);
-                    buffer = memory2.ToArray();
-                }
-
-            var fileInfo = new Dictionary<string, string>
+            try
             {
-                { "type", file.ContentType ?? "application/octet-stream" }
-            };
+                byte[] buffer;
 
-            var upload = await _client.Files.GetUploadUrl(_bucketId, cancellationToken);
+                if (file.Stream is MemoryStream memory)
+                    buffer = memory.ToArray();
+                else
+                    using (var memory2 = new MemoryStream())
+                    {
+                        await file.Stream.CopyToAsync(memory2, cancellationToken);
+                        buffer = memory2.ToArray();
+                    }
 
-            await _client.Files.Upload(buffer, name, upload, _bucketId, fileInfo, cancellationToken);
+                var fileInfo = new Dictionary<string, string>
+                {
+                    { "type", file.ContentType ?? "application/octet-stream" }
+                };
+
+                var upload = await _client.Files.GetUploadUrl(_bucketId, cancellationToken);
+
+                await _client.Files.Upload(buffer, name, upload, _bucketId, fileInfo, cancellationToken);
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning($"Could not upload file '{name}'.", e);
+                return false;
+            }
         }
 
         public async Task<bool> RemoveAsync(string name, CancellationToken cancellationToken = default)
         {
-            var versions = await _client.Files.GetVersionsWithPrefixOrDelimiter(name, null, name, null, 1, _bucketId, cancellationToken);
+            try
+            {
+                var versions = await _client.Files.GetVersionsWithPrefixOrDelimiter(name, null, name, null, 1, _bucketId, cancellationToken);
 
-            if (versions.Files.Count == 0)
+                if (versions.Files.Count == 0)
+                    return false;
+
+                foreach (var file in versions.Files)
+                    await _client.Files.Delete(file.FileId, name, cancellationToken);
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning($"Could not delete file '{name}'.", e);
                 return false;
-
-            foreach (var file in versions.Files)
-                await _client.Files.Delete(file.FileId, name, cancellationToken);
-
-            return true;
+            }
         }
 
         public void Dispose() { }
