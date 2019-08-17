@@ -1,6 +1,5 @@
 # Nanoka specific
-Nanoka/data/
-Nanoka/ipfs*
+Nanoka/storage/*
 
 # Rider specific
 .idea/
