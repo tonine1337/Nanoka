@@ -13,13 +13,13 @@ namespace Nanoka.Models.Query
             var type = Enum.GetUnderlyingType(typeof(TSort));
 
             if (type == typeof(short))
-                _negate = x => (TSort) (dynamic) ~(byte) (dynamic) x;
+                _negate = x => (TSort) (object) ~(byte) (object) x;
 
             else if (type == typeof(int))
-                _negate = x => (TSort) (dynamic) ~(int) (dynamic) x;
+                _negate = x => (TSort) (object) ~(int) (object) x;
 
             else if (type == typeof(long))
-                _negate = x => (TSort) (dynamic) ~(long) (dynamic) x;
+                _negate = x => (TSort) (object) ~(long) (object) x;
 
             else
                 throw new NotSupportedException($"Underlying enum type '{type}' not supported for conversion.");
