@@ -17,19 +17,19 @@ namespace Nanoka.Controllers
         readonly IMapper _mapper;
         readonly RecaptchaValidator _recaptcha;
         readonly UploadManager _uploadManager;
-        readonly DoujinshiController _doujinshiController;
+        readonly SnapshotManager _snapshotManager;
 
         public DoujinshiVariantController(NanokaDatabase db,
                                           IMapper mapper,
                                           RecaptchaValidator recaptcha,
                                           UploadManager uploadManager,
-                                          DoujinshiController doujinshiController)
+                                          SnapshotManager snapshotManager)
         {
-            _db                  = db;
-            _mapper              = mapper;
-            _recaptcha           = recaptcha;
-            _uploadManager       = uploadManager;
-            _doujinshiController = doujinshiController;
+            _db              = db;
+            _mapper          = mapper;
+            _recaptcha       = recaptcha;
+            _uploadManager   = uploadManager;
+            _snapshotManager = snapshotManager;
         }
 
         [HttpGet("{id}/variants/{variantId}")]
@@ -77,7 +77,7 @@ namespace Nanoka.Controllers
                 if (variant == null)
                     return Result.NotFound<DoujinshiVariant>(id, variantId);
 
-                await _doujinshiController.SnapshotAsync(doujinshi, SnapshotEvent.Modification);
+                await _snapshotManager.SaveAsync(doujinshi, SnapshotEvent.Modification);
 
                 _mapper.Map(model, variant);
 
@@ -103,7 +103,7 @@ namespace Nanoka.Controllers
                 if (variant == null)
                     return Result.NotFound<DoujinshiVariant>(id, variantId);
 
-                await _doujinshiController.SnapshotAsync(doujinshi, SnapshotEvent.Modification, reason);
+                await _snapshotManager.SaveAsync(doujinshi, SnapshotEvent.Modification, reason);
 
                 doujinshi.Variants.Remove(variant);
 

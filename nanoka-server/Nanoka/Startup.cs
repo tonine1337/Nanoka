@@ -82,7 +82,8 @@ namespace Nanoka
                     .AddHttpClient()
                     .AddAutoMapper(typeof(ModelMapperProfile))
                     .AddSingleton<RecaptchaValidator>()
-                    .AddSingleton<ImageProcessor>();
+                    .AddSingleton<ImageProcessor>()
+                    .AddSingleton<SnapshotManager>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

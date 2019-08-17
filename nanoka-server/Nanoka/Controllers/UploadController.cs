@@ -41,21 +41,21 @@ namespace Nanoka.Controllers
     {
         readonly UploadManager _uploadManager;
         readonly ImageProcessor _imageProcessor;
+        readonly SnapshotManager _snapshotManager;
         readonly NanokaDatabase _db;
-        readonly DoujinshiController _doujinshiController;
         readonly IStorage _storage;
 
         public UploadController(UploadManager uploadManager,
                                 ImageProcessor imageProcessor,
+                                SnapshotManager snapshotManager,
                                 NanokaDatabase db,
-                                DoujinshiController doujinshiController,
                                 IStorage storage)
         {
-            _uploadManager       = uploadManager;
-            _imageProcessor      = imageProcessor;
-            _db                  = db;
-            _doujinshiController = doujinshiController;
-            _storage             = storage;
+            _uploadManager   = uploadManager;
+            _imageProcessor  = imageProcessor;
+            _snapshotManager = snapshotManager;
+            _db              = db;
+            _storage         = storage;
         }
 
         [HttpPost("{id}")]
@@ -113,7 +113,7 @@ namespace Nanoka.Controllers
 
                         await processFilesAsync();
 
-                        await _doujinshiController.SnapshotAsync(doujinshi, SnapshotEvent.Modification);
+                        await _snapshotManager.SaveAsync(doujinshi, SnapshotEvent.Modification);
 
                         doujinshi.Variants.Add(task.Doujinshi.Variants[0]);
                         doujinshi.UpdateTime = DateTime.UtcNow;

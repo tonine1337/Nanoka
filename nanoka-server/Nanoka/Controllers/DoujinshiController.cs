@@ -17,33 +17,19 @@ namespace Nanoka.Controllers
         readonly IMapper _mapper;
         readonly RecaptchaValidator _recaptcha;
         readonly UploadManager _uploadManager;
+        readonly SnapshotManager _snapshotManager;
 
         public DoujinshiController(NanokaDatabase db,
                                    IMapper mapper,
                                    RecaptchaValidator recaptcha,
-                                   UploadManager uploadManager)
+                                   UploadManager uploadManager,
+                                   SnapshotManager snapshotManager)
         {
-            _db            = db;
-            _mapper        = mapper;
-            _recaptcha     = recaptcha;
-            _uploadManager = uploadManager;
-        }
-
-        public async Task SnapshotAsync(Doujinshi doujinshi, SnapshotEvent snapshotEvent, string reason = null)
-        {
-            var snapshot = new Snapshot<Doujinshi>
-            {
-                Id          = Guid.NewGuid(),
-                TargetId    = doujinshi.Id,
-                CommitterId = UserId,
-                Time        = DateTime.UtcNow,
-                Event       = snapshotEvent,
-                Target      = SnapshotTarget.Doujinshi,
-                Reason      = reason,
-                Value       = doujinshi
-            };
-
-            await _db.IndexSnapshotAsync(snapshot);
+            _db              = db;
+            _mapper          = mapper;
+            _recaptcha       = recaptcha;
+            _uploadManager   = uploadManager;
+            _snapshotManager = snapshotManager;
         }
 
         [HttpGet("{id}")]
@@ -91,7 +77,7 @@ namespace Nanoka.Controllers
                 if (doujinshi == null)
                     return Result.NotFound<Doujinshi>(id);
 
-                await SnapshotAsync(doujinshi, SnapshotEvent.Modification);
+                await _snapshotManager.SaveAsync(doujinshi, SnapshotEvent.Modification);
 
                 _mapper.Map(model, doujinshi);
 
@@ -116,7 +102,7 @@ namespace Nanoka.Controllers
                 if (doujinshi == null)
                     return Result.NotFound<Doujinshi>(id);
 
-                await SnapshotAsync(doujinshi, SnapshotEvent.Deletion, reason);
+                await _snapshotManager.SaveAsync(doujinshi, SnapshotEvent.Deletion, reason);
 
                 await _db.DeleteAsync(doujinshi);
 
