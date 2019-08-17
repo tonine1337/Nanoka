@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -14,10 +15,12 @@ namespace Nanoka
     public class Startup
     {
         readonly IConfiguration _configuration;
+        readonly IHostingEnvironment _environment;
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment environment)
         {
             _configuration = configuration;
+            _environment   = environment;
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -27,7 +30,8 @@ namespace Nanoka
             // options
             services.Configure<NanokaOptions>(_configuration)
                     .Configure<ElasticOptions>(_configuration.GetSection("Elastic"))
-                    .Configure<B2Options>(_configuration.GetSection("Storage").GetSection("B2"));
+                    .Configure<LocalStorageOptions>(_configuration.GetSection("Storage"))
+                    .Configure<B2Options>(_configuration.GetSection("Storage"));
 
             // mvc
             services.AddMvc()
@@ -56,6 +60,23 @@ namespace Nanoka
 
             // background services
             services.AddHostedDependencyService<UploadManager>();
+
+            // storage
+            var storage = _configuration.GetSection("Storage")["Type"];
+            switch (storage.ToLowerInvariant())
+            {
+                case null:
+                case "":
+                case "local":
+                    services.AddSingleton<IStorage, LocalStorage>();
+                    break;
+
+                case "b2":
+                    services.AddSingleton<IStorage, B2Storage>();
+                    break;
+
+                default: throw new NotSupportedException($"Unsupported storage type '{storage}'.");
+            }
 
             // other utility
             services.AddSingleton<JsonSerializer>()
