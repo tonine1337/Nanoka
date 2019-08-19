@@ -174,7 +174,7 @@ export class ViewInfo extends React.Component {
           </Grid.Row>
           <Grid.Row>
             <Grid.Column>
-              <Grid doubling columns={5}>
+              <Grid doubling columns={6}>
                 {[...Array(variant.pages).keys()].map(i => {
                   return (
                     <Grid.Column className="thumb" as="a" href={`/doujinshi/${doujinshi.id}/read/${variant.id}/${i}`} textAlign="center" verticalAlign="middle">
