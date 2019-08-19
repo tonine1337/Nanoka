@@ -9,6 +9,6 @@
   margin: 1px;
 }
 
-.thumb img:hover {
+.thumb:hover {
   opacity: 0.8;
 }
