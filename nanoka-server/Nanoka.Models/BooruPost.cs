@@ -40,7 +40,7 @@ namespace Nanoka.Models
         [JsonProperty("rating")]
         public BooruRating Rating { get; set; }
 
-        [JsonProperty("source")]
+        [JsonProperty("source"), Url]
         public string Source { get; set; }
 
         [JsonProperty("siblings")]
