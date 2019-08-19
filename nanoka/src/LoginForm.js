@@ -58,17 +58,17 @@ export class LoginForm extends React.Component {
                   const id = this.state.secret.substr(0, 32);
                   const secret = this.state.secret.substr(32, 32);
 
-                  const result = await api.authenticateAsync(id, secret);
+                  try {
+                    await api.authenticateAsync(id, secret);
 
-                  if (result.error) {
+                    api.setCredentials(id, secret);
+                  }
+                  catch (error) {
                     this.setState({
                       fetching: false,
-                      error: result.message
+                      error: error
                     });
-                    return;
                   }
-
-                  api.setCredentials(id, secret);
                 }}>
                   <Icon name="sign-in" />Sign in
                 </Button>

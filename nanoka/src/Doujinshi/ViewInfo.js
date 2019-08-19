@@ -7,61 +7,28 @@ export class ViewInfo extends React.Component {
   state = {
     doujinshi: null,
     currentVariant: null,
-    metaOptions: null,
     error: null,
     cover: null
   };
 
   async componentDidMount() {
-    const doujinshi = await api.getDoujinshiAsync(this.props.id);
+    try {
+      const doujinshi = await api.getDoujinshiAsync(this.props.id);
 
-    if (doujinshi.error || !doujinshi.variants.length) {
+      // select the first variant by default
+      //todo: smart selection based on device language
+      const currentVariant = doujinshi.variants[0];
+
+      this.setState({ doujinshi, currentVariant });
+
+      // load cover image after everything else
       this.setState({
-        error: doujinshi.message
+        cover: await api.downloadImageAsync(doujinshi.id, doujinshi.variants[0].id, 0)
       });
-      return;
     }
-
-    // determine selectable options that vary between variants
-    // this is basically an inverted index
-    const metaOptions = {};
-
-    doujinshi.variants.forEach(variant => {
-      for (const [meta, values] of Object.entries(variant.metas)) {
-        if (!meta || !values)
-          continue;
-
-        let options = metaOptions[meta];
-
-        if (!options)
-          metaOptions[meta] = options = {};
-
-        values.forEach(value => {
-          let option = options[value];
-
-          if (!option)
-            options[value] = option = [];
-
-          option.push(variant.id);
-        });
-      }
-    });
-    console.log(metaOptions)
-
-    // select the first variant by default
-    //todo: smart selection based on device language
-    const currentVariant = doujinshi.variants[0];
-
-    this.setState({
-      doujinshi,
-      metaOptions,
-      currentVariant
-    });
-
-    // load cover image at the end
-    this.setState({
-      cover: await api.downloadImageAsync(doujinshi.id, doujinshi.variants[0].id, 0)
-    });
+    catch (error) {
+      this.setState({ error });
+    }
   }
 
   getCategoryIcon(doujinshi) {

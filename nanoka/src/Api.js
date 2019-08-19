@@ -49,11 +49,14 @@ export async function startAsync() {
   if (!cred)
     return false;
 
-  const result = await authenticateAsync(cred.id, cred.secret);
+  let result;
 
-  if (result.error) {
+  try {
+    result = await authenticateAsync(cred.id, cred.secret);
+  }
+  catch {
+    // reset credentials on error
     setCredentials();
-    return;
   }
 
   accessToken = result.accessToken;
@@ -75,24 +78,16 @@ function getHeaders() {
   return headers;
 }
 
-async function handleResponseAsync(response) {
-  const result = await response.json();
-
-  if (!response.ok) {
-    result.error = true;
-    result.message = response.statusText;
-  }
-
-  return result;
-}
-
 export async function getAsync(path) {
   const response = await fetch(getEndpoint(path), {
     method: 'GET',
     headers: getHeaders()
   });
 
-  return await handleResponseAsync(response);
+  if (!response.ok)
+    throw response.statusText;
+
+  return await response.json();
 }
 
 export async function postAsync(path, data) {
@@ -106,7 +101,10 @@ export async function postAsync(path, data) {
     body: JSON.stringify(data)
   });
 
-  return await handleResponseAsync(response);
+  if (!response.ok)
+    throw response.statusText;
+
+  return await response.json();
 }
 
 // retrieves the cached value of the current user
@@ -166,7 +164,7 @@ export async function downloadImageAsync(doujinshiId, variantId, index) {
   });
 
   if (!response.ok)
-    throw Error(response.statusText);
+    throw response.statusText;
 
   const blob = await response.blob();
 

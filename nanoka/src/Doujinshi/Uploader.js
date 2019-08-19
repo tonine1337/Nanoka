@@ -203,58 +203,50 @@ export class Uploader extends React.Component {
 
     this.setState({ isSubmitting: true, errors, uploadProgress: 0 });
 
-    const zip = await JSZip.loadAsync(this.state.file);
-    const fileCount = Object.keys(zip.files).length;
+    try {
+      const zip = await JSZip.loadAsync(this.state.file);
+      const fileCount = Object.keys(zip.files).length;
 
-    let upload = await api.createDoujinshiAsync(
-      {
-        category: state.category,
-        metas: {
-          artist: state.artist,
-          group: state.group,
-          parody: state.parody,
-          convention: state.convention,
-          character: state.character,
-          tag: state.tag
+      let upload = await api.createDoujinshiAsync(
+        {
+          category: state.category,
+          metas: {
+            artist: state.artist,
+            group: state.group,
+            parody: state.parody,
+            convention: state.convention,
+            character: state.character,
+            tag: state.tag
+          }
+        },
+        {
+          name: state.name,
+          name_romanized: state.name_romanized,
+          language: state.language,
+          source: state.source
         }
-      },
-      {
-        name: state.name,
-        name_romanized: state.name_romanized,
-        language: state.language,
-        source: state.source
-      }
-    );
+      );
 
-    if (upload.error) {
+      let i = 0;
+
+      for (const entry in zip.files) {
+        const file = zip.files[entry];
+        const blob = await file.async('blob');
+
+        upload = await api.uploadFileAsync(upload.id, blob, ++i === fileCount);
+
+        this.setState({
+          uploadProgress: (i / fileCount).toFixed(2)
+        });
+      }
+
+      window.location.replace(`/doujinshi/${upload.id}`);
+    }
+    catch (error) {
       this.setState({
         isSubmitting: false,
-        errors: [upload.message]
-      });
-      return;
-    }
-
-    let i = 0;
-
-    for (const entry in zip.files) {
-      const file = zip.files[entry];
-      const blob = await file.async('blob');
-
-      upload = await api.uploadFileAsync(upload.id, blob, ++i === fileCount);
-
-      if (upload.error) {
-        this.setState({
-          isSubmitting: false,
-          errors: [upload.message]
-        });
-        return;
-      }
-
-      this.setState({
-        uploadProgress: (i / fileCount).toFixed(2)
+        errors: [error]
       });
     }
-
-    window.location.replace(`/doujinshi/${upload.id}`);
   }
 }
