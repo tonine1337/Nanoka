@@ -1,0 +1,14 @@
+.label-list {
+  padding: 0;
+  display: inline;
+  list-style: none;
+}
+
+.label-list>li {
+  display: inline-block;
+  margin: 1px;
+}
+
+.thumb img:hover {
+  opacity: 0.8;
+}
