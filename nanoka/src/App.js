@@ -43,7 +43,6 @@ export default class App extends React.Component {
             <Icon name="book" /> Doujinshi
             <Menu style={{ minWidth: "15em" }}>
               <Header>Doujinshi</Header>
-              <NavLink to="/doujinshi/all/name" className="item"><Icon name="sort alphabet down" /> Name</NavLink>
               <NavLink to="/doujinshi/all/upload" className="item"><Icon name="clock" /> Newest</NavLink>
               <NavLink to="/doujinshi/all/trending" className="item"><Icon name="chart line" /> Trending</NavLink>
               <NavLink to="/doujinshi/all/viewed" className="item"><Icon name="eye" /> Most Viewed</NavLink>
