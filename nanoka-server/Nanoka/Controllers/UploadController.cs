@@ -102,7 +102,7 @@ namespace Nanoka.Controllers
             try
             {
                 var doujinshiId = task.Doujinshi.Id;
-                var variantId   = task.Doujinshi.Variants[0].Id;
+                var variant     = task.Doujinshi.Variants[0];
 
                 // this is an upload for creating a variant of an existing doujinshi
                 if (task.AddVariantOnly)
@@ -141,6 +141,8 @@ namespace Nanoka.Controllers
                 {
                     var files = task.GetFiles();
 
+                    variant.PageCount = files.Length;
+
                     for (var i = 0; i < files.Length; i++)
                     {
                         using (var fileStream = files[i].Open(FileMode.Open, FileAccess.Read))
@@ -151,7 +153,7 @@ namespace Nanoka.Controllers
 
                             await _storage.AddAsync(new StorageFile
                             {
-                                Name        = $"{doujinshiId.ToShortString()}/{variantId.ToShortString()}/{i}",
+                                Name        = $"{doujinshiId.ToShortString()}/{variant.Id.ToShortString()}/{i}",
                                 Stream      = fileStream,
                                 ContentType = contentType
                             });
