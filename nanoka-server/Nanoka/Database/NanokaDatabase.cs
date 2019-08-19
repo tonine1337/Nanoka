@@ -9,6 +9,7 @@ using Elasticsearch.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nanoka.Models;
+using Nanoka.Models.Query;
 using Nest;
 using Newtonsoft.Json;
 
@@ -122,6 +123,8 @@ namespace Nanoka.Database
                                                                CancellationToken cancellationToken = default)
         {
             var measure = new MeasureContext();
+
+            query.Metas = query.Metas ?? new Dictionary<DoujinshiMeta, TextQuery>();
 
             var response = await _client.SearchAsync<DbDoujinshi>(
                 x => x.Index(GetIndexName<DbDoujinshi>())
