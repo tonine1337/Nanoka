@@ -151,7 +151,7 @@ export class Uploader extends React.Component {
           </Form.Field>
 
           <Button type="submit" className="labeled icon primary" loading={this.state.isSubmitting} onClick={() => this.handleSubmit()}>
-            <Icon name="upload" disabled={this.state.isSubmitting} /> Upload
+            <Icon name="upload" disabled={this.state.isSubmitting} />Upload
           </Button>
         </Form>
 
