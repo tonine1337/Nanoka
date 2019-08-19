@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader, Image, Placeholder } from 'semantic-ui-react'
+import { Image, Placeholder } from 'semantic-ui-react'
 
 export class ApiImage extends React.Component {
   state = {
