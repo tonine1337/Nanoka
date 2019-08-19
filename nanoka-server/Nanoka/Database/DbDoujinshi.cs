@@ -52,11 +52,20 @@ namespace Nanoka.Database
         [Nested(Name = "var"), JsonProperty("var")]
         public List<DbDoujinshiVariant> Variants { get; set; }
 
-        /// <summary>
-        /// Cached values of the number of pages in each <see cref="Variants"/>.
-        /// </summary>
-        [Number(NumberType.Integer, Name = "pg_n"), JsonProperty("pg_n")]
+#region Cached
+
+        // these values are cached to allow fast searching without querying nested objects
+
+        [PropertyName("n"), JsonIgnore]
+        public string[] Names { get; set; }
+
+        [PropertyName("nr"), JsonIgnore]
+        public string[] RomanizedNames { get; set; }
+
+        [Number(NumberType.Integer, Name = "pg_n"), JsonIgnore]
         public int[] PageCounts { get; set; }
+
+#endregion
 
         public DbDoujinshi Apply(Doujinshi doujinshi)
         {
@@ -77,8 +86,11 @@ namespace Nanoka.Database
             Category = doujinshi.Category;
             Score    = doujinshi.Score;
 
-            Variants   = doujinshi.Variants?.ToList(v => new DbDoujinshiVariant().Apply(v)) ?? Variants;
-            PageCounts = Variants.ToArray(v => v.PageCount);
+            Variants = doujinshi.Variants?.ToList(v => new DbDoujinshiVariant().Apply(v)) ?? Variants;
+
+            Names          = Variants.ToArray(v => v.Name);
+            RomanizedNames = Variants.ToArray(v => v.RomanizedName);
+            PageCounts     = Variants.ToArray(v => v.PageCount);
 
             return this;
         }

@@ -131,20 +131,20 @@ namespace Nanoka.Database
                            q => q.Text(query.All)
                                  .Range(query.UploadTime, d => d.UploadTime)
                                  .Range(query.UpdateTime, d => d.UpdateTime)
+                                 .Text(query.Name, d => d.Names)
+                                 .Text(query.RomanizedName, d => d.RomanizedNames)
+                                 .Filter(query.Category, d => d.Category)
+                                 .Range(query.Score, d => d.Score)
                                  .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Artist), d => d.Artist)
                                  .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Group), d => d.Group)
                                  .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Parody), d => d.Parody)
                                  .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Character), d => d.Character)
                                  .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Tag), d => d.Tag)
                                  .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Convention), d => d.Convention)
-                                 .Filter(query.Category, d => d.Category)
-                                 .Range(query.Score, d => d.Score)
                                  .Range(query.PageCount, d => d.PageCounts))
                       .NestedMultiQuery(
                            d => d.Variants,
-                           q => q.Text(query.Name, d => d.Variants.First().Name)
-                                 .Text(query.RomanizedName, d => d.Variants.First().RomanizedName)
-                                 .Filter(query.Language, d => d.Variants.First().Language)
+                           q => q.Filter(query.Language, d => d.Variants.First().Language)
                                  .Text(query.Source, d => d.Variants.First().Source))
                       .MultiSort(
                            query.Sorting,

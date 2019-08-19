@@ -18,11 +18,10 @@ namespace Nanoka.Database
         [Keyword(Name = "upu"), JsonProperty("upu")]
         public string UploaderId { get; set; }
 
-        // instead of using TextAttribute, let NEST configure multi-field for us without using fluent builder
-        [PropertyName("n"), JsonProperty("n")]
+        [Text(Name = "n", Index = false), JsonProperty("n")] // cached in DbDoujinshi
         public string Name { get; set; }
 
-        [PropertyName("nr"), JsonProperty("nr")]
+        [Text(Name = "nr", Index = false), JsonProperty("nr")] // cached in DbDoujinshi
         public string RomanizedName { get; set; }
 
         [Number(NumberType.Integer, Name = "ln"), JsonProperty("ln")]
