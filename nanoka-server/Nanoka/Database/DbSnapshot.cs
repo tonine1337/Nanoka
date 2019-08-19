@@ -20,7 +20,7 @@ namespace Nanoka.Database
         [Date(Name = "tm"), JsonProperty("tm")]
         public DateTime Time { get; set; }
 
-        [Number(Name = "e"), JsonProperty("e")]
+        [Number(NumberType.Integer, Name = "e"), JsonProperty("e")]
         public SnapshotEvent Event { get; set; }
 
         [Text(Name = "r"), JsonProperty("r")]

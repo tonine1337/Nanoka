@@ -43,10 +43,10 @@ namespace Nanoka.Database
 
 #endregion
 
-        [Number(Name = "ca"), JsonProperty("ca")]
+        [Number(NumberType.Integer, Name = "ca"), JsonProperty("ca")]
         public DoujinshiCategory Category { get; set; }
 
-        [Number(Name = "sc"), JsonProperty("sc")]
+        [Number(NumberType.Integer, Name = "sc"), JsonProperty("sc")]
         public int Score { get; set; }
 
         [Nested(Name = "var"), JsonProperty("var")]
@@ -55,7 +55,7 @@ namespace Nanoka.Database
         /// <summary>
         /// Cached values of the number of pages in each <see cref="Variants"/>.
         /// </summary>
-        [Number(Name = "pg_n"), JsonProperty("pg_n")]
+        [Number(NumberType.Integer, Name = "pg_n"), JsonProperty("pg_n")]
         public int[] PageCounts { get; set; }
 
         public DbDoujinshi Apply(Doujinshi doujinshi)

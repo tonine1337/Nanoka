@@ -25,13 +25,13 @@ namespace Nanoka.Database
         [PropertyName("nr"), JsonProperty("nr")]
         public string RomanizedName { get; set; }
 
-        [Number(Name = "ln"), JsonProperty("ln")]
+        [Number(NumberType.Integer, Name = "ln"), JsonProperty("ln")]
         public LanguageType Language { get; set; }
 
         [Text(Name = "src"), JsonProperty("src")]
         public string Source { get; set; }
 
-        [Number(Name = "pg", Index = false), JsonProperty("pg")] // cached in DbDoujinshi
+        [Number(NumberType.Integer, Name = "pg", Index = false), JsonProperty("pg")] // cached in DbDoujinshi
         public int PageCount { get; set; }
 
         public DbDoujinshiVariant Apply(DoujinshiVariant variant)

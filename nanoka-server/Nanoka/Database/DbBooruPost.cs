@@ -36,19 +36,19 @@ namespace Nanoka.Database
         [Text(Name = "g"), JsonProperty("g")]
         public string[] General { get; set; }
 
-        [Number(Name = "ra"), JsonProperty("ga")]
+        [Number(NumberType.Integer, Name = "ra"), JsonProperty("ga")]
         public BooruRating Rating { get; set; }
 
-        [Number(Name = "sc"), JsonProperty("sc")]
+        [Number(NumberType.Integer, Name = "sc"), JsonProperty("sc")]
         public int Score { get; set; }
 
         [Text(Name = "src"), JsonProperty("src")]
         public string Source { get; set; }
 
-        [Number(Name = "w"), JsonProperty("w")]
+        [Number(NumberType.Integer, Name = "w"), JsonProperty("w")]
         public int Width { get; set; }
 
-        [Number(Name = "h"), JsonProperty("h")]
+        [Number(NumberType.Integer, Name = "h"), JsonProperty("h")]
         public int Height { get; set; }
 
         [Keyword(Name = "t"), JsonProperty("t")]

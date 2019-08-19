@@ -24,19 +24,19 @@ namespace Nanoka.Database
         [Nested(Name = "res"), JsonProperty("res")]
         public List<DbUserRestriction> Restrictions { get; set; }
 
-        [Number(Name = "perm"), JsonProperty("perm")]
+        [Number(NumberType.Integer, Name = "perm"), JsonProperty("perm")]
         public UserPermissions Permissions { get; set; }
 
-        [Number(Name = "c_up"), JsonProperty("c_up")]
+        [Number(NumberType.Integer, Name = "c_up"), JsonProperty("c_up")]
         public int UploadCount { get; set; }
 
-        [Number(Name = "c_ed"), JsonProperty("c_ed")]
+        [Number(NumberType.Integer, Name = "c_ed"), JsonProperty("c_ed")]
         public int EditCount { get; set; }
 
-        [Number(Name = "c_uv"), JsonProperty("c_uv")]
+        [Number(NumberType.Integer, Name = "c_uv"), JsonProperty("c_uv")]
         public int UpvotedCount { get; set; }
 
-        [Number(Name = "c_dv"), JsonProperty("c_dv")]
+        [Number(NumberType.Integer, Name = "c_dv"), JsonProperty("c_dv")]
         public int DownvotedCount { get; set; }
 
         public DbUser Apply(User user)
