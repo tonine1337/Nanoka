@@ -18,15 +18,30 @@ namespace Nanoka.Database
         [Date(Name = "ud"), JsonProperty("ud")]
         public DateTime UpdateTime { get; set; }
 
-        // instead of using TextAttribute, let NEST configure multi-field for us without using fluent builder
-        [PropertyName("on"), JsonProperty("on")]
-        public string OriginalName { get; set; }
+#region Metas
 
-        [PropertyName("rn"), JsonProperty("rn")]
-        public string RomanizedName { get; set; }
+        [Text(Name = "a"), JsonProperty("a")]
+        public string[] Artist { get; set; }
 
-        [PropertyName("en"), JsonProperty("en")]
-        public string EnglishName { get; set; }
+        [Text(Name = "g"), JsonProperty("g")]
+        public string[] Group { get; set; }
+
+        [Text(Name = "p"), JsonProperty("p")]
+        public string[] Parody { get; set; }
+
+        [Text(Name = "c"), JsonProperty("c")]
+        public string[] Character { get; set; }
+
+        [Text(Name = "l"), JsonProperty("l")]
+        public string[] Language { get; set; }
+
+        [Text(Name = "t"), JsonProperty("t")]
+        public string[] Tag { get; set; }
+
+        [Text(Name = "co"), JsonProperty("co")]
+        public string[] Convention { get; set; }
+
+#endregion
 
         [Number(Name = "ca"), JsonProperty("ca")]
         public DoujinshiCategory Category { get; set; }
@@ -48,14 +63,19 @@ namespace Nanoka.Database
             if (doujinshi == null)
                 return null;
 
-            Id            = doujinshi.Id.ToShortString();
-            UploadTime    = doujinshi.UploadTime;
-            UpdateTime    = doujinshi.UpdateTime;
-            OriginalName  = doujinshi.OriginalName ?? OriginalName;
-            RomanizedName = doujinshi.RomanizedName ?? RomanizedName;
-            EnglishName   = doujinshi.EnglishName ?? EnglishName;
-            Category      = doujinshi.Category;
-            Score         = doujinshi.Score;
+            Id         = doujinshi.Id.ToShortString();
+            UploadTime = doujinshi.UploadTime;
+            UpdateTime = doujinshi.UpdateTime;
+
+            Artist     = doujinshi.Metas?.GetValueOrDefault(DoujinshiMeta.Artist) ?? Artist;
+            Group      = doujinshi.Metas?.GetValueOrDefault(DoujinshiMeta.Group) ?? Group;
+            Parody     = doujinshi.Metas?.GetValueOrDefault(DoujinshiMeta.Parody) ?? Parody;
+            Character  = doujinshi.Metas?.GetValueOrDefault(DoujinshiMeta.Character) ?? Character;
+            Tag        = doujinshi.Metas?.GetValueOrDefault(DoujinshiMeta.Tag) ?? Tag;
+            Convention = doujinshi.Metas?.GetValueOrDefault(DoujinshiMeta.Convention) ?? Convention;
+
+            Category = doujinshi.Category;
+            Score    = doujinshi.Score;
 
             Variants   = doujinshi.Variants?.ToList(v => new DbDoujinshiVariant().Apply(v)) ?? Variants;
             PageCounts = Variants.ToArray(v => v.PageCount);
@@ -65,14 +85,22 @@ namespace Nanoka.Database
 
         public Doujinshi ApplyTo(Doujinshi doujinshi)
         {
-            doujinshi.Id            = Id.ToGuid();
-            doujinshi.UploadTime    = UploadTime;
-            doujinshi.UpdateTime    = UpdateTime;
-            doujinshi.OriginalName  = OriginalName ?? doujinshi.OriginalName;
-            doujinshi.RomanizedName = RomanizedName ?? doujinshi.RomanizedName;
-            doujinshi.EnglishName   = EnglishName ?? doujinshi.EnglishName;
-            doujinshi.Category      = Category;
-            doujinshi.Score         = Score;
+            doujinshi.Id         = Id.ToGuid();
+            doujinshi.UploadTime = UploadTime;
+            doujinshi.UpdateTime = UpdateTime;
+
+            doujinshi.Metas = new Dictionary<DoujinshiMeta, string[]>
+            {
+                { DoujinshiMeta.Artist, Artist ?? doujinshi.Metas?.GetValueOrDefault(DoujinshiMeta.Artist) },
+                { DoujinshiMeta.Group, Group ?? doujinshi.Metas?.GetValueOrDefault(DoujinshiMeta.Group) },
+                { DoujinshiMeta.Parody, Parody ?? doujinshi.Metas?.GetValueOrDefault(DoujinshiMeta.Parody) },
+                { DoujinshiMeta.Character, Character ?? doujinshi.Metas?.GetValueOrDefault(DoujinshiMeta.Character) },
+                { DoujinshiMeta.Tag, Tag ?? doujinshi.Metas?.GetValueOrDefault(DoujinshiMeta.Tag) },
+                { DoujinshiMeta.Convention, Convention ?? doujinshi.Metas?.GetValueOrDefault(DoujinshiMeta.Convention) }
+            };
+
+            doujinshi.Category = Category;
+            doujinshi.Score    = Score;
 
             doujinshi.Variants = Variants?.ToList(v => v.ApplyTo(new DoujinshiVariant())) ?? doujinshi.Variants;
 

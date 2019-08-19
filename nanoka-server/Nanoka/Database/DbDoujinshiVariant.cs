@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Nanoka.Models;
 using Nest;
 using Newtonsoft.Json;
@@ -19,26 +18,15 @@ namespace Nanoka.Database
         [Keyword(Name = "upu"), JsonProperty("upu")]
         public string UploaderId { get; set; }
 
-        [Text(Name = "a"), JsonProperty("a")]
-        public string[] Artist { get; set; }
+        // instead of using TextAttribute, let NEST configure multi-field for us without using fluent builder
+        [PropertyName("n"), JsonProperty("n")]
+        public string Name { get; set; }
 
-        [Text(Name = "g"), JsonProperty("g")]
-        public string[] Group { get; set; }
+        [PropertyName("nr"), JsonProperty("nr")]
+        public string RomanizedName { get; set; }
 
-        [Text(Name = "p"), JsonProperty("p")]
-        public string[] Parody { get; set; }
-
-        [Text(Name = "c"), JsonProperty("c")]
-        public string[] Character { get; set; }
-
-        [Text(Name = "l"), JsonProperty("l")]
-        public string[] Language { get; set; }
-
-        [Text(Name = "t"), JsonProperty("t")]
-        public string[] Tag { get; set; }
-
-        [Text(Name = "co"), JsonProperty("co")]
-        public string[] Convention { get; set; }
+        [Number(Name = "ln"), JsonProperty("ln")]
+        public LanguageType Language { get; set; }
 
         [Text(Name = "src"), JsonProperty("src")]
         public string Source { get; set; }
@@ -51,41 +39,26 @@ namespace Nanoka.Database
             if (variant == null)
                 return null;
 
-            Id2        = variant.Id.ToShortString();
-            UploaderId = variant.UploaderId.ToShortString();
-
-            Artist     = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Artist) ?? Artist;
-            Group      = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Group) ?? Group;
-            Parody     = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Parody) ?? Parody;
-            Character  = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Character) ?? Character;
-            Language   = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Language) ?? Language;
-            Tag        = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Tag) ?? Tag;
-            Convention = variant.Metas?.GetValueOrDefault(DoujinshiMeta.Convention) ?? Convention;
-
-            Source    = variant.Source ?? Source;
-            PageCount = variant.PageCount;
+            Id2           = variant.Id.ToShortString();
+            UploaderId    = variant.UploaderId.ToShortString();
+            Name          = variant.Name ?? Name;
+            RomanizedName = variant.RomanizedName ?? RomanizedName;
+            Language      = variant.Language;
+            Source        = variant.Source ?? Source;
+            PageCount     = variant.PageCount;
 
             return this;
         }
 
         public DoujinshiVariant ApplyTo(DoujinshiVariant variant)
         {
-            variant.Id         = Id2.ToGuid();
-            variant.UploaderId = UploaderId.ToGuid();
-
-            variant.Metas = new Dictionary<DoujinshiMeta, string[]>
-            {
-                { DoujinshiMeta.Artist, Artist ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Artist) },
-                { DoujinshiMeta.Group, Group ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Group) },
-                { DoujinshiMeta.Parody, Parody ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Parody) },
-                { DoujinshiMeta.Character, Character ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Character) },
-                { DoujinshiMeta.Language, Language ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Language) },
-                { DoujinshiMeta.Tag, Tag ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Tag) },
-                { DoujinshiMeta.Convention, Convention ?? variant.Metas?.GetValueOrDefault(DoujinshiMeta.Convention) }
-            };
-
-            variant.Source    = Source ?? variant.Source;
-            variant.PageCount = PageCount;
+            variant.Id            = Id2.ToGuid();
+            variant.UploaderId    = UploaderId.ToGuid();
+            variant.Name          = Name ?? variant.Name;
+            variant.RomanizedName = RomanizedName ?? variant.RomanizedName;
+            variant.Language      = Language;
+            variant.Source        = Source ?? variant.Source;
+            variant.PageCount     = PageCount;
 
             return variant;
         }

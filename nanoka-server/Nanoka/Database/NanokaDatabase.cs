@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -130,67 +131,35 @@ namespace Nanoka.Database
                            q => q.Text(query.All)
                                  .Range(query.UploadTime, d => d.UploadTime)
                                  .Range(query.UpdateTime, d => d.UpdateTime)
-                                 .Text(query.OriginalName, d => d.OriginalName)
-                                 .Text(query.RomanizedName, d => d.RomanizedName)
-                                 .Text(query.EnglishName, d => d.EnglishName)
+                                 .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Artist), d => d.Artist)
+                                 .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Group), d => d.Group)
+                                 .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Parody), d => d.Parody)
+                                 .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Character), d => d.Character)
+                                 .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Tag), d => d.Tag)
+                                 .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Convention), d => d.Convention)
                                  .Filter(query.Category, d => d.Category)
                                  .Range(query.Score, d => d.Score)
                                  .Range(query.PageCount, d => d.PageCounts))
                       .NestedMultiQuery(
                            d => d.Variants,
-                           q =>
+                           q => q.Text(query.Name, d => d.Variants.First().Name)
+                                 .Text(query.RomanizedName, d => d.Variants.First().RomanizedName)
+                                 .Filter(query.Language, d => d.Variants.First().Language)
+                                 .Text(query.Source, d => d.Variants.First().Source))
+                      .MultiSort(
+                           query.Sorting,
+                           sort =>
                            {
-                               q.Text(query.All);
+                               switch (sort)
+                               {
+                                   case DoujinshiQuerySort.UploadTime: return d => d.UploadTime;
+                                   case DoujinshiQuerySort.UpdateTime: return d => d.UpdateTime;
+                                   case DoujinshiQuerySort.Score:      return d => d.Score;
+                                   case DoujinshiQuerySort.PageCount:  return d => d.PageCounts;
 
-                               if (query.Metas != null)
-                                   foreach (var (meta, metaQuery) in query.Metas)
-                                   {
-                                       switch (meta)
-                                       {
-                                           case DoujinshiMeta.Artist:
-                                               q.Text(metaQuery, d => d.Variants.First().Artist);
-                                               break;
-                                           case DoujinshiMeta.Group:
-                                               q.Text(metaQuery, d => d.Variants.First().Group);
-                                               break;
-                                           case DoujinshiMeta.Parody:
-                                               q.Text(metaQuery, d => d.Variants.First().Parody);
-                                               break;
-                                           case DoujinshiMeta.Character:
-                                               q.Text(metaQuery, d => d.Variants.First().Character);
-                                               break;
-                                           case DoujinshiMeta.Language:
-                                               q.Text(metaQuery, d => d.Variants.First().Language);
-                                               break;
-                                           case DoujinshiMeta.Tag:
-                                               q.Text(metaQuery, d => d.Variants.First().Tag);
-                                               break;
-                                           case DoujinshiMeta.Convention:
-                                               q.Text(metaQuery, d => d.Variants.First().Convention);
-                                               break;
-                                       }
-                                   }
-
-                               q.Text(query.Source, d => d.Variants.First().Source);
-
-                               return q;
-                           })
-                      .MultiSort(query.Sorting,
-                                 sort =>
-                                 {
-                                     switch (sort)
-                                     {
-                                         case DoujinshiQuerySort.UploadTime:    return d => d.UploadTime;
-                                         case DoujinshiQuerySort.UpdateTime:    return d => d.UpdateTime;
-                                         case DoujinshiQuerySort.OriginalName:  return d => d.OriginalName.Suffix("keyword");
-                                         case DoujinshiQuerySort.RomanizedName: return d => d.RomanizedName.Suffix("keyword");
-                                         case DoujinshiQuerySort.EnglishName:   return d => d.EnglishName.Suffix("keyword");
-                                         case DoujinshiQuerySort.Score:         return d => d.Score;
-                                         case DoujinshiQuerySort.PageCount:     return d => d.PageCounts;
-
-                                         default: throw new NotSupportedException();
-                                     }
-                                 }),
+                                   default: throw new NotSupportedException();
+                               }
+                           }),
                 cancellationToken);
 
             ValidateResponse(response);

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
@@ -19,8 +18,14 @@ namespace Nanoka.Models
 
     public class DoujinshiVariantBase
     {
-        [JsonProperty("metas"), Required]
-        public Dictionary<DoujinshiMeta, string[]> Metas { get; set; }
+        [JsonProperty("name"), Required]
+        public string Name { get; set; }
+
+        [JsonProperty("name_romanized")]
+        public string RomanizedName { get; set; }
+
+        [JsonProperty("language")]
+        public LanguageType Language { get; set; }
 
         [JsonProperty("source")]
         public string Source { get; set; }

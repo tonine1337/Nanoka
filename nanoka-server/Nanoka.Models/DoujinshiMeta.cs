@@ -8,8 +8,7 @@ namespace Nanoka.Models
         [EnumMember(Value = "group")] Group = 1,
         [EnumMember(Value = "parody")] Parody = 2,
         [EnumMember(Value = "character")] Character = 3,
-        [EnumMember(Value = "language")] Language = 4,
-        [EnumMember(Value = "tag")] Tag = 5,
-        [EnumMember(Value = "convention")] Convention = 6
+        [EnumMember(Value = "tag")] Tag = 4,
+        [EnumMember(Value = "convention")] Convention = 5
     }
 }

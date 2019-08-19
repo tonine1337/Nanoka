@@ -25,16 +25,10 @@ namespace Nanoka.Models
 
     public class DoujinshiBase
     {
-        [JsonProperty("name_original"), Required]
-        public string OriginalName { get; set; }
-
-        [JsonProperty("name_romanized")]
-        public string RomanizedName { get; set; }
-
-        [JsonProperty("name_english")]
-        public string EnglishName { get; set; }
-
         [JsonProperty("category")]
         public DoujinshiCategory Category { get; set; }
+
+        [JsonProperty("metas"), Required]
+        public Dictionary<DoujinshiMeta, string[]> Metas { get; set; }
     }
 }
