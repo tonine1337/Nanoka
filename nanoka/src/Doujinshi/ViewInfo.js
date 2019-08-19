@@ -90,7 +90,7 @@ export class ViewInfo extends React.Component {
       <div>
         <Grid stackable divided="vertically">
           <Grid.Row>
-            <Grid.Column width="6">
+            <Grid.Column width="6" textAlign="center" verticalAlign="middle">
               <a href={`/doujinshi/${doujinshi.id}/read/${variant.id}/0`}>
                 <DoujinshiImage doujinshi={doujinshi} variant={variant} index={0} style={{
                   width: '100%',
@@ -177,7 +177,7 @@ export class ViewInfo extends React.Component {
               <Grid doubling columns={5}>
                 {[...Array(variant.pages).keys()].map(i => {
                   return (
-                    <Grid.Column className="thumb" as="a" href={`/doujinshi/${doujinshi.id}/read/${variant.id}/${i}`}>
+                    <Grid.Column className="thumb" as="a" href={`/doujinshi/${doujinshi.id}/read/${variant.id}/${i}`} textAlign="center" verticalAlign="middle">
                       <DoujinshiImage doujinshi={doujinshi} variant={variant} index={i} style={{
                         borderRadius: '0.5rem'
                       }} />
