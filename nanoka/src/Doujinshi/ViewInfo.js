@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Link } from 'react-router-dom';
-import { Grid, Label, Icon, Popup, Table, Dropdown } from 'semantic-ui-react';
+import { Grid, Label, Icon, Popup, Table, Dropdown, Button } from 'semantic-ui-react';
+import moment from 'moment';
 import * as api from '../Api';
 import { DoujinshiImage } from './DoujinshiImage';
 import './ViewInfo.css';
@@ -87,6 +88,9 @@ export class ViewInfo extends React.Component {
 
     const variant = doujinshi.variants.find(v => v.id === this.state.currentVariant);
 
+    const uploadTime = moment(doujinshi.upload);
+    const updateTime = moment(doujinshi.update);
+
     return (
       <BrowserRouter>
         <Grid stackable divided="vertically">
@@ -103,6 +107,42 @@ export class ViewInfo extends React.Component {
               <h4 style={{ marginBottom: 0, opacity: 0.6 }}>{variant.name_romanized}</h4>
               <h1 style={{ marginTop: 0, fontSize: '2.5rem' }}>{variant.name}</h1>
 
+              <ul className="label-list">
+                <li>
+                  <Label as="a" color="black">
+                    {this.getCategoryIcon(doujinshi.category)}
+                    {this.getCategoryName(doujinshi.category)}
+                  </Label>
+                </li>
+                <li>
+                  <Label basic as="a">
+                    <Icon name="globe" />
+                    <Dropdown
+                      inline
+                      value={variant.id}
+                      options={doujinshi.variants.map(v => ({
+                        text: this.getLanguageName(v.language),
+                        value: v.id
+                      }))}
+                      onChange={(_, { value }) => this.setState({ currentVariant: value })} />
+                    <Label.Detail>{doujinshi.variants.length}</Label.Detail>
+                  </Label>
+                </li>
+                <li>
+                  {variant.source
+                    ? <Popup
+                      trigger={<Label basic as="a"><Icon name="linkify" />Source: <em>{new URL(variant.source).hostname}</em></Label>}
+                      content={<a href={variant.source} target="_blank" rel="noopener noreferrer">{variant.source}</a>}
+                      position="bottom center"
+                      wide="very"
+                      pinned
+                      on="click"
+                    />
+                    : <span />}
+                </li>
+              </ul>
+              <br />
+
               <Table basic="very">
                 <Table.Body>
                   {Object.entries(doujinshi.metas).map(([meta, values]) => {
@@ -118,7 +158,7 @@ export class ViewInfo extends React.Component {
                           <ul className="label-list">
                             {values.map(value =>
                               <li>
-                                <Label as="a">{value}</Label>
+                                <Label basic as="a">{value}</Label>
                               </li>)}
                           </ul>
                         </Table.Cell>
@@ -132,43 +172,70 @@ export class ViewInfo extends React.Component {
                 <span>{variant.pages} pages</span>
                 <br />
                 <br />
-                <span>Uploaded on {new Date(doujinshi.upload).toLocaleDateString()}</span>
+                <span>
+                  Uploaded <Popup
+                    wide
+                    inverted
+                    trigger={<span>{uploadTime.calendar()}</span>}
+                    content={uploadTime.format("LLLL")} /> by <code>userId</code>
+                </span>
                 <br />
-                <span>Last edited <strong>{new Date(doujinshi.update).toLocaleString()}</strong></span>
+                <span>
+                  Last edited <Popup
+                    wide
+                    inverted
+                    trigger={<strong>{updateTime.calendar()}</strong>}
+                    content={updateTime.format("LLLL")} /> by <code>userId</code>
+                </span>
+                <br />
+                <Link to={`/doujinshi/${doujinshi.id}/history`}>History</Link>
               </div>
               <br />
 
               <ul className="label-list">
                 <li>
-                  <Label as="a" color="black">
-                    {this.getCategoryIcon(doujinshi.category)}
-                    {this.getCategoryName(doujinshi.category)}
-                  </Label>
+                  <Button as="div" labelPosition="right">
+                    <Button color="red">
+                      <Icon name="heart" />Like</Button>
+                    <Label as="a" basic color="red" pointing="left">{doujinshi.score}</Label>
+                  </Button>
                 </li>
                 <li>
-                  <Label as="a">
-                    <Icon name="globe" />
-                    <Dropdown
-                      inline
-                      value={variant.id}
-                      options={doujinshi.variants.map(v => ({
-                        text: this.getLanguageName(v.language),
-                        value: v.id
-                      }))}
-                      onChange={(_, { value }) => this.setState({ currentVariant: value })} />
-                  </Label>
+                  <Button icon labelPosition="left" color="green" basic>
+                    <Icon name="plus" />Add
+                  </Button>
                 </li>
                 <li>
-                  {variant.source
-                    ? <Popup
-                      trigger={<Label as="a"><Icon name="linkify" />Source: <em>{new URL(variant.source).hostname}</em></Label>}
-                      content={<a href={variant.source} target="_blank" rel="noopener noreferrer">{variant.source}</a>}
-                      position="bottom center"
-                      wide="very"
-                      pinned
-                      on="click"
-                    />
-                    : <span />}
+                  <Button icon labelPosition="left" color="blue" basic>
+                    <Icon name="download" />Download
+                  </Button>
+                </li>
+                <li>
+                  <Dropdown floating inline icon="ellipsis horizontal">
+                    <Dropdown.Menu>
+                      <Dropdown.Item>
+                        <Icon name="share" />Share doujinshi
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <Icon name="edit" />Edit doujinshi
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <Icon name="exchange" />Move variant
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <Icon name="object group" />Merge into another doujinshi
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <Icon name="object ungroup" />Separate variant
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <Icon name="trash alternate" />Delete variant
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <Icon name="flag" />Report
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
                 </li>
               </ul>
             </Grid.Column>
