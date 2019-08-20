@@ -4,6 +4,10 @@ import { createDropzone } from '../DropzoneStyle';
 import * as api from '../Api';
 import * as JSZip from 'jszip';
 
+function nullIfEmpty(x) {
+  return x == null || x.length === 0 ? null : x;
+}
+
 export class Uploader extends React.Component {
   state = {
     file: null,
@@ -15,7 +19,7 @@ export class Uploader extends React.Component {
   render() {
     const getTextProps = (name, type) => ({
       type: type || 'text',
-      onChange: e => this.setState({ [name]: e.target.value }),
+      onChange: e => this.setState({ [name]: nullIfEmpty(e.target.value) }),
       value: this.state[name] || ''
     });
 
