@@ -27,7 +27,7 @@ namespace Nanoka.Models
         [JsonProperty("language"), EnumDataType(typeof(LanguageType))]
         public LanguageType Language { get; set; }
 
-        [JsonProperty("source"), Url]
+        [JsonProperty("source"), Uri]
         public string Source { get; set; }
     }
 }

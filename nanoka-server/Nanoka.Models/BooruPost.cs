@@ -40,7 +40,7 @@ namespace Nanoka.Models
         [JsonProperty("rating"), EnumDataType(typeof(BooruRating))]
         public BooruRating Rating { get; set; }
 
-        [JsonProperty("source"), Url]
+        [JsonProperty("source"), Uri]
         public string Source { get; set; }
 
         [JsonProperty("siblings")]
