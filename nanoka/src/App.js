@@ -6,7 +6,7 @@ import * as api from './Api';
 import SearchBar from './SearchBar';
 import LoginForm from './LoginForm';
 
-import { ListByName as DoujinshiListByName } from './Doujinshi/ListByName';
+import { ListByName as DoujinshiListByUpload } from './Doujinshi/ListByUpload';
 import { Uploader as DoujinshiUploader } from './Doujinshi/Uploader';
 import { ViewInfo as DoujinshiViewInfo } from './Doujinshi/ViewInfo';
 
@@ -129,7 +129,7 @@ export default class App extends React.Component {
         <Container as="main" style={{ marginTop: "3rem", marginBottom: "3rem" }}>
           <Switch>
             <Route path="/" exact component={Index} />
-            <Route path="/doujinshi/all/name" component={DoujinshiListByName} />
+            <Route path="/doujinshi/all/upload" component={DoujinshiListByUpload} />
             <Route path="/doujinshi/upload" component={DoujinshiUploader} />
             <Route path="/doujinshi/:id" component={({ match }) => <DoujinshiViewInfo id={match.params.id} />} />
           </Switch>
