@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from "react-router-dom";
 import './Index.css';
 import * as api from '../Api';
+import { Dropdown } from 'semantic-ui-react';
 
 function Index() {
   return (
@@ -17,13 +18,12 @@ function Index() {
         <Link to="/doujinshi/all/upload">Doujinshi</Link>
         <Link to="/booru/all/upload">Booru</Link>
         <Link to="/activity/comment">Comments</Link>
-        <a href="#" className="ui simple dropdown">
-          Forum
-          <div className="menu">
+        <Dropdown as="a" text="Forum" simple>
+          <Dropdown.Menu>
             <a href="https://reddit.com" target="_blank" rel="noopener noreferrer" className="item"><i className="icon reddit"></i> Reddit</a>
             <a href="https://discord.gg/JFNga7q" target="_blank" rel="noopener noreferrer" className="item"><i className="icon discord"></i> Discord</a>
-          </div>
-        </a>
+          </Dropdown.Menu>
+        </Dropdown>
         <Link to="/wiki">Wiki</Link>
         <Link to="/account">Account</Link>
       </div>
