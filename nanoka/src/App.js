@@ -7,6 +7,8 @@ import SearchBar from './SearchBar';
 import LoginForm from './LoginForm';
 
 import { ListByName as DoujinshiListByUpload } from './Doujinshi/ListByUpload';
+import { ListByTrending as DoujinshiListByTrending } from './Doujinshi/ListByTrending';
+import { ListByViewed as DoujinshiListByViewed } from './Doujinshi/ListByViewed';
 import { Uploader as DoujinshiUploader } from './Doujinshi/Uploader';
 import { ViewInfo as DoujinshiViewInfo } from './Doujinshi/ViewInfo';
 
@@ -130,6 +132,8 @@ export default class App extends React.Component {
           <Switch>
             <Route path="/" exact component={Index} />
             <Route path="/doujinshi/all/upload" component={DoujinshiListByUpload} />
+            <Route path="/doujinshi/all/trending" component={DoujinshiListByTrending} />
+            <Route path="/doujinshi/all/viewed" component={DoujinshiListByViewed} />
             <Route path="/doujinshi/upload" component={DoujinshiUploader} />
             <Route path="/doujinshi/:id" component={({ match }) => <DoujinshiViewInfo id={match.params.id} />} />
           </Switch>
