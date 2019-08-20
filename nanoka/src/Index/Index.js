@@ -21,7 +21,7 @@ function Index() {
           Forum
           <div className="menu">
             <a href="https://reddit.com" target="_blank" rel="noopener noreferrer" className="item"><i className="icon reddit"></i> Reddit</a>
-            <a href="https://discord.gg/Edx7Rbc" target="_blank" rel="noopener noreferrer" className="item"><i className="icon discord"></i> Discord</a>
+            <a href="https://discord.gg/JFNga7q" target="_blank" rel="noopener noreferrer" className="item"><i className="icon discord"></i> Discord</a>
           </div>
         </a>
         <Link to="/wiki">Wiki</Link>

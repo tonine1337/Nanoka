@@ -96,7 +96,7 @@ export default class App extends React.Component {
               <Divider />
               <Header>Forum</Header>
               <Menu.Item as="a" href="https://reddit.com" target="_blank" rel="noopener noreferrer" className="item"><Icon name="reddit" />Reddit</Menu.Item>
-              <Menu.Item as="a" href="https://discord.gg/Edx7Rbc" target="_blank" rel="noopener noreferrer" className="item"><Icon name="discord" />Discord</Menu.Item>
+              <Menu.Item as="a" href="https://discord.gg/JFNga7q" target="_blank" rel="noopener noreferrer" className="item"><Icon name="discord" />Discord</Menu.Item>
             </Menu>
           </Menu.Item>
           <div className="right menu">
