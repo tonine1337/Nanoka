@@ -187,8 +187,6 @@ export class ViewInfo extends React.Component {
                     trigger={<strong>{updateTime.calendar()}</strong>}
                     content={updateTime.format("LLLL")} /> by <code>userId</code>
                 </span>
-                <br />
-                <Link to={`/doujinshi/${doujinshi.id}/history`}>History</Link>
               </div>
               <br />
 
@@ -215,6 +213,9 @@ export class ViewInfo extends React.Component {
                     <Dropdown.Menu>
                       <Dropdown.Item>
                         <Icon name="share" />Share doujinshi
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <Icon name="history" />View history
                       </Dropdown.Item>
                       <Dropdown.Item>
                         <Icon name="edit" />Edit doujinshi
