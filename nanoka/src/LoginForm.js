@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter, Link } from 'react-router-dom';
 import { Grid, Header, Form, Segment, Button, Message, Icon } from 'semantic-ui-react';
 import './LoginForm.css';
 import * as api from './Api';
@@ -12,7 +13,7 @@ export class LoginForm extends React.Component {
 
   render() {
     return (
-      <div>
+      <BrowserRouter>
         <Grid textAlign="center" style={{ height: '100vh' }} verticalAlign="middle">
           <Grid.Column style={{ maxWidth: '26rem' }}>
             <Header style={{ fontSize: '4rem', marginBottom: '2rem' }} color="blue" textAlign="center">Nanoka</Header>
@@ -79,17 +80,17 @@ export class LoginForm extends React.Component {
                 {this.state.error}
               </Message>
               : <Message info>
-                <span>New to Nanoka? <a href='/join'>Create an account.</a></span>
+                <span>New to Nanoka? <Link to="/join">Create an account.</Link></span>
               </Message>}
           </Grid.Column>
         </Grid>
 
         <div id="links" style={{ position: 'absolute', left: 0, bottom: '1rem', right: 0, textAlign: 'center' }}>
-          <a href="/about">About</a>
+          <Link to="/about">About</Link>
           <a href="https://github.com/chiyadev/Nanoka" target="_blank" rel="noopener noreferrer">Open source</a>
-          <a href="/recover_secret">Recover secret</a>
+          <Link to="/recover_account">Recover account</Link>
         </div>
-      </div>
+      </BrowserRouter>
     );
   }
 }

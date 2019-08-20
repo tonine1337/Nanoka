@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import './Index.css';
 import * as api from '../Api';
 
@@ -14,9 +14,9 @@ function Index() {
       <div className="links" style={{
         textAlign: "center"
       }}>
-        <NavLink to="/doujinshi/all/upload">Doujinshi</NavLink>
-        <NavLink to="/booru/all/upload">Booru</NavLink>
-        <NavLink to="/activity/comment">Comments</NavLink>
+        <Link to="/doujinshi/all/upload">Doujinshi</Link>
+        <Link to="/booru/all/upload">Booru</Link>
+        <Link to="/activity/comment">Comments</Link>
         <a href="#" className="ui simple dropdown">
           Forum
           <div className="menu">
@@ -24,8 +24,8 @@ function Index() {
             <a href="https://discord.gg/Edx7Rbc" target="_blank" rel="noopener noreferrer" className="item"><i className="icon discord"></i> Discord</a>
           </div>
         </a>
-        <NavLink to="/wiki">Wiki</NavLink>
-        <NavLink to="/account">Account</NavLink>
+        <Link to="/wiki">Wiki</Link>
+        <Link to="/account">Account</Link>
       </div>
       <br />
 

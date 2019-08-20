@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter, Link } from 'react-router-dom';
 import { Grid, Label, Icon, Popup, Table, Dropdown } from 'semantic-ui-react';
 import * as api from '../Api';
 import { DoujinshiImage } from './DoujinshiImage';
@@ -87,16 +88,16 @@ export class ViewInfo extends React.Component {
     const variant = doujinshi.variants.find(v => v.id === this.state.currentVariant);
 
     return (
-      <div>
+      <BrowserRouter>
         <Grid stackable divided="vertically">
           <Grid.Row>
             <Grid.Column width="6" textAlign="center" verticalAlign="middle">
-              <a href={`/doujinshi/${doujinshi.id}/read/${variant.id}/0`}>
+              <Link to={`/doujinshi/${doujinshi.id}/${variant.id}/0`}>
                 <DoujinshiImage doujinshi={doujinshi} variant={variant} index={0} style={{
                   width: '100%',
                   borderRadius: '1rem'
                 }} />
-              </a>
+              </Link>
             </Grid.Column>
             <Grid.Column width="10">
               <h4 style={{ marginBottom: 0, opacity: 0.6 }}>{variant.name_romanized}</h4>
@@ -177,10 +178,12 @@ export class ViewInfo extends React.Component {
               <Grid doubling columns={6}>
                 {[...Array(variant.pages).keys()].map(i => {
                   return (
-                    <Grid.Column className="thumb" as="a" href={`/doujinshi/${doujinshi.id}/read/${variant.id}/${i}`} textAlign="center" verticalAlign="middle">
-                      <DoujinshiImage doujinshi={doujinshi} variant={variant} index={i} style={{
-                        borderRadius: '0.5rem'
-                      }} />
+                    <Grid.Column className="thumb" textAlign="center" verticalAlign="middle">
+                      <Link to={`/doujinshi/${doujinshi.id}/${variant.id}/${i}`}>
+                        <DoujinshiImage doujinshi={doujinshi} variant={variant} index={i} style={{
+                          borderRadius: '0.5rem'
+                        }} />
+                      </Link>
                     </Grid.Column>
                   );
                 })}
@@ -195,7 +198,7 @@ export class ViewInfo extends React.Component {
             </Grid.Column>
           </Grid.Row>
         </Grid>
-      </div>
+      </BrowserRouter>
     );
   }
 }

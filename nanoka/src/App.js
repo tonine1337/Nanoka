@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, NavLink, Switch } from "react-router-dom";
+import { BrowserRouter, Route, Link, NavLink, Switch } from "react-router-dom";
 import Index from './Index/Index';
 import { Icon, Menu, Header, Divider, Container } from 'semantic-ui-react';
 import * as api from './Api';
@@ -36,9 +36,13 @@ export default class App extends React.Component {
       return null;
 
     return (
-      <Router>
+      <BrowserRouter>
         <Menu>
-          <Menu.Item as="a" href="/" className="header">Nanoka</Menu.Item>
+          <Menu.Item className="header">
+            <Link to="/">
+              Nanoka
+            </Link>
+          </Menu.Item>
           <Menu.Item className="ui simple dropdown">
             <Icon name="book" />Doujinshi
             <Menu style={{ minWidth: "15em" }}>
@@ -130,7 +134,7 @@ export default class App extends React.Component {
             <Route path="/doujinshi/:id" component={({ match }) => <DoujinshiViewInfo id={match.params.id} />} />
           </Switch>
         </Container>
-      </Router>
+      </BrowserRouter>
     );
   }
 }

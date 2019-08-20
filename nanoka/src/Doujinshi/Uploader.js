@@ -240,7 +240,7 @@ export class Uploader extends React.Component {
         });
       }
 
-      window.location.replace(`/doujinshi/${upload.id}`);
+      this.props.history.push(`/doujinshi/${upload.id}`);
     }
     catch (error) {
       this.setState({
