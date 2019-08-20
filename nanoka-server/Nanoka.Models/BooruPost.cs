@@ -37,7 +37,7 @@ namespace Nanoka.Models
         [JsonProperty("tags"), Required]
         public Dictionary<BooruTag, string[]> Tags { get; set; }
 
-        [JsonProperty("rating")]
+        [JsonProperty("rating"), EnumDataType(typeof(BooruRating))]
         public BooruRating Rating { get; set; }
 
         [JsonProperty("source"), Url]

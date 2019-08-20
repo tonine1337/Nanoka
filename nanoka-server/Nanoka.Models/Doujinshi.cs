@@ -25,7 +25,7 @@ namespace Nanoka.Models
 
     public class DoujinshiBase
     {
-        [JsonProperty("category")]
+        [JsonProperty("category"), EnumDataType(typeof(DoujinshiCategory))]
         public DoujinshiCategory Category { get; set; }
 
         [JsonProperty("metas"), Required]

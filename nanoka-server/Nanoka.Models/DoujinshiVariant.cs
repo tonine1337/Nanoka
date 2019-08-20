@@ -24,7 +24,7 @@ namespace Nanoka.Models
         [JsonProperty("name_romanized")]
         public string RomanizedName { get; set; }
 
-        [JsonProperty("language")]
+        [JsonProperty("language"), EnumDataType(typeof(LanguageType))]
         public LanguageType Language { get; set; }
 
         [JsonProperty("source"), Url]
