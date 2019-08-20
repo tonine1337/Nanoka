@@ -6,6 +6,52 @@ import * as api from '../Api';
 import { DoujinshiImage } from './DoujinshiImage';
 import './ViewInfo.css';
 
+export function getCategoryIcon(category) {
+  switch (category) {
+    case 0:
+    case 1: return <Icon name="book" />;
+    case 2:
+    case 3: return <Icon name="tint" />;
+    case 4: return <Icon name="images" />;
+
+    default: return null;
+  }
+}
+
+export function getCategoryName(category) {
+  switch (category) {
+    case 0: return 'Doujinshi';
+    case 1: return 'Manga';
+    case 2: return 'Artist CG';
+    case 3: return 'Game CG';
+    case 4: return 'Image Set';
+
+    default: return null;
+  }
+}
+
+export function getLanguageName(language) {
+  switch (language) {
+    case 0: return 'Japanese';
+    case 1: return 'English';
+
+    default: return null;
+  }
+}
+
+export function fixMetaType(meta) {
+  switch (meta.toLowerCase()) {
+    case 'artist': return 'Artist';
+    case 'group': return 'Group';
+    case 'parody': return 'Parody';
+    case 'character': return 'Characters';
+    case 'tag': return 'Tags';
+    case 'convention': return 'Convention';
+
+    default: return meta;
+  }
+}
+
 export class ViewInfo extends React.Component {
   state = {
     doujinshi: null,
@@ -25,52 +71,6 @@ export class ViewInfo extends React.Component {
     }
     catch (error) {
       this.setState({ error });
-    }
-  }
-
-  getCategoryIcon(category) {
-    switch (category) {
-      case 0:
-      case 1: return <Icon name="book" />;
-      case 2:
-      case 3: return <Icon name="tint" />;
-      case 4: return <Icon name="images" />;
-
-      default: return null;
-    }
-  }
-
-  getCategoryName(category) {
-    switch (category) {
-      case 0: return 'Doujinshi';
-      case 1: return 'Manga';
-      case 2: return 'Artist CG';
-      case 3: return 'Game CG';
-      case 4: return 'Image Set';
-
-      default: return null;
-    }
-  }
-
-  getLanguageName(language) {
-    switch (language) {
-      case 0: return 'Japanese';
-      case 1: return 'English';
-
-      default: return null;
-    }
-  }
-
-  fixMetaType(meta) {
-    switch (meta.toLowerCase()) {
-      case 'artist': return 'Artist';
-      case 'group': return 'Group';
-      case 'parody': return 'Parody';
-      case 'character': return 'Characters';
-      case 'tag': return 'Tags';
-      case 'convention': return 'Convention';
-
-      default: return meta;
     }
   }
 
@@ -110,8 +110,8 @@ export class ViewInfo extends React.Component {
               <ul className="label-list">
                 <li>
                   <Label as="a" color="black">
-                    {this.getCategoryIcon(doujinshi.category)}
-                    {this.getCategoryName(doujinshi.category)}
+                    {getCategoryIcon(doujinshi.category)}
+                    {getCategoryName(doujinshi.category)}
                   </Label>
                 </li>
                 <li>
@@ -121,7 +121,7 @@ export class ViewInfo extends React.Component {
                       inline
                       value={variant.id}
                       options={doujinshi.variants.map(v => ({
-                        text: this.getLanguageName(v.language),
+                        text: getLanguageName(v.language),
                         value: v.id
                       }))}
                       onChange={(_, { value }) => this.setState({ currentVariant: value })} />
@@ -152,7 +152,7 @@ export class ViewInfo extends React.Component {
                     return (
                       <Table.Row>
                         <Table.Cell collapsing>
-                          <strong>{this.fixMetaType(meta)}</strong>
+                          <strong>{fixMetaType(meta)}</strong>
                         </Table.Cell>
                         <Table.Cell>
                           <ul className="label-list">
