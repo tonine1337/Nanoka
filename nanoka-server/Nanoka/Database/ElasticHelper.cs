@@ -321,12 +321,17 @@ namespace Nanoka.Database
                     if (!set.Add(attrValue))
                         continue;
 
+                    var expr = path(attr);
+
+                    if (expr == null)
+                        continue;
+
                     s = s.Field(f =>
                     {
                         // use 0 for relevance sorting
                         f = attrValue == 0
                             ? f.Field("_score")
-                            : f.Field(path(attr));
+                            : f.Field(expr);
 
                         // ordering
                         f = ascending

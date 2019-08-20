@@ -160,7 +160,7 @@ namespace Nanoka.Database
                                    case DoujinshiQuerySort.Score:      return d => d.Score;
                                    case DoujinshiQuerySort.PageCount:  return d => d.PageCounts;
 
-                                   default: throw new NotSupportedException();
+                                   default: return null;
                                }
                            }),
                 cancellationToken);
@@ -251,7 +251,7 @@ namespace Nanoka.Database
                                    case BooruQuerySort.Width:      return p => p.Width;
                                    case BooruQuerySort.Height:     return p => p.Height;
 
-                                   default: throw new NotSupportedException();
+                                   default: return null;
                                }
                            }),
                 cancellationToken);
