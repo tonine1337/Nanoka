@@ -4,7 +4,7 @@ export class ListByName extends SearchBase {
   buildQuery() {
     return {
       sorting: [
-        1 // upload time
+        ~1 // upload time (desc)
       ]
     };
   }
