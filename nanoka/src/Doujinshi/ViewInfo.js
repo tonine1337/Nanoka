@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Grid, Label, Icon, Popup, Table, Dropdown, Button } from 'semantic-ui-react';
 import moment from 'moment';
 import * as api from '../Api';
@@ -92,7 +92,7 @@ export class ViewInfo extends React.Component {
     const updateTime = moment(doujinshi.update);
 
     return (
-      <BrowserRouter>
+      <div>
         <Grid stackable divided="vertically">
           <Grid.Row>
             <Grid.Column width="6" textAlign="center" verticalAlign="middle">
@@ -266,7 +266,7 @@ export class ViewInfo extends React.Component {
             </Grid.Column>
           </Grid.Row>
         </Grid>
-      </BrowserRouter>
+      </div>
     );
   }
 }

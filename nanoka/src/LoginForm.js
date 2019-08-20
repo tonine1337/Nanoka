@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Grid, Header, Form, Segment, Button, Message, Icon } from 'semantic-ui-react';
 import './LoginForm.css';
 import * as api from './Api';
@@ -13,7 +13,7 @@ export class LoginForm extends React.Component {
 
   render() {
     return (
-      <BrowserRouter>
+      <div>
         <Grid textAlign="center" style={{ height: '100vh' }} verticalAlign="middle">
           <Grid.Column style={{ maxWidth: '26rem' }}>
             <Header style={{ fontSize: '4rem', marginBottom: '2rem' }} color="blue" textAlign="center">Nanoka</Header>
@@ -90,7 +90,7 @@ export class LoginForm extends React.Component {
           <a href="https://github.com/chiyadev/Nanoka" target="_blank" rel="noopener noreferrer">Open source</a>
           <Link to="/recover_account">Recover account</Link>
         </div>
-      </BrowserRouter>
+      </div>
     );
   }
 }
