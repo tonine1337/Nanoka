@@ -15,9 +15,6 @@ namespace Nanoka.Models.Requests
 
     public class AuthenticationResponse
     {
-        [JsonProperty("version")]
-        public NanokaVersion Version { get; set; } = NanokaVersion.Latest;
-
         /// <summary>
         /// JWT bearer token.
         /// </summary>

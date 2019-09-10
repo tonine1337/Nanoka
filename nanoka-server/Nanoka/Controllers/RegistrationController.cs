@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Nanoka.Database;
 using Nanoka.Models;
 using Nanoka.Models.Requests;
 
@@ -16,9 +15,7 @@ namespace Nanoka.Controllers
         readonly NanokaDatabase _db;
         readonly RecaptchaValidator _recaptcha;
 
-        public RegistrationController(IOptions<NanokaOptions> options,
-                                      NanokaDatabase db,
-                                      RecaptchaValidator recaptcha)
+        public RegistrationController(IOptions<NanokaOptions> options, NanokaDatabase db, RecaptchaValidator recaptcha)
         {
             _options   = options.Value;
             _db        = db;
