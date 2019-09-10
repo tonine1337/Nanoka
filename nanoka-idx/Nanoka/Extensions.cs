@@ -17,6 +17,32 @@ namespace Nanoka
 {
     public static class Extensions
     {
+        static long _lastTimeStamp = DateTime.UtcNow.Ticks;
+
+        /// <summary>
+        /// https://stackoverflow.com/a/14369695
+        /// </summary>
+        public static long Timestamp
+        {
+            get
+            {
+                long original,
+                     newValue;
+
+                do
+                {
+                    original = _lastTimeStamp;
+
+                    var now = DateTime.UtcNow.Ticks;
+
+                    newValue = Math.Max(now, original + 1);
+                }
+                while (Interlocked.CompareExchange(ref _lastTimeStamp, newValue, original) != original);
+
+                return newValue;
+            }
+        }
+
         public static Guid ParseUserId(this HttpContext context)
         {
             var value = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
