@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
@@ -8,31 +6,37 @@ namespace Nanoka.Models
     public class User : UserBase
     {
         [JsonProperty("id")]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
+        /// <summary>
+        /// User email. This is returned by the API to moderator users only.
+        /// </summary>
+        [JsonProperty("email")]
+        public string Email { get; set; }
+
+        /// <summary>
+        /// Hashed user password. This is only used internally and never returned by the API.
+        /// </summary>
         [JsonProperty("secret")]
-        public Guid Secret { get; set; }
-
-        [JsonProperty("registered")]
-        public DateTime Registered { get; set; }
+        public string Secret { get; set; }
 
         [JsonProperty("restrictions")]
-        public List<UserRestriction> Restrictions { get; set; }
+        public UserRestriction[] Restrictions { get; set; }
 
-        [JsonProperty("upload")]
+        [JsonProperty("uploads")]
         public int UploadCount { get; set; }
 
-        [JsonProperty("edit")]
+        [JsonProperty("edits")]
         public int EditCount { get; set; }
 
-        [JsonProperty("upvoted")]
-        public int UpvotedCount { get; set; }
+        [JsonProperty("votes")]
+        public int VoteCount { get; set; }
 
-        [JsonProperty("downvoted")]
-        public int DownvotedCount { get; set; }
-
-        [JsonProperty("rep")]
+        [JsonProperty("reputation")]
         public double Reputation { get; set; }
+
+        [JsonProperty("perms")]
+        public UserPermissions Permissions { get; set; }
     }
 
     public class UserBase
@@ -42,8 +46,5 @@ namespace Nanoka.Models
         [JsonProperty("name"), Required]
         [RegularExpression(UsernameRegex)]
         public string Username { get; set; }
-
-        [JsonProperty("perms")]
-        public UserPermissions Permissions { get; set; }
     }
 }

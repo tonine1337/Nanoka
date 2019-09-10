@@ -7,7 +7,10 @@ namespace Nanoka
     {
         public ModelMapperProfile()
         {
-            // user
+            CreateMap<BookBase, Book>();
+            CreateMap<BookContentBase, BookContent>();
+            CreateMap<ImageBase, Image>();
+            CreateMap<SongBase, Song>();
             CreateMap<UserBase, User>();
         }
     }

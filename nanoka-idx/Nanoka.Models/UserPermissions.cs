@@ -12,7 +12,7 @@ namespace Nanoka.Models
 
         /// <summary>
         /// User is an administrator.
-        /// This flag effectively overrides every other flag with 1.
+        /// This flag effectively enables every other flag.
         /// </summary>
         Administrator = 1 << 0
     }

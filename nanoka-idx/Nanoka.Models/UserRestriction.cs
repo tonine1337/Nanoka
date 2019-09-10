@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace Nanoka.Models
@@ -11,13 +12,13 @@ namespace Nanoka.Models
         [JsonProperty("end")]
         public DateTime End { get; set; }
 
-        [JsonProperty("reason")]
-        public string Reason { get; set; }
+        [JsonProperty("moderator")]
+        public string ModeratorId { get; set; }
+    }
 
-        /// <summary>
-        /// ID of the user that effectuated this restriction.
-        /// </summary>
-        [JsonProperty("source")]
-        public Guid Source { get; set; }
+    public class UserRestrictionBase
+    {
+        [JsonProperty("reason"), Required, MinLength(5)]
+        public string Reason { get; set; }
     }
 }
