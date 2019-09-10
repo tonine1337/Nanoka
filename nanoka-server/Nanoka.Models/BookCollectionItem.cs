@@ -2,12 +2,12 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
-    public class DoujinshiCollectionItem
+    public class BookCollectionItem
     {
         [JsonProperty("index")]
         public int Index { get; set; }
 
-        [JsonProperty("doujinshi")]
-        public Doujinshi Doujinshi { get; set; }
+        [JsonProperty("book")]
+        public Book Book { get; set; }
     }
 }

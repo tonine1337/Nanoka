@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
-    public class Doujinshi : DoujinshiBase
+    public class Book : BookBase
     {
         [JsonProperty("id")]
         public Guid Id { get; set; }
@@ -20,15 +20,15 @@ namespace Nanoka.Models
         public int Score { get; set; }
 
         [JsonProperty("variants")]
-        public List<DoujinshiVariant> Variants { get; set; }
+        public List<BookVariant> Variants { get; set; }
     }
 
-    public class DoujinshiBase
+    public class BookBase
     {
-        [JsonProperty("category"), EnumDataType(typeof(DoujinshiCategory))]
-        public DoujinshiCategory Category { get; set; }
+        [JsonProperty("category"), EnumDataType(typeof(BookCategory))]
+        public BookCategory Category { get; set; }
 
         [JsonProperty("metas"), Required]
-        public Dictionary<DoujinshiMeta, string[]> Metas { get; set; }
+        public Dictionary<BookMeta, string[]> Metas { get; set; }
     }
 }

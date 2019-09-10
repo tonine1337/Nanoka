@@ -29,8 +29,8 @@ namespace Nanoka.Database
         [Keyword(Name = "v", Index = false), JsonProperty("v")]
         public string Value { get; set; }
 
-        public DbSnapshot Apply(Snapshot<Doujinshi> snapshot, JsonSerializer serializer)
-            => ApplyInternal(snapshot, serializer, new DbDoujinshi().Apply);
+        public DbSnapshot Apply(Snapshot<Book> snapshot, JsonSerializer serializer)
+            => ApplyInternal(snapshot, serializer, new DbBook().Apply);
 
         public DbSnapshot Apply(Snapshot<BooruPost> snapshot, JsonSerializer serializer)
             => ApplyInternal(snapshot, serializer, new DbBooruPost().Apply);
@@ -54,8 +54,8 @@ namespace Nanoka.Database
             return this;
         }
 
-        public Snapshot<Doujinshi> ApplyTo(Snapshot<Doujinshi> snapshot, JsonSerializer serializer)
-            => ApplyToInternal<Doujinshi, DbDoujinshi>(snapshot, serializer, d => d.ApplyTo(new Doujinshi()));
+        public Snapshot<Book> ApplyTo(Snapshot<Book> snapshot, JsonSerializer serializer)
+            => ApplyToInternal<Book, DbBook>(snapshot, serializer, d => d.ApplyTo(new Book()));
 
         public Snapshot<BooruPost> ApplyTo(Snapshot<BooruPost> snapshot, JsonSerializer serializer)
             => ApplyToInternal<BooruPost, DbBooruPost>(snapshot, serializer, p => p.ApplyTo(new BooruPost()));

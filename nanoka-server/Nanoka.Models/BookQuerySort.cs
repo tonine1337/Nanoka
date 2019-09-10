@@ -5,7 +5,7 @@ namespace Nanoka.Models
     /// <summary>
     /// Use bitwise complement to order by descending.
     /// </summary>
-    public enum DoujinshiQuerySort
+    public enum BookQuerySort
     {
         [EnumMember(Value = "relevance")] Relevance = 0,
         [EnumMember(Value = "upload")] UploadTime = 1,

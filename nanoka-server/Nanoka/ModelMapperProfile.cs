@@ -7,9 +7,9 @@ namespace Nanoka
     {
         public ModelMapperProfile()
         {
-            // doujinshi
-            CreateMap<DoujinshiBase, Doujinshi>();
-            CreateMap<DoujinshiVariantBase, DoujinshiVariant>();
+            // book
+            CreateMap<BookBase, Book>();
+            CreateMap<BookVariantBase, BookVariant>();
 
             // booru
             CreateMap<BooruPostBase, BooruPost>();

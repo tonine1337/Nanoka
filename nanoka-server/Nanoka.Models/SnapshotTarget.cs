@@ -8,9 +8,9 @@ namespace Nanoka.Models
         Unknown = 0,
 
         /// <summary>
-        /// Snapshot of a <see cref="Models.Doujinshi"/> object.
+        /// Snapshot of a <see cref="Book"/> object.
         /// </summary>
-        Doujinshi = 1,
+        Book = 1,
 
         /// <summary>
         /// Snapshot of a <see cref="Models.BooruPost"/> object.

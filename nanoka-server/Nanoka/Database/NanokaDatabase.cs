@@ -44,7 +44,7 @@ namespace Nanoka.Database
         {
             _logger.LogDebug("Migrating indexes...");
 
-            await CreateIndexAsync<DbDoujinshi>(cancellationToken);
+            await CreateIndexAsync<DbBook>(cancellationToken);
             await CreateIndexAsync<DbBooruPost>(cancellationToken);
             await CreateIndexAsync<DbSnapshot>(cancellationToken);
 
@@ -101,33 +101,33 @@ namespace Nanoka.Database
             return true;
         }
 
-#region Doujinshi
+#region Book
 
-        public async Task<Doujinshi> GetDoujinshiAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<Book> GetBookAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var doc = await GetAsync<DbDoujinshi>(id.ToShortString(), cancellationToken);
+            var doc = await GetAsync<DbBook>(id.ToShortString(), cancellationToken);
 
-            return doc?.ApplyTo(new Doujinshi());
+            return doc?.ApplyTo(new Book());
         }
 
-        public Task IndexAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
-            => IndexAsync(new DbDoujinshi().Apply(doujinshi), cancellationToken);
+        public Task IndexAsync(Book book, CancellationToken cancellationToken = default)
+            => IndexAsync(new DbBook().Apply(book), cancellationToken);
 
-        public Task IndexSnapshotAsync(Snapshot<Doujinshi> snapshot, CancellationToken cancellationToken = default)
+        public Task IndexSnapshotAsync(Snapshot<Book> snapshot, CancellationToken cancellationToken = default)
             => IndexAsync(new DbSnapshot().Apply(snapshot, _serializer), cancellationToken);
 
-        public Task DeleteAsync(Doujinshi doujinshi, CancellationToken cancellationToken = default)
-            => DeleteAsync<DbDoujinshi>(doujinshi.Id.ToShortString(), cancellationToken);
+        public Task DeleteAsync(Book book, CancellationToken cancellationToken = default)
+            => DeleteAsync<DbBook>(book.Id.ToShortString(), cancellationToken);
 
-        public async Task<SearchResult<Doujinshi>> SearchAsync(DoujinshiQuery query,
-                                                               CancellationToken cancellationToken = default)
+        public async Task<SearchResult<Book>> SearchAsync(BookQuery query,
+                                                          CancellationToken cancellationToken = default)
         {
             var measure = new MeasureContext();
 
-            query.Metas = query.Metas ?? new Dictionary<DoujinshiMeta, TextQuery>();
+            query.Metas = query.Metas ?? new Dictionary<BookMeta, TextQuery>();
 
-            var response = await _client.SearchAsync<DbDoujinshi>(
-                x => x.Index(GetIndexName<DbDoujinshi>())
+            var response = await _client.SearchAsync<DbBook>(
+                x => x.Index(GetIndexName<DbBook>())
                       .Skip(query.Offset)
                       .Take(query.Limit)
                       .MultiQuery(
@@ -138,12 +138,12 @@ namespace Nanoka.Database
                                  .Text(query.RomanizedName, d => d.RomanizedNames)
                                  .Filter(query.Category, d => d.Category)
                                  .Range(query.Score, d => d.Score)
-                                 .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Artist), d => d.Artist)
-                                 .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Group), d => d.Group)
-                                 .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Parody), d => d.Parody)
-                                 .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Character), d => d.Character)
-                                 .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Tag), d => d.Tag)
-                                 .Text(query.Metas.GetValueOrDefault(DoujinshiMeta.Convention), d => d.Convention)
+                                 .Text(query.Metas.GetValueOrDefault(BookMeta.Artist), d => d.Artist)
+                                 .Text(query.Metas.GetValueOrDefault(BookMeta.Group), d => d.Group)
+                                 .Text(query.Metas.GetValueOrDefault(BookMeta.Parody), d => d.Parody)
+                                 .Text(query.Metas.GetValueOrDefault(BookMeta.Character), d => d.Character)
+                                 .Text(query.Metas.GetValueOrDefault(BookMeta.Tag), d => d.Tag)
+                                 .Text(query.Metas.GetValueOrDefault(BookMeta.Convention), d => d.Convention)
                                  .Range(query.PageCount, d => d.PageCounts))
                       .NestedMultiQuery(
                            d => d.Variants,
@@ -155,10 +155,10 @@ namespace Nanoka.Database
                            {
                                switch (sort)
                                {
-                                   case DoujinshiQuerySort.UploadTime: return d => d.UploadTime;
-                                   case DoujinshiQuerySort.UpdateTime: return d => d.UpdateTime;
-                                   case DoujinshiQuerySort.Score:      return d => d.Score;
-                                   case DoujinshiQuerySort.PageCount:  return d => d.PageCounts;
+                                   case BookQuerySort.UploadTime: return d => d.UploadTime;
+                                   case BookQuerySort.UpdateTime: return d => d.UpdateTime;
+                                   case BookQuerySort.Score:      return d => d.Score;
+                                   case BookQuerySort.PageCount:  return d => d.PageCounts;
 
                                    default: return null;
                                }
@@ -167,7 +167,7 @@ namespace Nanoka.Database
 
             ValidateResponse(response);
 
-            return ConvertSearchResponse(response, d => d.ApplyTo(new Doujinshi()), measure);
+            return ConvertSearchResponse(response, d => d.ApplyTo(new Book()), measure);
         }
 
 #endregion

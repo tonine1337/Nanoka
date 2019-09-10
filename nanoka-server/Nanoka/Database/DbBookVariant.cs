@@ -4,12 +4,12 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Database
 {
-    // nested object of doujinshi
-    public class DbDoujinshiVariant
+    // nested object of book
+    public class DbBookVariant
     {
         /// <summary>
         /// This is not a true ID.
-        /// It is only used to discriminate the variants in the same doujinshi.
+        /// It is only used to discriminate the variants in the same book.
         /// It is named "Id2" because NEST will infer "Id" to be _id.
         /// </summary>
         [Keyword(Name = "id", Index = false), JsonProperty("id")]
@@ -18,10 +18,10 @@ namespace Nanoka.Database
         [Keyword(Name = "upu"), JsonProperty("upu")]
         public string UploaderId { get; set; }
 
-        [Text(Name = "n", Index = false), JsonProperty("n")] // cached in DbDoujinshi
+        [Text(Name = "n", Index = false), JsonProperty("n")] // cached in DbBook
         public string Name { get; set; }
 
-        [Text(Name = "nr", Index = false), JsonProperty("nr")] // cached in DbDoujinshi
+        [Text(Name = "nr", Index = false), JsonProperty("nr")] // cached in DbBook
         public string RomanizedName { get; set; }
 
         [Number(NumberType.Integer, Name = "ln"), JsonProperty("ln")]
@@ -30,10 +30,10 @@ namespace Nanoka.Database
         [Text(Name = "src"), JsonProperty("src")]
         public string Source { get; set; }
 
-        [Number(NumberType.Integer, Name = "pg", Index = false), JsonProperty("pg")] // cached in DbDoujinshi
+        [Number(NumberType.Integer, Name = "pg", Index = false), JsonProperty("pg")] // cached in DbBook
         public int PageCount { get; set; }
 
-        public DbDoujinshiVariant Apply(DoujinshiVariant variant)
+        public DbBookVariant Apply(BookVariant variant)
         {
             if (variant == null)
                 return null;
@@ -49,7 +49,7 @@ namespace Nanoka.Database
             return this;
         }
 
-        public DoujinshiVariant ApplyTo(DoujinshiVariant variant)
+        public BookVariant ApplyTo(BookVariant variant)
         {
             variant.Id            = Id2.ToGuid();
             variant.UploaderId    = UploaderId.ToGuid();

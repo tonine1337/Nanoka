@@ -17,18 +17,18 @@ namespace Nanoka
             _httpContext = httpContextAccessor.HttpContext;
         }
 
-        public async Task SaveAsync(Doujinshi doujinshi, SnapshotEvent snapshotEvent, string reason = null)
+        public async Task SaveAsync(Book book, SnapshotEvent snapshotEvent, string reason = null)
         {
-            var snapshot = new Snapshot<Doujinshi>
+            var snapshot = new Snapshot<Book>
             {
                 Id          = Guid.NewGuid(),
-                TargetId    = doujinshi.Id,
+                TargetId    = book.Id,
                 CommitterId = _httpContext.ParseUserId(),
                 Time        = DateTime.UtcNow,
                 Event       = snapshotEvent,
-                Target      = SnapshotTarget.Doujinshi,
+                Target      = SnapshotTarget.Book,
                 Reason      = reason,
-                Value       = doujinshi
+                Value       = book
             };
 
             await _db.IndexSnapshotAsync(snapshot);

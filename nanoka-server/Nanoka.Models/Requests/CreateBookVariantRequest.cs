@@ -3,9 +3,9 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models.Requests
 {
-    public class CreateDoujinshiVariantRequest
+    public class CreateBookVariantRequest
     {
         [JsonProperty("variant"), Required]
-        public DoujinshiVariant Variant { get; set; }
+        public BookVariant Variant { get; set; }
     }
 }

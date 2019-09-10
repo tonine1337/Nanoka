@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
-    public class DoujinshiVariant : DoujinshiVariantBase
+    public class BookVariant : BookVariantBase
     {
         [JsonProperty("id")]
         public Guid Id { get; set; }
@@ -16,7 +16,7 @@ namespace Nanoka.Models
         public int PageCount { get; set; }
     }
 
-    public class DoujinshiVariantBase
+    public class BookVariantBase
     {
         [JsonProperty("name"), Required]
         public string Name { get; set; }

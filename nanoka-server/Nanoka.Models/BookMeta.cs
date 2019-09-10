@@ -2,7 +2,7 @@ using System.Runtime.Serialization;
 
 namespace Nanoka.Models
 {
-    public enum DoujinshiMeta
+    public enum BookMeta
     {
         [EnumMember(Value = "artist")] Artist = 0,
         [EnumMember(Value = "group")] Group = 1,

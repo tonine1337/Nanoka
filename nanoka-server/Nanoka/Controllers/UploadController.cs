@@ -9,26 +9,26 @@ using Nanoka.Models;
 
 namespace Nanoka.Controllers
 {
-    public class DoujinshiUploadTask : UploadTask
+    public class BookUploadTask : UploadTask
     {
-        public Doujinshi Doujinshi { get; }
+        public Book Book { get; }
 
         /// <summary>
-        /// Indicates whether this upload creates an entirely new doujinshi or a new variant of an existing doujinshi.
+        /// Indicates whether this upload creates an entirely new book or a new variant of an existing book.
         /// </summary>
         public bool AddVariantOnly { get; }
 
-        public DoujinshiUploadTask(Doujinshi doujinshi) : base(doujinshi.Id)
+        public BookUploadTask(Book book) : base(book.Id)
         {
-            Doujinshi = doujinshi;
+            Book = book;
         }
 
-        public DoujinshiUploadTask(Guid doujinshiId, DoujinshiVariant variant) : base(variant.Id)
+        public BookUploadTask(Guid bookId, BookVariant variant) : base(variant.Id)
         {
-            Doujinshi = new Doujinshi
+            Book = new Book
             {
-                Id       = doujinshiId,
-                Variants = new List<DoujinshiVariant> { variant }
+                Id       = bookId,
+                Variants = new List<BookVariant> { variant }
             };
 
             AddVariantOnly = true;
@@ -65,7 +65,7 @@ namespace Nanoka.Controllers
             var task = _uploadManager.GetTask(id);
 
             if (task == null)
-                return Result.InvalidUpload<Doujinshi>(id);
+                return Result.InvalidUpload<Book>(id);
 
             if (file == null)
                 return Result.BadRequest($"File not attached in multipart/form-data as '{nameof(file)}'.");
@@ -84,13 +84,13 @@ namespace Nanoka.Controllers
 
             switch (task)
             {
-                case DoujinshiUploadTask doujinshi: return await HandleDoujinshiTaskAsync(doujinshi, stream, final);
+                case BookUploadTask book: return await HandleBookTaskAsync(book, stream, final);
 
                 default: throw new NotSupportedException($"Unknown upload task type '{task.GetType().FullName}'.");
             }
         }
 
-        async Task<Result<UploadState>> HandleDoujinshiTaskAsync(DoujinshiUploadTask task, Stream stream, bool final)
+        async Task<Result<UploadState>> HandleBookTaskAsync(BookUploadTask task, Stream stream, bool final)
         {
             using (stream)
                 await task.AddFileAsync(stream);
@@ -101,40 +101,40 @@ namespace Nanoka.Controllers
 
             try
             {
-                var doujinshiId = task.Doujinshi.Id;
-                var variant     = task.Doujinshi.Variants[0];
+                var bookId  = task.Book.Id;
+                var variant = task.Book.Variants[0];
 
-                // this is an upload for creating a variant of an existing doujinshi
+                // this is an upload for creating a variant of an existing book
                 if (task.AddVariantOnly)
                 {
-                    using (NanokaLock.EnterAsync(task.Doujinshi.Id))
+                    using (NanokaLock.EnterAsync(task.Book.Id))
                     {
-                        var doujinshi = await _db.GetDoujinshiAsync(doujinshiId);
+                        var book = await _db.GetBookAsync(bookId);
 
-                        if (doujinshi == null)
-                            return Result.UploadDeleted<Doujinshi>(doujinshiId);
+                        if (book == null)
+                            return Result.UploadDeleted<Book>(bookId);
 
                         await processFilesAsync();
 
-                        await _snapshotManager.SaveAsync(doujinshi, SnapshotEvent.Modification);
+                        await _snapshotManager.SaveAsync(book, SnapshotEvent.Modification);
 
-                        doujinshi.Variants.Add(task.Doujinshi.Variants[0]);
-                        doujinshi.UpdateTime = DateTime.UtcNow;
+                        book.Variants.Add(task.Book.Variants[0]);
+                        book.UpdateTime = DateTime.UtcNow;
 
-                        await _db.IndexAsync(doujinshi);
+                        await _db.IndexAsync(book);
                     }
                 }
 
-                // this is an upload for creating a new doujinshi and a default variant
+                // this is an upload for creating a new book and a default variant
                 else
                 {
                     await processFilesAsync();
 
-                    var doujinshi = task.Doujinshi;
+                    var book = task.Book;
 
-                    doujinshi.UpdateTime = DateTime.UtcNow;
+                    book.UpdateTime = DateTime.UtcNow;
 
-                    await _db.IndexAsync(doujinshi);
+                    await _db.IndexAsync(book);
                 }
 
                 async Task processFilesAsync()
@@ -153,7 +153,7 @@ namespace Nanoka.Controllers
 
                             await _storage.AddAsync(new StorageFile
                             {
-                                Name        = $"{doujinshiId.ToShortString()}/{variant.Id.ToShortString()}/{i}",
+                                Name        = $"{bookId.ToShortString()}/{variant.Id.ToShortString()}/{i}",
                                 Stream      = fileStream,
                                 ContentType = contentType
                             });

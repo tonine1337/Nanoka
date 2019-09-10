@@ -8,20 +8,20 @@ using Nanoka.Models;
 namespace Nanoka.Controllers
 {
     [ApiController]
-    [Route("doujinshi")]
-    public class DoujinshiSearchController : AuthorizedControllerBase
+    [Route("book")]
+    public class BookSearchController : AuthorizedControllerBase
     {
         readonly NanokaOptions _options;
         readonly NanokaDatabase _db;
 
-        public DoujinshiSearchController(IOptions<NanokaOptions> options, NanokaDatabase db)
+        public BookSearchController(IOptions<NanokaOptions> options, NanokaDatabase db)
         {
             _options = options.Value;
             _db      = db;
         }
 
         [HttpPost("search")]
-        public async Task<Result<SearchResult<Doujinshi>>> SearchAsync(DoujinshiQuery query)
+        public async Task<Result<SearchResult<Book>>> SearchAsync(BookQuery query)
         {
             query.Limit = Math.Min(query.Limit, _options.MaxResultCount);
 
