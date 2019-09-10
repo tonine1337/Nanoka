@@ -17,6 +17,15 @@ namespace Nanoka
 {
     public static class Extensions
     {
+        /// <summary>
+        /// Generates a practically unique (enough) string that is shorter than base64 encoded UUID.
+        /// This uses <see cref="Timestamp"/>.
+        /// </summary>
+        public static string UniqueString => Convert.ToBase64String(BitConverter.GetBytes(Timestamp))
+                                                    .Substring(0, 22)
+                                                    .Replace("/", "_")
+                                                    .Replace("+", "-");
+
         static long _lastTimeStamp = DateTime.UtcNow.Ticks;
 
         /// <summary>
