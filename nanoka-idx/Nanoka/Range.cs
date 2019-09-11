@@ -13,5 +13,7 @@ namespace Nanoka
             Min = min;
             Max = max;
         }
+
+        public static implicit operator Range<T>((T min, T max) x) => new Range<T>(x.min, x.max);
     }
 }
