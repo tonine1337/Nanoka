@@ -9,14 +9,14 @@ namespace Nanoka
     public class BookManager
     {
         readonly INanokaDatabase _db;
-        readonly NamedLockManager _lock;
+        readonly ILocker _locker;
         readonly SnapshotManager _snapshot;
         readonly IMapper _mapper;
 
-        public BookManager(INanokaDatabase db, NamedLockManager lockManager, SnapshotManager snapshot, IMapper mapper)
+        public BookManager(INanokaDatabase db, NamedLocker locker, SnapshotManager snapshot, IMapper mapper)
         {
             _db       = db;
-            _lock     = lockManager;
+            _locker   = locker.Get<BookManager>();
             _snapshot = snapshot;
             _mapper   = mapper;
         }
@@ -26,7 +26,7 @@ namespace Nanoka
 
         public async Task<Book> UpdateAsync(int id, BookBase model, int userId, string reason, CancellationToken cancellationToken = default)
         {
-            using (await _lock.EnterAsync(id, cancellationToken))
+            using (await _locker.EnterAsync(id, cancellationToken))
             {
                 var book = await _db.GetBookAsync(id, cancellationToken);
 
@@ -45,7 +45,7 @@ namespace Nanoka
 
         public async Task DeleteAsync(int id, int userId, string reason, CancellationToken cancellationToken = default)
         {
-            using (await _lock.EnterAsync(id, cancellationToken))
+            using (await _locker.EnterAsync(id, cancellationToken))
             {
                 var book = await _db.GetBookAsync(id, cancellationToken);
 

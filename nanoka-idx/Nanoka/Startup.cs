@@ -59,9 +59,9 @@ namespace Nanoka
 
             // database
             services.AddSingleton<INanokaDatabase, NanokaElasticDatabase>()
-                    .AddSingleton<SnapshotManager>()
-                    .AddSingleton<UserManager>()
-                    .AddSingleton<BookManager>();
+                    .AddScoped<SnapshotManager>()
+                    .AddScoped<UserManager>()
+                    .AddScoped<BookManager>();
 
             // storage
             var storage = _configuration.GetSection("Storage")["Type"];
@@ -83,7 +83,7 @@ namespace Nanoka
 
             // other utilities
             services.AddSingleton<JsonSerializer>()
-                    .AddTransient<NamedLockManager>()
+                    .AddSingleton<NamedLocker>()
                     .AddHttpClient()
                     .AddAutoMapper(typeof(ModelMapperProfile))
                     .AddScoped<RecaptchaValidator>()
