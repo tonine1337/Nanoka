@@ -134,6 +134,24 @@ namespace Nanoka.Database
         public Task DeleteUserAsync(int id, CancellationToken cancellationToken = default)
             => DeleteAsync<DbUser>(id, cancellationToken);
 
+        public async Task<Book> GetBookAsync(int id, CancellationToken cancellationToken = default)
+            => (await GetAsync<DbBook>(id, cancellationToken)).ToBook();
+
+        public Task<int> UpdateBookAsync(Book book, CancellationToken cancellationToken = default)
+            => IndexAsync(DbBook.FromBook(book), cancellationToken);
+
+        public Task DeleteBookAsync(int id, CancellationToken cancellationToken = default)
+            => DeleteAsync<DbBook>(id, cancellationToken);
+
+        public async Task<Image> GetImageAsync(int id, CancellationToken cancellationToken = default)
+            => (await GetAsync<DbImage>(id, cancellationToken)).ToImage();
+
+        public Task<int> UpdateImageAsync(Image image, CancellationToken cancellationToken = default)
+            => IndexAsync(DbImage.FromImage(image), cancellationToken);
+
+        public Task DeleteImageAsync(int id, CancellationToken cancellationToken = default)
+            => DeleteAsync<DbImage>(id, cancellationToken);
+
         public Task<int> AddSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default)
             => IndexAsync(DbSnapshot.FromSnapshot(snapshot, _serializer), cancellationToken);
 
