@@ -30,6 +30,19 @@ namespace Nanoka.Controllers
             }
         }
 
+        [HttpGet("{id}/history")]
+        public async Task<Result<Snapshot<Book>[]>> GetSnapshotsAsync(int id)
+        {
+            try
+            {
+                return await _bookManager.GetSnapshotsAsync(id);
+            }
+            catch (BookManagerException e)
+            {
+                return Result.BadRequest(e.Message);
+            }
+        }
+
         [HttpPut("{id}"), RequireUnrestricted]
         public async Task<Result<Book>> UpdateAsync(int id, BookBase model)
         {

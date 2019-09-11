@@ -117,10 +117,11 @@ namespace Nanoka.Database
 
         public async Task<User> GetUserAsync(string username, CancellationToken cancellationToken = default)
         {
-            var result = await SearchAsync<DbUser>((0, 1),
-                                                   q => q.Term(t => t.Field(u => u.Username)
-                                                                     .Value(username)),
-                                                   cancellationToken);
+            var result = await SearchAsync<DbUser>(
+                (0, 1),
+                q => q.Query(qq => qq.Term(t => t.Field(u => u.Username)
+                                                 .Value(username))),
+                cancellationToken);
 
             if (result.Total > 1)
                 _logger.LogWarning($"{result.Total} users with an identical username exist: {username}");
@@ -155,6 +156,30 @@ namespace Nanoka.Database
         public Task<int> AddSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default)
             => IndexAsync(DbSnapshot.FromSnapshot(snapshot, _serializer), cancellationToken);
 
+        static SnapshotEntity ConvertSnapshotEntity<T>()
+        {
+            var name = typeof(T).Name;
+
+            if (Enum.TryParse<SnapshotEntity>(name, out var entity))
+                return entity;
+
+            throw new NotSupportedException($"Cannot retrieve snapshots of type '{typeof(T).FullName}'.");
+        }
+
+        public async Task<Snapshot<T>[]> GetSnapshotsAsync<T>(int id, CancellationToken cancellationToken = default)
+        {
+            var result = await SearchAsync<DbSnapshot>(
+                (0, 256),
+                q => q.Query(qq => qq.Bool(b => b.Filter(f => f.Term(t => t.Field(s => s.Entity)
+                                                                           .Value(ConvertSnapshotEntity<T>())),
+                                                         f => f.Term(t => t.Field(s => s.EntityId)
+                                                                           .Value(id)))))
+                      .Sort(ss => ss.Descending(s => s.Time)),
+                cancellationToken);
+
+            return result.Items.ToArray(s => s.ToSnapshot<T>(_serializer));
+        }
+
         async Task<TDocument> GetAsync<TDocument>(DocumentPath<TDocument> id, CancellationToken cancellationToken)
             where TDocument : class
         {
@@ -165,18 +190,17 @@ namespace Nanoka.Database
             return response.Source;
         }
 
-        async Task<SearchResult<TDocument>> SearchAsync<TDocument>((int skip, int take) range,
-                                                                   Func<QueryContainerDescriptor<TDocument>, QueryContainer> query,
+        async Task<SearchResult<TDocument>> SearchAsync<TDocument>(Range<int> range,
+                                                                   Func<SearchDescriptor<TDocument>, SearchDescriptor<TDocument>> query,
                                                                    CancellationToken cancellationToken)
             where TDocument : class
         {
             using (var measure = new MeasureContext())
             {
                 var response = await _client.SearchAsync<TDocument>(
-                    x => x.Index(IndexName<TDocument>())
-                          .Skip(range.skip)
-                          .Take(range.take)
-                          .Query(query),
+                    x => query(x.Index(IndexName<TDocument>())
+                                .Skip(range.Min)
+                                .Take(range.Max - range.Min)),
                     cancellationToken);
 
                 ValidateResponse(response);

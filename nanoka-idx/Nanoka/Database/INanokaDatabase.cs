@@ -23,5 +23,6 @@ namespace Nanoka.Database
         Task DeleteImageAsync(int id, CancellationToken cancellationToken = default);
 
         Task<int> AddSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default);
+        Task<Snapshot<T>[]> GetSnapshotsAsync<T>(int id, CancellationToken cancellationToken = default);
     }
 }

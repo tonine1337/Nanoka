@@ -24,6 +24,9 @@ namespace Nanoka
         public Task<Book> GetAsync(int id, CancellationToken cancellationToken = default)
             => _db.GetBookAsync(id, cancellationToken);
 
+        public Task<Snapshot<Book>[]> GetSnapshotsAsync(int id, CancellationToken cancellationToken = default)
+            => _db.GetSnapshotsAsync<Book>(id, cancellationToken);
+
         public async Task<Book> UpdateAsync(int id, BookBase model, CancellationToken cancellationToken = default)
         {
             using (await _locker.EnterAsync(id, cancellationToken))
