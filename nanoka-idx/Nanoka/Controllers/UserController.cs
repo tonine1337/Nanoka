@@ -5,6 +5,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -14,7 +15,7 @@ namespace Nanoka.Controllers
 {
     [ApiController]
     [Route("users")]
-    public class UserController : ControllerBase
+    public class UserController : AuthorizedControllerBase
     {
         readonly NanokaOptions _options;
         readonly UserManager _userManager;
@@ -27,7 +28,7 @@ namespace Nanoka.Controllers
             _recaptcha   = recaptcha;
         }
 
-        [HttpPost("auth")]
+        [HttpPost("auth"), AllowAnonymous]
         public async Task<Result<AuthenticationResponse>> AuthAsync(AuthenticationRequest request)
         {
             var user = await _userManager.TryAuthenticateAsync(request.Username, request.Password);
@@ -60,7 +61,7 @@ namespace Nanoka.Controllers
             };
         }
 
-        [HttpPost("register")]
+        [HttpPost("register"), AllowAnonymous]
         public async Task<Result<RegistrationResponse>> RegisterAsync(RegistrationRequest request, [FromQuery] string recaptcha)
         {
             if (!await _recaptcha.ValidateAsync(recaptcha))

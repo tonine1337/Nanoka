@@ -18,6 +18,9 @@ namespace Nanoka.Database
         [Keyword(Name = "c"), JsonProperty("c")]
         public int CommitterId { get; set; }
 
+        [Keyword(Name = "s"), JsonProperty("s")]
+        public SnapshotType Type { get; set; }
+
         [Keyword(Name = "e"), JsonProperty("e")]
         public SnapshotEntity Entity { get; set; }
 
@@ -38,6 +41,7 @@ namespace Nanoka.Database
             Id          = Id,
             Time        = Time,
             CommitterId = CommitterId,
+            Type        = Type,
             Entity      = Entity,
             EntityId    = EntityId,
             Event       = Event,
@@ -50,6 +54,7 @@ namespace Nanoka.Database
             Id              = snapshot.Id,
             Time            = snapshot.Time,
             CommitterId     = snapshot.CommitterId,
+            Type            = snapshot.Type,
             Entity          = snapshot.Entity,
             EntityId        = snapshot.EntityId,
             Event           = snapshot.Event,

@@ -59,6 +59,7 @@ namespace Nanoka
 
             // database
             services.AddSingleton<INanokaDatabase, NanokaElasticDatabase>()
+                    .AddScoped<SnapshotManager>()
                     .AddScoped<UserManager>();
 
             // storage
