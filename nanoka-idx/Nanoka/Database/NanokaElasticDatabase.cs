@@ -156,8 +156,14 @@ namespace Nanoka.Database
         public Task<int> AddSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default)
             => IndexAsync(DbSnapshot.FromSnapshot(snapshot, _serializer), cancellationToken);
 
-        public async Task<Snapshot<T>> GetSnapshotAsync<T>(int id, CancellationToken cancellationToken = default)
-            => (await GetAsync<DbSnapshot>(id, cancellationToken)).ToSnapshot<T>(_serializer);
+        public async Task<Snapshot<T>> GetSnapshotAsync<T>(int id, int entityId, CancellationToken cancellationToken = default)
+        {
+            var snapshot = (await GetAsync<DbSnapshot>(id, cancellationToken)).ToSnapshot<T>(_serializer);
+
+            return snapshot.EntityId == entityId
+                ? snapshot
+                : null;
+        }
 
         static SnapshotEntity ConvertSnapshotEntity<T>()
         {
