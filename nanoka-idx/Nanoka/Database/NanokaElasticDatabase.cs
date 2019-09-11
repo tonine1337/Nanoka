@@ -128,13 +128,13 @@ namespace Nanoka.Database
             return result.Items.FirstOrDefault()?.ToUser();
         }
 
-        public Task UpdateUserAsync(User user, CancellationToken cancellationToken = default)
+        public Task<int> UpdateUserAsync(User user, CancellationToken cancellationToken = default)
             => IndexAsync(DbUser.FromUser(user), cancellationToken);
 
         public Task DeleteUserAsync(int id, CancellationToken cancellationToken = default)
             => DeleteAsync<DbUser>(id, cancellationToken);
 
-        public Task AddSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default)
+        public Task<int> AddSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default)
             => IndexAsync(DbSnapshot.FromSnapshot(snapshot, _serializer), cancellationToken);
 
         async Task<TDocument> GetAsync<TDocument>(DocumentPath<TDocument> id, CancellationToken cancellationToken)
@@ -181,7 +181,7 @@ namespace Nanoka.Database
             public IReadOnlyCollection<TDocument> Items;
         }
 
-        async Task IndexAsync<TDocument>(TDocument doc, CancellationToken cancellationToken)
+        async Task<int> IndexAsync<TDocument>(TDocument doc, CancellationToken cancellationToken)
             where TDocument : class
         {
             var response = await _client.IndexAsync(doc, x => x.Index(IndexName<TDocument>()), cancellationToken);
@@ -189,6 +189,9 @@ namespace Nanoka.Database
             ValidateResponse(response);
 
             _logger.LogInformation($"Indexed {typeof(TDocument).Name}: {response.Id}");
+
+            // assuming we always use integer ID
+            return int.Parse(response.Id);
         }
 
         async Task DeleteAsync<TDocument>(DocumentPath<TDocument> id, CancellationToken cancellationToken)

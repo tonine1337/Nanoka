@@ -11,9 +11,9 @@ namespace Nanoka.Database
 
         Task<User> GetUserAsync(int id, CancellationToken cancellationToken = default);
         Task<User> GetUserAsync(string username, CancellationToken cancellationToken = default);
-        Task UpdateUserAsync(User user, CancellationToken cancellationToken = default);
+        Task<int> UpdateUserAsync(User user, CancellationToken cancellationToken = default);
         Task DeleteUserAsync(int id, CancellationToken cancellationToken = default);
 
-        Task AddSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default);
+        Task<int> AddSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default);
     }
 }
