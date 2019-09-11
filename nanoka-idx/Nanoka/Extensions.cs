@@ -109,7 +109,7 @@ namespace Nanoka
             var value = context.User.FindFirst("rep")?.Value;
 
             if (value == null)
-                throw new InvalidOperationException("Missing claim 'rep'.");
+                throw new InvalidOperationException("Missing claim 'rest'.");
 
             return bool.TryParse(value, out var restricted) && restricted;
         }
