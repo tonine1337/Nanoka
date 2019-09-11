@@ -22,13 +22,13 @@ namespace Nanoka.Database
         [Nested(Name = "r"), JsonProperty("r")]
         public DbUserRestriction[] Restrictions { get; set; }
 
-        [Number(NumberType.Integer, Name = "c_u"), JsonProperty("c_u")]
+        [Number(NumberType.Integer, Name = "cu"), JsonProperty("cu")]
         public int UploadCount { get; set; }
 
-        [Number(NumberType.Integer, Name = "c_e"), JsonProperty("c_e")]
+        [Number(NumberType.Integer, Name = "ce"), JsonProperty("ce")]
         public int EditCount { get; set; }
 
-        [Number(NumberType.Integer, Name = "c_v"), JsonProperty("c_v")]
+        [Number(NumberType.Integer, Name = "cv"), JsonProperty("cv")]
         public int VoteCount { get; set; }
 
         [Number(NumberType.Double, Name = "rep"), JsonProperty("rep")]
