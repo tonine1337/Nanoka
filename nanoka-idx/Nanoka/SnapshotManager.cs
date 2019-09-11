@@ -21,16 +21,7 @@ namespace Nanoka
             _reason = claims.Reason;
         }
 
-        public Task UserCreated(User user, CancellationToken cancellationToken = default)
-            => New(SnapshotType.System, SnapshotEvent.Creation, null as User, cancellationToken, user.Id);
-
-        public Task BookUpdated(Book book, CancellationToken cancellationToken = default)
-            => New(SnapshotType.User, SnapshotEvent.Modification, book, cancellationToken);
-
-        public Task BookDeleted(Book book, CancellationToken cancellationToken = default)
-            => New(SnapshotType.User, SnapshotEvent.Deletion, book, cancellationToken);
-
-        async Task<Snapshot<T>> New<T>(SnapshotType type, SnapshotEvent @event, T value, CancellationToken cancellationToken, int? committer = null, string reason = null)
+        public async Task<Snapshot<T>> CreateAsync<T>(SnapshotType type, SnapshotEvent @event, T value, CancellationToken cancellationToken = default, int? committer = null, string reason = null)
         {
             var snapshot = new Snapshot<T>
             {

@@ -43,7 +43,7 @@ namespace Nanoka
 
                 user.Id = await _db.UpdateUserAsync(user, cancellationToken);
 
-                await _snapshot.UserCreated(user, cancellationToken);
+                await _snapshot.CreateAsync(SnapshotType.System, SnapshotEvent.Creation, user, cancellationToken, user.Id);
             }
         }
 

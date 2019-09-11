@@ -36,7 +36,7 @@ namespace Nanoka
                 if (book == null)
                     throw new BookManagerException($"Book '{id}' does not exist.");
 
-                await _snapshot.BookUpdated(book, cancellationToken);
+                await _snapshot.CreateAsync(SnapshotType.User, SnapshotEvent.Modification, book, cancellationToken);
 
                 _mapper.Map(model, book);
 
@@ -55,9 +55,9 @@ namespace Nanoka
                 if (book == null)
                     throw new BookManagerException($"Book '{id}' does not exist.");
 
-                await _db.DeleteBookAsync(id, cancellationToken);
+                await _snapshot.CreateAsync(SnapshotType.User, SnapshotEvent.Deletion, book, cancellationToken);
 
-                await _snapshot.BookDeleted(book, cancellationToken);
+                await _db.DeleteBookAsync(id, cancellationToken);
             }
         }
     }
