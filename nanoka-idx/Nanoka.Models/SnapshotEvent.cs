@@ -8,7 +8,7 @@ namespace Nanoka.Models
 
         /// <summary>
         /// The snapshot was created when an object was created.
-        /// In this case, <see cref="Snapshot.Value"/> is null.
+        /// In this case, <see cref="Snapshot{T}.Value"/> is null.
         /// </summary>
         [EnumMember(Value = "create")] Creation = 1,
 

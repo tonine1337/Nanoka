@@ -3,13 +3,15 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
+    public class Snapshot : Snapshot<object> { }
+
     /// <summary>
     /// Represents a snapshot of an object in the database before an event.
     /// </summary>
-    public class Snapshot
+    public class Snapshot<T>
     {
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [JsonProperty("time")]
         public DateTime Time { get; set; }
@@ -21,7 +23,7 @@ namespace Nanoka.Models
         public SnapshotEntity Entity { get; set; }
 
         [JsonProperty("entity_id")]
-        public string EntityId { get; set; }
+        public int EntityId { get; set; }
 
         [JsonProperty("event")]
         public SnapshotEvent Event { get; set; }
@@ -30,6 +32,6 @@ namespace Nanoka.Models
         public string Reason { get; set; }
 
         [JsonProperty("value")]
-        public string Value { get; set; }
+        public T Value { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Nanoka.Database;
 using Nanoka.Storage;
 using Newtonsoft.Json;
 
@@ -57,7 +58,8 @@ namespace Nanoka
                      });
 
             // database
-            services.AddSingleton<NanokaDatabase>();
+            services.AddSingleton<INanokaDatabase, NanokaElasticDatabase>()
+                    .AddScoped<UserManager>();
 
             // storage
             var storage = _configuration.GetSection("Storage")["Type"];
@@ -81,11 +83,10 @@ namespace Nanoka
             services.AddSingleton<JsonSerializer>()
                     .AddHttpClient()
                     .AddAutoMapper(typeof(ModelMapperProfile))
-                    .AddHostedDependencyService<UploadManager>()
                     .AddScoped<RecaptchaValidator>()
                     .AddScoped<ImageProcessor>()
-                    .AddScoped<SnapshotManager>()
-                    .AddHttpContextAccessor();
+                    .AddHttpContextAccessor()
+                    .AddSingleton<PasswordHashHelper>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

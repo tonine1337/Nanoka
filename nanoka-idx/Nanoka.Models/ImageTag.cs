@@ -9,7 +9,6 @@ namespace Nanoka.Models
         [EnumMember(Value = "character")] Character = 2,
         [EnumMember(Value = "copyright")] Copyright = 3,
         [EnumMember(Value = "metadata")] Metadata = 4,
-        [EnumMember(Value = "pool")] Pool = 5,
-        [EnumMember(Value = "source")] Source = 6
+        [EnumMember(Value = "pool")] Pool = 5
     }
 }

@@ -5,19 +5,19 @@ namespace Nanoka.Models
 {
     public class ImageNote
     {
-        [JsonProperty("x")]
+        [JsonProperty("x"), Range(0, short.MaxValue)]
         public int X { get; set; }
 
-        [JsonProperty("y")]
+        [JsonProperty("y"), Range(0, short.MaxValue)]
         public int Y { get; set; }
 
-        [JsonProperty("width")]
+        [JsonProperty("width"), Range(0, short.MaxValue)]
         public int Width { get; set; }
 
-        [JsonProperty("height")]
+        [JsonProperty("height"), Range(0, short.MaxValue)]
         public int Height { get; set; }
 
-        [JsonProperty("content"), Required]
+        [JsonProperty("content"), Required, MaxLength(4096)]
         public string Content { get; set; }
     }
 }

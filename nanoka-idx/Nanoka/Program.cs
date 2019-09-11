@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Nanoka.Database;
 using Nanoka.Storage;
 
 namespace Nanoka
@@ -19,7 +20,7 @@ namespace Nanoka
                 await host.Services.GetService<IStorage>().InitializeAsync();
 
                 // migrate database
-                await host.Services.GetService<NanokaDatabase>().MigrateAsync();
+                await host.Services.GetService<INanokaDatabase>().MigrateAsync();
 
                 // run host
                 await host.RunAsync();

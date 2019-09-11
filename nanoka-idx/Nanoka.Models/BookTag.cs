@@ -9,7 +9,6 @@ namespace Nanoka.Models
         [EnumMember(Value = "parody")] Parody = 2,
         [EnumMember(Value = "character")] Character = 3,
         [EnumMember(Value = "convention")] Convention = 4,
-        [EnumMember(Value = "series")] Series = 5,
-        [EnumMember(Value = "source")] Source = 6
+        [EnumMember(Value = "series")] Series = 5
     }
 }

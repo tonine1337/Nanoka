@@ -17,6 +17,22 @@ namespace Nanoka
 {
     public static class Extensions
     {
+        public static Dictionary<T1, T2[]> RemoveNullValues<T1, T2>(this Dictionary<T1, T2[]> dict)
+        {
+            var keys = new List<T1>();
+
+            foreach (var (key, value) in dict)
+            {
+                if (value == null || value.Length == 0)
+                    keys.Add(key);
+            }
+
+            foreach (var key in keys)
+                dict.Remove(key);
+
+            return dict;
+        }
+
         /// <summary>
         /// Generates a practically unique (enough) string that is shorter than base64 encoded UUID.
         /// This uses <see cref="Timestamp"/>.
@@ -52,14 +68,14 @@ namespace Nanoka
             }
         }
 
-        public static Guid ParseUserId(this HttpContext context)
+        public static int ParseUserId(this HttpContext context)
         {
             var value = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (value == null)
                 throw new InvalidOperationException($"Missing claim '{nameof(ClaimTypes.NameIdentifier)}'.");
 
-            return value.ToGuid();
+            return int.Parse(value);
         }
 
         public static UserPermissions ParseUserPermissions(this HttpContext context)

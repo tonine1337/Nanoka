@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace Nanoka.Models
@@ -6,7 +5,10 @@ namespace Nanoka.Models
     public class User : UserBase
     {
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public int Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Username { get; set; }
 
         /// <summary>
         /// User email. This is returned by the API to moderator users only.
@@ -42,9 +44,7 @@ namespace Nanoka.Models
     public class UserBase
     {
         public const string UsernameRegex = @"^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$";
-
-        [JsonProperty("name"), Required]
-        [RegularExpression(UsernameRegex)]
-        public string Username { get; set; }
+        public const int UsernameMaxLength = 20;
+        public const int PasswordMaxLength = 2048;
     }
 }

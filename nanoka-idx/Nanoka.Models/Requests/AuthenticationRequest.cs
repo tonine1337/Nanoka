@@ -6,11 +6,11 @@ namespace Nanoka.Models.Requests
 {
     public class AuthenticationRequest
     {
-        [JsonProperty("id"), Required]
-        public Guid Id { get; set; }
+        [JsonProperty("username"), Required, MaxLength(UserBase.UsernameMaxLength)]
+        public string Username { get; set; }
 
-        [JsonProperty("secret"), Required]
-        public Guid Secret { get; set; }
+        [JsonProperty("password"), Required, MaxLength(UserBase.PasswordMaxLength)]
+        public string Password { get; set; }
     }
 
     public class AuthenticationResponse

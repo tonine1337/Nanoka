@@ -22,6 +22,6 @@ namespace Nanoka
 
         public UserPermissions DefaultUserPermissions { get; set; }
 
-        public int MaxResultCount { get; set; } = 30;
+        public int PasswordHashVersion { get; set; }
     }
 }

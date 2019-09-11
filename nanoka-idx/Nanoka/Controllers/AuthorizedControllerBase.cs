@@ -8,15 +8,15 @@ namespace Nanoka.Controllers
     [Authorize]
     public abstract class AuthorizedControllerBase : ControllerBase
     {
-        readonly Lazy<Guid> _userId;
+        readonly Lazy<int> _userId;
         readonly Lazy<UserPermissions> _userPermissions;
 
-        protected Guid UserId => _userId.Value;
+        protected int UserId => _userId.Value;
         protected UserPermissions UserPermissions => _userPermissions.Value;
 
         protected AuthorizedControllerBase()
         {
-            _userId          = new Lazy<Guid>(() => HttpContext.ParseUserId());
+            _userId          = new Lazy<int>(() => HttpContext.ParseUserId());
             _userPermissions = new Lazy<UserPermissions>(() => HttpContext.ParseUserPermissions());
         }
 

@@ -10,7 +10,7 @@ namespace Nanoka.Models
     public class Book : BookBase
     {
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [JsonProperty("score")]
         public double Score { get; set; }
