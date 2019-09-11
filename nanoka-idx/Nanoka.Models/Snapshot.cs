@@ -22,6 +22,9 @@ namespace Nanoka.Models
         [JsonProperty("committer")]
         public int CommitterId { get; set; }
 
+        [JsonProperty("type")]
+        public SnapshotType Type { get; set; }
+
         [JsonProperty("entity")]
         public SnapshotEntity Entity { get; set; }
 
