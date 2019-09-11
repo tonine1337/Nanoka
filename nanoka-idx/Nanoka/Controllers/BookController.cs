@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nanoka.Models;
+using Nanoka.Models.Requests;
 
 namespace Nanoka.Controllers
 {
@@ -24,6 +25,10 @@ namespace Nanoka.Controllers
         [HttpGet("{id}/history")]
         public async Task<Result<Snapshot<Book>[]>> GetSnapshotsAsync(int id)
             => await _bookManager.GetSnapshotsAsync(id);
+
+        [HttpPost("{id}/history/revert"), RequireUnrestricted]
+        public async Task<Result<Book>> RevertAsync(int id, RevertEntityRequest request)
+            => await _bookManager.RevertAsync(id, request.SnapshotId);
 
         [HttpPut("{id}"), RequireUnrestricted]
         public async Task<Result<Book>> UpdateAsync(int id, BookBase model)
