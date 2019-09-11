@@ -10,7 +10,7 @@ namespace Nanoka
     {
         readonly NanokaOptions _options;
         readonly INanokaDatabase _db;
-        readonly NamedLockManager _lockManager;
+        readonly NamedLockManager _lock;
         readonly PasswordHashHelper _hashHelper;
         readonly SnapshotManager _snapshotManager;
 
@@ -19,14 +19,14 @@ namespace Nanoka
         {
             _options         = options.Value;
             _db              = db;
-            _lockManager     = lockManager;
+            _lock            = lockManager;
             _hashHelper      = hashHelper;
             _snapshotManager = snapshotManager;
         }
 
         public async Task CreateAsync(string username, string password, CancellationToken cancellationToken = default)
         {
-            using (await _lockManager.EnterAsync(username, cancellationToken))
+            using (await _lock.EnterAsync(username, cancellationToken))
             {
                 // ensure username is unique
                 if (await _db.GetUserAsync(username, cancellationToken) != null)
