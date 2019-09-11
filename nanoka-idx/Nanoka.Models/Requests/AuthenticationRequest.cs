@@ -18,7 +18,7 @@ namespace Nanoka.Models.Requests
         /// <summary>
         /// JWT bearer token.
         /// </summary>
-        [JsonProperty("accessToken")]
+        [JsonProperty("access_token")]
         public string AccessToken { get; set; }
 
         /// <summary>
