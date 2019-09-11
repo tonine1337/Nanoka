@@ -67,7 +67,14 @@ namespace Nanoka.Controllers
             if (!await _recaptcha.ValidateAsync(recaptcha))
                 return Result.InvalidRecaptchaToken(recaptcha);
 
-            await _userManager.CreateAsync(request.Username, request.Password);
+            try
+            {
+                await _userManager.CreateAsync(request.Username, request.Password);
+            }
+            catch (UserManagerException e)
+            {
+                return Result.BadRequest(e.Message);
+            }
 
             return new RegistrationResponse();
         }
