@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
-    public class ExternalSource : IEquatable<ExternalSource>
+    public struct ExternalSource : IEquatable<ExternalSource>
     {
         [JsonProperty("website"), Required]
         public string Website { get; set; }
@@ -14,9 +14,7 @@ namespace Nanoka.Models
 
         public override bool Equals(object obj) => obj is ExternalSource src && Equals(src);
 
-        public bool Equals(ExternalSource other) => other != null &&
-                                                    Website == other.Website &&
-                                                    Identifier == other.Identifier;
+        public bool Equals(ExternalSource other) => Website == other.Website && Identifier == other.Identifier;
 
         public override int GetHashCode()
         {
