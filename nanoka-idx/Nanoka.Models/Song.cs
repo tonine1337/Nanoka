@@ -28,7 +28,7 @@ namespace Nanoka.Models
         /// First element should be the fully localized primary name.
         /// </summary>
         [JsonProperty("names"), Required, MinLength(1)]
-        public string[] Names { get; set; }
+        public string[] Name { get; set; }
 
         [JsonProperty("preview_ms"), Range(0, double.MaxValue)]
         public double PreviewTime { get; set; }

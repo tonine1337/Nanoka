@@ -27,7 +27,7 @@ namespace Nanoka.Models
         /// First element should be the fully localized primary name.
         /// </summary>
         [JsonProperty("names"), Required, MinLength(1)]
-        public string[] Names { get; set; }
+        public string[] Name { get; set; }
 
         [JsonProperty("tags"), Required, MinLength(MinimumTagCount)]
         public Dictionary<BookTag, string[]> Tags { get; set; }

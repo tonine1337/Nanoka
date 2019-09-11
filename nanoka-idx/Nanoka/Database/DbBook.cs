@@ -13,7 +13,7 @@ namespace Nanoka.Database
         public int Id { get; set; }
 
         [Text(Name = "n"), JsonProperty("n")]
-        public string[] Names { get; set; }
+        public string[] Name { get; set; }
 
         [Number(NumberType.Double, Name = "s"), JsonProperty("s")]
         public double Score { get; set; }
@@ -64,7 +64,7 @@ namespace Nanoka.Database
         public Book ToBook() => new Book
         {
             Id    = Id,
-            Names = Names,
+            Name  = Name,
             Score = Score,
             Tags = new Dictionary<BookTag, string[]>
             {
@@ -87,7 +87,7 @@ namespace Nanoka.Database
             return new DbBook
             {
                 Id             = book.Id,
-                Names          = book.Names,
+                Name           = book.Name,
                 Score          = book.Score,
                 TagsGeneral    = book.Tags.GetValueOrDefault(BookTag.General),
                 TagsArtist     = book.Tags.GetValueOrDefault(BookTag.Artist),
