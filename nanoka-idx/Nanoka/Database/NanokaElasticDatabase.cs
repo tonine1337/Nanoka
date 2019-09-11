@@ -156,6 +156,9 @@ namespace Nanoka.Database
         public Task<int> AddSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default)
             => IndexAsync(DbSnapshot.FromSnapshot(snapshot, _serializer), cancellationToken);
 
+        public async Task<Snapshot<T>> GetSnapshotAsync<T>(int id, CancellationToken cancellationToken = default)
+            => (await GetAsync<DbSnapshot>(id, cancellationToken)).ToSnapshot<T>(_serializer);
+
         static SnapshotEntity ConvertSnapshotEntity<T>()
         {
             var name = typeof(T).Name;
@@ -166,14 +169,14 @@ namespace Nanoka.Database
             throw new NotSupportedException($"Cannot retrieve snapshots of type '{typeof(T).FullName}'.");
         }
 
-        public async Task<Snapshot<T>[]> GetSnapshotsAsync<T>(int id, CancellationToken cancellationToken = default)
+        public async Task<Snapshot<T>[]> GetSnapshotsAsync<T>(int entityId, CancellationToken cancellationToken = default)
         {
             var result = await SearchAsync<DbSnapshot>(
                 (0, 256),
                 q => q.Query(qq => qq.Bool(b => b.Filter(f => f.Term(t => t.Field(s => s.Entity)
                                                                            .Value(ConvertSnapshotEntity<T>())),
                                                          f => f.Term(t => t.Field(s => s.EntityId)
-                                                                           .Value(id)))))
+                                                                           .Value(entityId)))))
                       .Sort(ss => ss.Descending(s => s.Time)),
                 cancellationToken);
 
