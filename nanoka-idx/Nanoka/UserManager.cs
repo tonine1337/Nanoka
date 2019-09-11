@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -6,27 +7,27 @@ using Nanoka.Models;
 
 namespace Nanoka
 {
-    public class UserManager
+    public class UserManager : IDisposable
     {
         readonly NanokaOptions _options;
         readonly INanokaDatabase _db;
+        readonly NamedLockManager _lockManager;
         readonly PasswordHashHelper _hashHelper;
         readonly SnapshotManager _snapshotManager;
 
-        public UserManager(IOptions<NanokaOptions> options, INanokaDatabase db, PasswordHashHelper hashHelper,
-                           SnapshotManager snapshotManager)
+        public UserManager(IOptions<NanokaOptions> options, INanokaDatabase db, NamedLockManager lockManager,
+                           PasswordHashHelper hashHelper, SnapshotManager snapshotManager)
         {
             _options         = options.Value;
             _db              = db;
+            _lockManager     = lockManager;
             _hashHelper      = hashHelper;
             _snapshotManager = snapshotManager;
         }
 
-        readonly object _userExistenceLock = new object();
-
         public async Task CreateAsync(string username, string password, CancellationToken cancellationToken = default)
         {
-            using (await NanokaLock.EnterAsync(_userExistenceLock, cancellationToken))
+            using (await _lockManager.EnterAsync(username, cancellationToken))
             {
                 // ensure username is unique
                 if (await _db.GetUserAsync(username, cancellationToken) != null)
@@ -51,5 +52,7 @@ namespace Nanoka
 
             return _hashHelper.Test(password, user?.Secret) ? user : null;
         }
+
+        public void Dispose() => _lockManager.Dispose();
     }
 }

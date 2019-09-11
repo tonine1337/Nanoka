@@ -6,42 +6,37 @@ using System.Threading.Tasks;
 
 namespace Nanoka
 {
-    /// <summary>
-    /// Centralized locking mechanism to limit concurrent access to resources.
-    /// </summary>
-    public static class NanokaLock
+    public class NamedLockManager : IDisposable
     {
-        static readonly object _lock = new object();
+        readonly object _lock = new object();
 
         // use plain Dictionary, not ConcurrentDictionary
-        static readonly Dictionary<object, Lock> _semaphores = new Dictionary<object, Lock>();
+        readonly Dictionary<object, Lock> _locks = new Dictionary<object, Lock>();
 
         // contains reusable semaphores to avoid recreating unnecessarily
-        static readonly Stack<SemaphoreSlim> _pool = new Stack<SemaphoreSlim>();
-
-        // whether to fill the pool with semaphores on init
-        static readonly bool _preallocatePool = !Debugger.IsAttached; // enable preallocation in production
+        readonly Stack<SemaphoreSlim> _pool = new Stack<SemaphoreSlim>();
 
         // the maximum capacity of the semaphore pool
-        const int _poolCapacity = 100;
+        const int _poolCapacity = 20;
 
-        static NanokaLock()
+        volatile bool _isDisposed;
+
+        public NamedLockManager()
         {
             // preallocate semaphores
-            if (_preallocatePool)
-                for (var i = 0; i < _poolCapacity; i++)
-                    _pool.Push(new SemaphoreSlim(1));
+            /*for (var i = 0; i < _poolCapacity; i++)
+                _pool.Push(new SemaphoreSlim(1));*/
         }
 
-        public static async Task<IDisposable> EnterAsync(object id, CancellationToken cancellationToken = default)
+        public async Task<IDisposable> EnterAsync(object id, CancellationToken cancellationToken = default)
         {
             Lock l;
 
             lock (_lock)
             {
                 // get or create a new lock
-                if (!_semaphores.TryGetValue(id, out l))
-                    _semaphores[id] = l = new Lock(id);
+                if (!_locks.TryGetValue(id, out l))
+                    _locks[id] = l = new Lock(this, id);
 
                 // increment reference count
                 ++l.References;
@@ -56,16 +51,18 @@ namespace Nanoka
 
         sealed class Lock : IDisposable
         {
+            readonly NamedLockManager _manager;
             readonly object _id;
 
             public readonly SemaphoreSlim Semaphore;
 
-            public Lock(object id)
+            public Lock(NamedLockManager manager, object id)
             {
-                _id = id;
+                _manager = manager;
+                _id      = id;
 
                 // try reusing semaphores
-                if (!_pool.TryPop(out Semaphore))
+                if (!_manager._pool.TryPop(out Semaphore))
                     Semaphore = new SemaphoreSlim(1);
             }
 
@@ -75,18 +72,19 @@ namespace Nanoka
             // called Lock.Dispose
             public void Dispose()
             {
-                lock (_lock)
+                lock (_manager._lock)
                 {
                     // decrement reference count
                     if (--References == 0)
                     {
                         // we are the last reference to this lock
                         // return this semaphore to the pool if capacity not reached (to be reused later)
-                        if (_pool.Count != _poolCapacity)
+                        // if the manager is not disposed yet
+                        if (_manager._pool.Count != _poolCapacity && !_manager._isDisposed)
                         {
                             Semaphore.Release();
 
-                            _pool.Push(Semaphore);
+                            _manager._pool.Push(Semaphore);
                         }
 
                         // pool is full, so dispose semaphore and forget it
@@ -95,7 +93,7 @@ namespace Nanoka
                             Semaphore.Dispose();
                         }
 
-                        Trace.Assert(_semaphores.Remove(_id), "someone hacked our semaphore dictionary");
+                        Trace.Assert(_manager._locks.Remove(_id), "someone hacked our semaphore dictionary");
                     }
                     else
                     {
@@ -103,6 +101,20 @@ namespace Nanoka
                         Semaphore.Release();
                     }
                 }
+            }
+        }
+
+        public void Dispose()
+        {
+            lock (_lock)
+            {
+                if (_isDisposed)
+                    return;
+
+                while (_pool.TryPop(out var semaphore))
+                    semaphore.Dispose();
+
+                _isDisposed = true;
             }
         }
     }
