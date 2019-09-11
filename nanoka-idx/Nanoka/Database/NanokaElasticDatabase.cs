@@ -21,14 +21,14 @@ namespace Nanoka.Database
         readonly ElasticOptions _options;
         readonly ILogger<NanokaElasticDatabase> _logger;
         readonly JsonSerializer _serializer;
-        readonly PasswordHashHelper _hashHelper;
+        readonly PasswordHashHelper _hash;
 
-        public NanokaElasticDatabase(IOptions<ElasticOptions> options, ILogger<NanokaElasticDatabase> logger, JsonSerializer serializer, PasswordHashHelper hashHelper)
+        public NanokaElasticDatabase(IOptions<ElasticOptions> options, ILogger<NanokaElasticDatabase> logger, JsonSerializer serializer, PasswordHashHelper hash)
         {
             _options    = options.Value;
             _logger     = logger;
             _serializer = serializer;
-            _hashHelper = hashHelper;
+            _hash       = hash;
 
             if (_options.Endpoint == null)
                 throw new NanokaDatabaseException("Elasticsearch endpoint is not configured.");
@@ -56,7 +56,7 @@ namespace Nanoka.Database
                 var user = new User
                 {
                     Username    = _defaultAdminUsername,
-                    Secret      = _hashHelper.Hash(_defaultAdminPassword),
+                    Secret      = _hash.Hash(_defaultAdminPassword),
                     Permissions = UserPermissions.Administrator
                 };
 

@@ -15,7 +15,7 @@ namespace Nanoka
             _db = db;
         }
 
-        public Task UserCreatedAsync(User user, CancellationToken cancellationToken = default)
+        public Task UserCreated(User user, CancellationToken cancellationToken = default)
             => New<User>(user.Id, SnapshotType.System, SnapshotEvent.Creation, null, null, cancellationToken);
 
         async Task<Snapshot<T>> New<T>(int committer, SnapshotType type, SnapshotEvent @event, T value, string reason, CancellationToken cancellationToken)

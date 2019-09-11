@@ -11,17 +11,17 @@ namespace Nanoka
         readonly NanokaOptions _options;
         readonly INanokaDatabase _db;
         readonly NamedLockManager _lock;
-        readonly PasswordHashHelper _hashHelper;
-        readonly SnapshotManager _snapshotManager;
+        readonly PasswordHashHelper _hash;
+        readonly SnapshotManager _snapshot;
 
         public UserManager(IOptions<NanokaOptions> options, INanokaDatabase db, NamedLockManager lockManager,
-                           PasswordHashHelper hashHelper, SnapshotManager snapshotManager)
+                           PasswordHashHelper hash, SnapshotManager snapshot)
         {
-            _options         = options.Value;
-            _db              = db;
-            _lock            = lockManager;
-            _hashHelper      = hashHelper;
-            _snapshotManager = snapshotManager;
+            _options  = options.Value;
+            _db       = db;
+            _lock     = lockManager;
+            _hash     = hash;
+            _snapshot = snapshot;
         }
 
         public async Task CreateAsync(string username, string password, CancellationToken cancellationToken = default)
@@ -35,13 +35,13 @@ namespace Nanoka
                 var user = new User
                 {
                     Username    = username,
-                    Secret      = _hashHelper.Hash(password),
+                    Secret      = _hash.Hash(password),
                     Permissions = _options.DefaultUserPermissions
                 };
 
                 user.Id = await _db.UpdateUserAsync(user, cancellationToken);
 
-                await _snapshotManager.UserCreatedAsync(user, cancellationToken);
+                await _snapshot.UserCreated(user, cancellationToken);
             }
         }
 
@@ -49,7 +49,7 @@ namespace Nanoka
         {
             var user = await _db.GetUserAsync(username, cancellationToken);
 
-            return _hashHelper.Test(password, user?.Secret) ? user : null;
+            return _hash.Test(password, user?.Secret) ? user : null;
         }
     }
 }
