@@ -19,56 +19,22 @@ namespace Nanoka.Controllers
 
         [HttpGet("{id}")]
         public async Task<Result<Book>> GetAsync(int id)
-        {
-            try
-            {
-                return await _bookManager.GetAsync(id);
-            }
-            catch (BookManagerException e)
-            {
-                return Result.BadRequest(e.Message);
-            }
-        }
+            => await _bookManager.GetAsync(id);
 
         [HttpGet("{id}/history")]
         public async Task<Result<Snapshot<Book>[]>> GetSnapshotsAsync(int id)
-        {
-            try
-            {
-                return await _bookManager.GetSnapshotsAsync(id);
-            }
-            catch (BookManagerException e)
-            {
-                return Result.BadRequest(e.Message);
-            }
-        }
+            => await _bookManager.GetSnapshotsAsync(id);
 
         [HttpPut("{id}"), RequireUnrestricted]
         public async Task<Result<Book>> UpdateAsync(int id, BookBase model)
-        {
-            try
-            {
-                return await _bookManager.UpdateAsync(id, model);
-            }
-            catch (BookManagerException e)
-            {
-                return Result.BadRequest(e.Message);
-            }
-        }
+            => await _bookManager.UpdateAsync(id, model);
 
         [HttpDelete("{id}"), RequireUnrestricted, RequireReputation(100)]
         public async Task<Result> DeleteAsync(int id)
         {
-            try
-            {
-                await _bookManager.DeleteAsync(id);
+            await _bookManager.DeleteAsync(id);
 
-                return Result.Ok();
-            }
-            catch (BookManagerException e)
-            {
-                return Result.BadRequest(e.Message);
-            }
+            return Result.Ok();
         }
     }
 }

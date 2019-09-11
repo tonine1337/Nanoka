@@ -11,10 +11,15 @@ namespace Nanoka.Controllers
         [Route("error")]
         public Result Handle()
         {
+            var exception = HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+            // manager exceptions are usually thrown due to invalid input
+            if (exception != null && exception.GetType().Name.EndsWith("ManagerException"))
+                return Result.BadRequest(exception.Message);
+
+            // other exceptions are assumed internal errors
             var builder = new StringBuilder()
                .Append("An internal server error caused this request to fail.");
-
-            var exception = HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
 
             if (exception != null)
                 builder.AppendLine()
