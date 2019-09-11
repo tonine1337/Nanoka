@@ -6,26 +6,39 @@ using System.Threading.Tasks;
 
 namespace Nanoka
 {
-    public class NamedLockManager : IDisposable
+    public class NamedLockerInstance : ILocker
     {
-        readonly object _lock = new object();
+        readonly object _lock;
 
         // use plain Dictionary, not ConcurrentDictionary
         readonly Dictionary<object, Lock> _locks = new Dictionary<object, Lock>();
 
         // contains reusable semaphores to avoid recreating unnecessarily
-        readonly Stack<SemaphoreSlim> _pool = new Stack<SemaphoreSlim>();
+        readonly Stack<SemaphoreSlim> _pool;
 
         // the maximum capacity of the semaphore pool
-        const int _poolCapacity = 20;
+        readonly int _poolCapacity;
 
         volatile bool _isDisposed;
 
-        public NamedLockManager()
+        public NamedLockerInstance()
         {
+            _lock = new object();
+            _pool = new Stack<SemaphoreSlim>();
+
             // preallocate semaphores
             /*for (var i = 0; i < _poolCapacity; i++)
                 _pool.Push(new SemaphoreSlim(1));*/
+
+            // default pool capacity
+            _poolCapacity = 20;
+        }
+
+        public NamedLockerInstance(object sharedLock, Stack<SemaphoreSlim> sharedPool, int poolCapacity)
+        {
+            _lock         = sharedLock;
+            _pool         = sharedPool;
+            _poolCapacity = poolCapacity;
         }
 
         public async Task<IDisposable> EnterAsync(object id, CancellationToken cancellationToken = default)
@@ -51,12 +64,12 @@ namespace Nanoka
 
         sealed class Lock : IDisposable
         {
-            readonly NamedLockManager _manager;
+            readonly NamedLockerInstance _manager;
             readonly object _id;
 
             public readonly SemaphoreSlim Semaphore;
 
-            public Lock(NamedLockManager manager, object id)
+            public Lock(NamedLockerInstance manager, object id)
             {
                 _manager = manager;
                 _id      = id;
@@ -80,7 +93,7 @@ namespace Nanoka
                         // we are the last reference to this lock
                         // return this semaphore to the pool if capacity not reached (to be reused later)
                         // if the manager is not disposed yet
-                        if (_manager._pool.Count != _poolCapacity && !_manager._isDisposed)
+                        if (_manager._pool.Count != _manager._poolCapacity && !_manager._isDisposed)
                         {
                             Semaphore.Release();
 
