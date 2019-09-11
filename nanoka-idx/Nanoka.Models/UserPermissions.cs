@@ -14,6 +14,12 @@ namespace Nanoka.Models
         /// User is an administrator.
         /// This flag effectively enables every other flag.
         /// </summary>
-        Administrator = 1 << 0
+        Administrator = 1 << 0,
+
+        /// <summary>
+        /// User is a moderator.
+        /// It can manage other user accounts.
+        /// </summary>
+        Moderator = 1 << 1
     }
 }
