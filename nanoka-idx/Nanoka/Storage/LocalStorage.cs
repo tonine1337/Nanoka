@@ -29,11 +29,11 @@ namespace Nanoka.Storage
             _logger     = logger;
 
             _contentDir = Directory.CreateDirectory(options.Value.ContentPath == null
-                                                        ? Path.Combine(environment.ContentRootPath, "storage", "content")
+                                                        ? Path.Combine(environment.ContentRootPath, "data_storage", "content")
                                                         : Path.GetFullPath(options.Value.ContentPath));
 
             _indexDir = Directory.CreateDirectory(options.Value.IndexPath == null
-                                                      ? Path.Combine(environment.ContentRootPath, "storage", "index")
+                                                      ? Path.Combine(environment.ContentRootPath, "data_storage", "index")
                                                       : Path.GetFullPath(options.Value.IndexPath));
         }
 
