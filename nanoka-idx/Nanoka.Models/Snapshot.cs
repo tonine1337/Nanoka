@@ -3,7 +3,10 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
-    public class Snapshot : Snapshot<object> { }
+    /// <summary>
+    /// Use <see cref="Snapshot{T}"/> instead.
+    /// </summary>
+    public abstract class Snapshot : Snapshot<object> { }
 
     /// <summary>
     /// Represents a snapshot of an object in the database before an event.
