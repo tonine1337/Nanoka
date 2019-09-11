@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nanoka.Models;
 
@@ -6,7 +7,8 @@ namespace Nanoka.Controllers
 {
     [ApiController]
     [Route("books")]
-    public class BookController : AuthorizedControllerBase
+    [Authorize]
+    public class BookController : ControllerBase
     {
         readonly BookManager _bookManager;
 
@@ -29,11 +31,11 @@ namespace Nanoka.Controllers
         }
 
         [HttpPut("{id}"), RequireUnrestricted]
-        public async Task<Result<Book>> UpdateAsync(int id, BookBase model, [FromQuery] string reason)
+        public async Task<Result<Book>> UpdateAsync(int id, BookBase model)
         {
             try
             {
-                return await _bookManager.UpdateAsync(id, model, UserId, reason);
+                return await _bookManager.UpdateAsync(id, model);
             }
             catch (BookManagerException e)
             {
@@ -42,11 +44,11 @@ namespace Nanoka.Controllers
         }
 
         [HttpDelete("{id}"), RequireUnrestricted, RequireReputation(100)]
-        public async Task<Result> DeleteAsync(int id, [FromQuery] string reason)
+        public async Task<Result> DeleteAsync(int id)
         {
             try
             {
-                await _bookManager.DeleteAsync(id, UserId, reason);
+                await _bookManager.DeleteAsync(id);
 
                 return Result.Ok();
             }

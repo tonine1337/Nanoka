@@ -24,7 +24,7 @@ namespace Nanoka
         public Task<Book> GetAsync(int id, CancellationToken cancellationToken = default)
             => _db.GetBookAsync(id, cancellationToken);
 
-        public async Task<Book> UpdateAsync(int id, BookBase model, int userId, string reason, CancellationToken cancellationToken = default)
+        public async Task<Book> UpdateAsync(int id, BookBase model, CancellationToken cancellationToken = default)
         {
             using (await _locker.EnterAsync(id, cancellationToken))
             {
@@ -33,7 +33,7 @@ namespace Nanoka
                 if (book == null)
                     throw new BookManagerException($"Book '{id}' does not exist.");
 
-                await _snapshot.BookUpdated(book, userId, reason, cancellationToken);
+                await _snapshot.BookUpdated(book, cancellationToken);
 
                 _mapper.Map(model, book);
 
@@ -43,7 +43,7 @@ namespace Nanoka
             }
         }
 
-        public async Task DeleteAsync(int id, int userId, string reason, CancellationToken cancellationToken = default)
+        public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
         {
             using (await _locker.EnterAsync(id, cancellationToken))
             {
@@ -54,7 +54,7 @@ namespace Nanoka
 
                 await _db.DeleteBookAsync(id, cancellationToken);
 
-                await _snapshot.BookDeleted(book, userId, reason, cancellationToken);
+                await _snapshot.BookDeleted(book, cancellationToken);
             }
         }
     }

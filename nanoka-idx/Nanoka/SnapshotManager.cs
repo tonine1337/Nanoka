@@ -10,29 +10,35 @@ namespace Nanoka
     {
         readonly INanokaDatabase _db;
 
-        public SnapshotManager(INanokaDatabase db)
+        readonly int _userId;
+        readonly string _reason;
+
+        public SnapshotManager(INanokaDatabase db, UserClaimSet claims)
         {
             _db = db;
+
+            _userId = claims.Id;
+            _reason = claims.Reason;
         }
 
         public Task UserCreated(User user, CancellationToken cancellationToken = default)
-            => New(user.Id, SnapshotType.System, SnapshotEvent.Creation, null as User, null, cancellationToken);
+            => New(SnapshotType.System, SnapshotEvent.Creation, null as User, cancellationToken, user.Id);
 
-        public Task BookUpdated(Book book, int userId, string reason, CancellationToken cancellationToken = default)
-            => New(userId, SnapshotType.User, SnapshotEvent.Modification, book, reason, cancellationToken);
+        public Task BookUpdated(Book book, CancellationToken cancellationToken = default)
+            => New(SnapshotType.User, SnapshotEvent.Modification, book, cancellationToken);
 
-        public Task BookDeleted(Book book, int userId, string reason, CancellationToken cancellationToken = default)
-            => New(userId, SnapshotType.User, SnapshotEvent.Deletion, book, reason, cancellationToken);
+        public Task BookDeleted(Book book, CancellationToken cancellationToken = default)
+            => New(SnapshotType.User, SnapshotEvent.Deletion, book, cancellationToken);
 
-        async Task<Snapshot<T>> New<T>(int committer, SnapshotType type, SnapshotEvent @event, T value, string reason, CancellationToken cancellationToken)
+        async Task<Snapshot<T>> New<T>(SnapshotType type, SnapshotEvent @event, T value, CancellationToken cancellationToken, int? committer = null, string reason = null)
         {
             var snapshot = new Snapshot<T>
             {
                 Time        = DateTime.UtcNow,
-                CommitterId = committer,
+                CommitterId = committer ?? _userId,
                 Type        = type,
                 Event       = @event,
-                Reason      = reason,
+                Reason      = reason ?? _reason,
                 Value       = value
             };
 

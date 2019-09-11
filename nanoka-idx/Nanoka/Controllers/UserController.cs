@@ -15,7 +15,8 @@ namespace Nanoka.Controllers
 {
     [ApiController]
     [Route("users")]
-    public class UserController : AuthorizedControllerBase
+    [Authorize]
+    public class UserController : ControllerBase
     {
         readonly NanokaOptions _options;
         readonly UserManager _userManager;
