@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -7,7 +6,7 @@ using Nanoka.Models;
 
 namespace Nanoka
 {
-    public class UserManager : IDisposable
+    public class UserManager
     {
         readonly NanokaOptions _options;
         readonly INanokaDatabase _db;
@@ -52,7 +51,5 @@ namespace Nanoka
 
             return _hashHelper.Test(password, user?.Secret) ? user : null;
         }
-
-        public void Dispose() => _lockManager.Dispose();
     }
 }
