@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 using Nanoka.Models;
 
 namespace Nanoka
@@ -29,10 +30,9 @@ namespace Nanoka
                 if (context.Result != null)
                     return;
 
-                var permissions = context.HttpContext.ParseUserPermissions();
-                var reputation  = context.HttpContext.ParseUserReputation();
+                var claims = context.HttpContext.RequestServices.GetService<UserClaimSet>();
 
-                if (!permissions.HasFlag(UserPermissions.Administrator) && reputation < _minimum)
+                if (!claims.HasPermissions(UserPermissions.Administrator) && claims.Reputation < _minimum)
                     context.Result = new InsufficientReputationResult(_minimum);
             }
 

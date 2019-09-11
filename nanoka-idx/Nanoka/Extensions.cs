@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Nanoka.Models;
 using Newtonsoft.Json;
 
 namespace Nanoka
@@ -66,52 +63,6 @@ namespace Nanoka
 
                 return newValue;
             }
-        }
-
-        public static int ParseUserId(this HttpContext context)
-        {
-            var value = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (value == null)
-                throw new InvalidOperationException($"Missing claim '{nameof(ClaimTypes.NameIdentifier)}'.");
-
-            return int.Parse(value);
-        }
-
-        public static UserPermissions ParseUserPermissions(this HttpContext context)
-        {
-            var value = context.User.FindFirst(ClaimTypes.Role)?.Value;
-
-            if (value == null)
-                throw new InvalidOperationException($"Missing claim '{nameof(ClaimTypes.Role)}'.");
-
-            if (int.TryParse(value, out var permissions))
-                return (UserPermissions) permissions;
-
-            return UserPermissions.None;
-        }
-
-        public static double ParseUserReputation(this HttpContext context)
-        {
-            var value = context.User.FindFirst("rep")?.Value;
-
-            if (value == null)
-                throw new InvalidOperationException("Missing claim 'rep'.");
-
-            if (double.TryParse(value, out var reputation))
-                return reputation;
-
-            return 0;
-        }
-
-        public static bool ParseIsUserRestricted(this HttpContext context)
-        {
-            var value = context.User.FindFirst("rep")?.Value;
-
-            if (value == null)
-                throw new InvalidOperationException("Missing claim 'rest'.");
-
-            return bool.TryParse(value, out var restricted) && restricted;
         }
 
         // https://stackoverflow.com/a/11124118
