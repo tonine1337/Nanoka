@@ -188,6 +188,19 @@ namespace Nanoka.Database
 
 #endregion
 
+#region Vote
+
+        public async Task<Vote> GetVoteAsync(int userId, NanokaEntity entity, int entityId, CancellationToken cancellationToken = default)
+            => (await GetAsync<DbVote>(DbVote.CreateId(userId, entity, entityId), cancellationToken)).ToVote();
+
+        public async Task UpdateVoteAsync(Vote vote, CancellationToken cancellationToken = default)
+            => await IndexAsync(DbVote.FromVote(vote), cancellationToken);
+
+        public async Task DeleteVoteAsync(int userId, NanokaEntity entity, int entityId, CancellationToken cancellationToken = default)
+            => await DeleteAsync<DbVote>(DbVote.CreateId(userId, entity, entityId), cancellationToken);
+
+#endregion
+
 #region Client calls
 
         async Task<TDocument> GetAsync<TDocument>(DocumentPath<TDocument> id, CancellationToken cancellationToken)
