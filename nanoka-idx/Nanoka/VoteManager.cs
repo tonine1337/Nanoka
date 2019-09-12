@@ -17,6 +17,7 @@ namespace Nanoka
             _claims = claims;
         }
 
+        /// <returns>Null if nothing was affected. Otherwise a <see cref="Vote"/> object.</returns>
         public async Task<Vote> SetAsync<T>(T entity, VoteType? type, CancellationToken cancellationToken = default)
             where T : IHasId, IHasEntityType, IHasScore
         {
@@ -44,7 +45,7 @@ namespace Nanoka
                 if (type == null)
                 {
                     await _db.DeleteVoteAsync(vote, cancellationToken);
-                    return null;
+                    return vote;
                 }
             }
 
