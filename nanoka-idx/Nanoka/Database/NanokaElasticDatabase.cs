@@ -39,6 +39,8 @@ namespace Nanoka.Database
             _client = new ElasticClient(connection);
         }
 
+#region Migration
+
         const string _defaultAdminUsername = "admin";
         const string _defaultAdminPassword = "admin";
 
@@ -101,16 +103,9 @@ namespace Nanoka.Database
             return true;
         }
 
-        void ValidateResponse(IResponse response)
-        {
-            if (!response.IsValid)
-            {
-                _logger.LogDebug(response.DebugInformation);
+#endregion
 
-                if (response.OriginalException != null)
-                    throw response.OriginalException;
-            }
-        }
+#region User
 
         public async Task<User> GetUserAsync(int id, CancellationToken cancellationToken = default)
             => (await GetAsync<DbUser>(id, cancellationToken)).ToUser();
@@ -129,32 +124,41 @@ namespace Nanoka.Database
             return result.Items.FirstOrDefault()?.ToUser();
         }
 
-        public Task<int> UpdateUserAsync(User user, CancellationToken cancellationToken = default)
-            => IndexAsync(DbUser.FromUser(user), cancellationToken);
+        public async Task UpdateUserAsync(User user, CancellationToken cancellationToken = default)
+            => user.Id = await IndexAsync(DbUser.FromUser(user), cancellationToken);
 
         public Task DeleteUserAsync(int id, CancellationToken cancellationToken = default)
             => DeleteAsync<DbUser>(id, cancellationToken);
 
+#endregion
+
+#region Book
+
         public async Task<Book> GetBookAsync(int id, CancellationToken cancellationToken = default)
             => (await GetAsync<DbBook>(id, cancellationToken)).ToBook();
 
-        public Task<int> UpdateBookAsync(Book book, CancellationToken cancellationToken = default)
-            => IndexAsync(DbBook.FromBook(book), cancellationToken);
+        public async Task UpdateBookAsync(Book book, CancellationToken cancellationToken = default)
+            => book.Id = await IndexAsync(DbBook.FromBook(book), cancellationToken);
 
         public Task DeleteBookAsync(int id, CancellationToken cancellationToken = default)
             => DeleteAsync<DbBook>(id, cancellationToken);
 
+#endregion
+
+#region Image
+
         public async Task<Image> GetImageAsync(int id, CancellationToken cancellationToken = default)
             => (await GetAsync<DbImage>(id, cancellationToken)).ToImage();
 
-        public Task<int> UpdateImageAsync(Image image, CancellationToken cancellationToken = default)
-            => IndexAsync(DbImage.FromImage(image), cancellationToken);
+        public async Task UpdateImageAsync(Image image, CancellationToken cancellationToken = default)
+            => image.Id = await IndexAsync(DbImage.FromImage(image), cancellationToken);
 
         public Task DeleteImageAsync(int id, CancellationToken cancellationToken = default)
             => DeleteAsync<DbImage>(id, cancellationToken);
 
-        public Task<int> AddSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default)
-            => IndexAsync(DbSnapshot.FromSnapshot(snapshot, _serializer), cancellationToken);
+#endregion
+
+#region Snapshot
 
         public async Task<Snapshot<T>> GetSnapshotAsync<T>(int id, int entityId, CancellationToken cancellationToken = default)
         {
@@ -188,6 +192,13 @@ namespace Nanoka.Database
 
             return result.Items.ToArray(s => s.ToSnapshot<T>(_serializer));
         }
+
+        public async Task UpdateSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default)
+            => snapshot.Id = await IndexAsync(DbSnapshot.FromSnapshot(snapshot, _serializer), cancellationToken);
+
+#endregion
+
+#region Client calls
 
         async Task<TDocument> GetAsync<TDocument>(DocumentPath<TDocument> id, CancellationToken cancellationToken)
             where TDocument : class
@@ -254,6 +265,19 @@ namespace Nanoka.Database
 
             _logger.LogInformation($"Deleted {typeof(TDocument).Name}: {response.Id}");
         }
+
+        void ValidateResponse(IResponse response)
+        {
+            if (!response.IsValid)
+            {
+                _logger.LogDebug(response.DebugInformation);
+
+                if (response.OriginalException != null)
+                    throw response.OriginalException;
+            }
+        }
+
+#endregion
 
         public void Dispose() { }
     }
