@@ -7,7 +7,7 @@ namespace Nanoka.Models
     /// <summary>
     /// Represents a generic book.
     /// </summary>
-    public class Book : BookBase, IHasId
+    public class Book : BookBase, IHasId, IHasScore
     {
         [JsonProperty("id")]
         public int Id { get; set; }

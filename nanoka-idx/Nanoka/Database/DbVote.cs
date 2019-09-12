@@ -22,11 +22,14 @@ namespace Nanoka.Database
         [Keyword(Name = "e"), JsonProperty("e")]
         public int EntityId { get; set; }
 
-        [Keyword(Name = "y"), JsonProperty("x")]
+        [Keyword(Name = "y", Index = false), JsonProperty("x")]
         public VoteType Type { get; set; }
 
-        [Date(Name = "t"), JsonProperty("t")]
+        [Date(Name = "t", Index = false), JsonProperty("t")]
         public DateTime Time { get; set; }
+
+        [Number(NumberType.Double, Name = "w", Index = false), JsonProperty("w")]
+        public double Weight { get; set; }
 
         public Vote ToVote() => new Vote
         {
@@ -34,7 +37,8 @@ namespace Nanoka.Database
             EntityType = EntityType,
             EntityId   = EntityId,
             Type       = Type,
-            Time       = Time
+            Time       = Time,
+            Weight     = Weight
         };
 
         public static DbVote FromVote(Vote vote) => new DbVote
@@ -44,7 +48,8 @@ namespace Nanoka.Database
             EntityType = vote.EntityType,
             EntityId   = vote.EntityId,
             Type       = vote.Type,
-            Time       = vote.Time
+            Time       = vote.Time,
+            Weight     = vote.Weight
         };
 
         public static string CreateId(int userId, NanokaEntity entity, int entityId)

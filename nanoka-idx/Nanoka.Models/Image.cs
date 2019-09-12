@@ -7,7 +7,7 @@ namespace Nanoka.Models
     /// <summary>
     /// Represents an image in a booru.
     /// </summary>
-    public class Image : ImageBase, IHasId
+    public class Image : ImageBase, IHasId, IHasScore
     {
         [JsonProperty("id")]
         public int Id { get; set; }

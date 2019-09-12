@@ -18,30 +18,54 @@ namespace Nanoka
         }
 
         public async Task SetAsync<T>(T entity, VoteType? type, CancellationToken cancellationToken = default)
-            where T : IHasId, IHasEntityType
+            where T : IHasId, IHasEntityType, IHasScore
         {
-            if (type == null)
-            {
-                var vote = await _db.GetVoteAsync(_claims.Id, entity.Type, entity.Id, cancellationToken);
+            // find existing vote
+            var vote = await _db.GetVoteAsync(_claims.Id, entity.Type, entity.Id, cancellationToken);
 
-                if (vote == null)
-                    return;
-
-                await _db.DeleteVoteAsync(vote, cancellationToken);
-            }
-            else
+            if (vote == null)
             {
-                var vote = new Vote
+                if (type == null)
+                    return; // no existing vote and not setting a vote
+
+                vote = new Vote
                 {
                     UserId     = _claims.Id,
                     EntityType = entity.Type,
-                    EntityId   = entity.Id,
-                    Type       = type.Value,
-                    Time       = DateTime.UtcNow
+                    EntityId   = entity.Id
                 };
-
-                await _db.UpdateVoteAsync(vote, cancellationToken);
             }
+            else
+            {
+                // offset previous weight
+                entity.Score -= vote.Weight;
+
+                // user requested vote be removed completely
+                if (type == null)
+                {
+                    await _db.DeleteVoteAsync(vote, cancellationToken);
+                    return;
+                }
+            }
+
+            vote.Type = type.Value;
+            vote.Time = DateTime.UtcNow;
+
+            // calculate vote weight
+            var userRep = _claims.Reputation;
+
+            vote.Weight = 0.5 + Math.Clamp(userRep / 10, 1, 3) / 2;
+
+            if (_claims.IsRestricted)
+                vote.Weight *= 0.2;
+
+            if (type.Value == VoteType.Down)
+                vote.Weight = -vote.Weight;
+
+            // offset with new weight
+            entity.Score += vote.Weight;
+
+            await _db.UpdateVoteAsync(vote, cancellationToken);
         }
 
         public async Task DeleteAsync<T>(T entity, CancellationToken cancellationToken = default)

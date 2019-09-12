@@ -7,7 +7,7 @@ namespace Nanoka.Models
     /// <summary>
     /// Represents a song.
     /// </summary>
-    public class Song : SongBase, IHasId
+    public class Song : SongBase, IHasId, IHasScore
     {
         [JsonProperty("id")]
         public int Id { get; set; }
