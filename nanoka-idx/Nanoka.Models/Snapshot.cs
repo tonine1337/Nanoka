@@ -11,7 +11,7 @@ namespace Nanoka.Models
     /// <summary>
     /// Represents a snapshot of an object in the database before an event.
     /// </summary>
-    public class Snapshot<T>
+    public class Snapshot<T> : IHasId
     {
         [JsonProperty("id")]
         public int Id { get; set; }
@@ -26,7 +26,7 @@ namespace Nanoka.Models
         public SnapshotType Type { get; set; }
 
         [JsonProperty("entity")]
-        public SnapshotEntity Entity { get; set; }
+        public NanokaEntity EntityType { get; set; }
 
         [JsonProperty("entity_id")]
         public int EntityId { get; set; }

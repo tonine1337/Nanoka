@@ -41,7 +41,7 @@ namespace Nanoka.Models
         public UserPermissions Permissions { get; set; }
     }
 
-    public class UserBase : ISupportSnapshot
+    public class UserBase : IHasEntityType
     {
         public const string UsernameRegex = @"^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$";
         public const int UsernameMaxLength = 20;
@@ -50,7 +50,7 @@ namespace Nanoka.Models
 #region Meta
 
         [JsonIgnore]
-        public SnapshotEntity EntityType => SnapshotEntity.User;
+        NanokaEntity IHasEntityType.Type => NanokaEntity.User;
 
 #endregion
     }

@@ -22,14 +22,14 @@ namespace Nanoka
         }
 
         public async Task<Snapshot<T>> AddAsync<T>(SnapshotType type, SnapshotEvent @event, T value, CancellationToken cancellationToken = default, int? committer = null, string reason = null)
-            where T : IHasId, ISupportSnapshot
+            where T : IHasId, IHasEntityType
         {
             var snapshot = new Snapshot<T>
             {
                 Time        = DateTime.UtcNow,
                 CommitterId = committer ?? _userId,
                 Type        = type,
-                Entity      = value.EntityType,
+                EntityType  = value.Type,
                 EntityId    = value.Id,
                 Event       = @event,
                 Reason      = reason ?? _reason,

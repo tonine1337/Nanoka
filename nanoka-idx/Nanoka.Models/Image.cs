@@ -25,7 +25,7 @@ namespace Nanoka.Models
         public ImageMediaType MediaType { get; set; }
     }
 
-    public class ImageBase : ISupportSnapshot
+    public class ImageBase : IHasEntityType
     {
         public const int MinimumTagCount = 5;
 
@@ -44,7 +44,7 @@ namespace Nanoka.Models
 #region Meta
 
         [JsonIgnore]
-        public SnapshotEntity EntityType => SnapshotEntity.Image;
+        NanokaEntity IHasEntityType.Type => NanokaEntity.Image;
 
 #endregion
     }

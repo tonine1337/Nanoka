@@ -169,22 +169,12 @@ namespace Nanoka.Database
                 : null;
         }
 
-        static SnapshotEntity ConvertSnapshotEntity<T>()
-        {
-            var name = typeof(T).Name;
-
-            if (Enum.TryParse<SnapshotEntity>(name, out var entity))
-                return entity;
-
-            throw new NotSupportedException($"Cannot retrieve snapshots of type '{typeof(T).FullName}'.");
-        }
-
         public async Task<Snapshot<T>[]> GetSnapshotsAsync<T>(int entityId, CancellationToken cancellationToken = default)
         {
             var result = await SearchAsync<DbSnapshot>(
                 (0, 256),
-                q => q.Query(qq => qq.Bool(b => b.Filter(f => f.Term(t => t.Field(s => s.Entity)
-                                                                           .Value(ConvertSnapshotEntity<T>())),
+                q => q.Query(qq => qq.Bool(b => b.Filter(f => f.Term(t => t.Field(s => s.EntityType)
+                                                                           .Value(Enum.Parse<NanokaEntity>(typeof(T).Name))),
                                                          f => f.Term(t => t.Field(s => s.EntityId)
                                                                            .Value(entityId)))))
                       .Sort(ss => ss.Descending(s => s.Time)),

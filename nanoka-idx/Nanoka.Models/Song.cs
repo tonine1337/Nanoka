@@ -22,7 +22,7 @@ namespace Nanoka.Models
         public int Bitrate { get; set; }
     }
 
-    public class SongBase : ISupportSnapshot
+    public class SongBase : IHasEntityType
     {
         /// <summary>
         /// First element should be the fully localized primary name.
@@ -39,7 +39,7 @@ namespace Nanoka.Models
 #region Meta
 
         [JsonIgnore]
-        public SnapshotEntity EntityType => SnapshotEntity.Song;
+        NanokaEntity IHasEntityType.Type => NanokaEntity.Song;
 
 #endregion
     }

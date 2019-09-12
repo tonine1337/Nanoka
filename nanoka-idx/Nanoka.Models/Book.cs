@@ -19,7 +19,7 @@ namespace Nanoka.Models
         public BookContent[] Contents { get; set; }
     }
 
-    public class BookBase : ISupportSnapshot
+    public class BookBase : IHasEntityType
     {
         public const int MinimumTagCount = 5;
 
@@ -41,7 +41,7 @@ namespace Nanoka.Models
 #region Meta
 
         [JsonIgnore]
-        public SnapshotEntity EntityType => SnapshotEntity.Book;
+        NanokaEntity IHasEntityType.Type => NanokaEntity.Book;
 
 #endregion
     }

@@ -22,7 +22,7 @@ namespace Nanoka.Database
         public SnapshotType Type { get; set; }
 
         [Keyword(Name = "e"), JsonProperty("e")]
-        public SnapshotEntity Entity { get; set; }
+        public NanokaEntity EntityType { get; set; }
 
         [Keyword(Name = "x"), JsonProperty("x")]
         public int EntityId { get; set; }
@@ -42,7 +42,7 @@ namespace Nanoka.Database
             Time        = Time,
             CommitterId = CommitterId,
             Type        = Type,
-            Entity      = Entity,
+            EntityType  = EntityType,
             EntityId    = EntityId,
             Event       = Event,
             Reason      = Reason,
@@ -55,7 +55,7 @@ namespace Nanoka.Database
             Time            = snapshot.Time,
             CommitterId     = snapshot.CommitterId,
             Type            = snapshot.Type,
-            Entity          = snapshot.Entity,
+            EntityType      = snapshot.EntityType,
             EntityId        = snapshot.EntityId,
             Event           = snapshot.Event,
             Reason          = snapshot.Reason,
