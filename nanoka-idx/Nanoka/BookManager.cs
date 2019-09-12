@@ -24,10 +24,24 @@ namespace Nanoka
         }
 
         public Task<Book> GetAsync(int id, CancellationToken cancellationToken = default)
-            => _db.GetBookAsync(id, cancellationToken);
+        {
+            var book = _db.GetBookAsync(id, cancellationToken);
 
-        public Task<Snapshot<Book>[]> GetSnapshotsAsync(int id, CancellationToken cancellationToken = default)
-            => _db.GetSnapshotsAsync<Book>(id, cancellationToken);
+            if (book == null)
+                throw Result.NotFound<Book>(id).Exception;
+
+            return book;
+        }
+
+        public async Task<Snapshot<Book>[]> GetSnapshotsAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var snapshots = await _db.GetSnapshotsAsync<Book>(id, cancellationToken);
+
+            if (snapshots.Length == 0)
+                throw Result.NotFound<Book>(id).Exception;
+
+            return snapshots;
+        }
 
         public async Task<Book> RevertAsync(int id, int snapshotId, CancellationToken cancellationToken = default)
         {
@@ -36,7 +50,7 @@ namespace Nanoka
                 var snapshot = await _db.GetSnapshotAsync<Book>(snapshotId, id, cancellationToken);
 
                 if (snapshot == null)
-                    throw new SnapshotManagerException($"Snapshot '{snapshotId}' of book '{id}' does not exist.");
+                    throw Result.NotFound<Snapshot>(id, snapshotId).Exception;
 
                 // create snapshot of current value
                 await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Rollback, await _db.GetBookAsync(id, cancellationToken), cancellationToken);
@@ -52,10 +66,7 @@ namespace Nanoka
         {
             using (await _locker.EnterAsync(id, cancellationToken))
             {
-                var book = await _db.GetBookAsync(id, cancellationToken);
-
-                if (book == null)
-                    throw new BookManagerException($"Book '{id}' does not exist.");
+                var book = await GetAsync(id, cancellationToken);
 
                 await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Modification, book, cancellationToken);
 
@@ -71,10 +82,7 @@ namespace Nanoka
         {
             using (await _locker.EnterAsync(id, cancellationToken))
             {
-                var book = await _db.GetBookAsync(id, cancellationToken);
-
-                if (book == null)
-                    throw new BookManagerException($"Book '{id}' does not exist.");
+                var book = await GetAsync(id, cancellationToken);
 
                 await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Deletion, book, cancellationToken);
 
@@ -88,10 +96,7 @@ namespace Nanoka
         {
             using (await _locker.EnterAsync(id, cancellationToken))
             {
-                var book = await _db.GetBookAsync(id, cancellationToken);
-
-                if (book == null)
-                    throw new BookManagerException($"Book '{id}' does not exist.");
+                var book = await GetAsync(id, cancellationToken);
 
                 var vote = await _vote.SetAsync(book, type, cancellationToken);
 

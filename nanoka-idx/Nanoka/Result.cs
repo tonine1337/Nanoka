@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,9 @@ namespace Nanoka
 {
     public class Result : Result<object>
     {
+        [JsonIgnore]
+        public Exception Exception => new ResultException(this);
+
         Result(HttpStatusCode status, string message) : base(status, message, null) { }
 
         public static Result StatusCode(HttpStatusCode status, string message) => new Result(status, message);

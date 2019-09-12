@@ -1,0 +1,18 @@
+using System;
+using System.Runtime.Serialization;
+
+namespace Nanoka
+{
+    [Serializable]
+    public class ResultException : ApplicationException
+    {
+        public Result Result { get; }
+
+        public ResultException(Result result)
+        {
+            Result = result;
+        }
+
+        protected ResultException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    }
+}

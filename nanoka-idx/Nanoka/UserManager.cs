@@ -32,7 +32,7 @@ namespace Nanoka
             {
                 // ensure username is unique
                 if (await _db.GetUserAsync(username, cancellationToken) != null)
-                    throw new UserManagerException($"Cannot use the username '{username}'.");
+                    throw Result.BadRequest($"Cannot use the username '{username}'.").Exception;
 
                 var user = new User
                 {
