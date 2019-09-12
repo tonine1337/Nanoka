@@ -12,10 +12,12 @@ namespace Nanoka.Controllers
     public class BookController : ControllerBase
     {
         readonly BookManager _bookManager;
+        readonly RecaptchaValidator _recaptcha;
 
-        public BookController(BookManager bookManager)
+        public BookController(BookManager bookManager, RecaptchaValidator recaptcha)
         {
             _bookManager = bookManager;
+            _recaptcha   = recaptcha;
         }
 
         [HttpGet("{id}")]
@@ -27,8 +29,10 @@ namespace Nanoka.Controllers
             => await _bookManager.UpdateAsync(id, model);
 
         [HttpDelete("{id}"), RequireUnrestricted, RequireReputation(100)]
-        public async Task<Result> DeleteAsync(int id)
+        public async Task<Result> DeleteAsync(int id, [FromQuery] string recaptcha)
         {
+            await _recaptcha.ValidateAsync(recaptcha);
+
             await _bookManager.DeleteAsync(id);
             return Result.Ok();
         }
@@ -61,8 +65,10 @@ namespace Nanoka.Controllers
             => await _bookManager.UpdateContentAsync(id, contentId, model);
 
         [HttpDelete("{id}/contents/{contentId}"), RequireUnrestricted, RequireReputation(100)]
-        public async Task<Result> DeleteContentAsync(int id, int contentId)
+        public async Task<Result> DeleteContentAsync(int id, int contentId, [FromQuery] string recaptcha)
         {
+            await _recaptcha.ValidateAsync(recaptcha);
+
             await _bookManager.RemoveContentAsync(id, contentId);
             return Result.Ok();
         }
