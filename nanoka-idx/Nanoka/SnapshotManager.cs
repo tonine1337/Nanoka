@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Nanoka.Database;
 using Nanoka.Models;
 
@@ -8,14 +10,16 @@ namespace Nanoka
 {
     public class SnapshotManager
     {
+        readonly NanokaOptions _options;
         readonly INanokaDatabase _db;
 
         readonly int _userId;
         readonly string _reason;
 
-        public SnapshotManager(INanokaDatabase db, UserClaimSet claims)
+        public SnapshotManager(IOptions<NanokaOptions> options, INanokaDatabase db, UserClaimSet claims)
         {
-            _db = db;
+            _options = options.Value;
+            _db      = db;
 
             _userId = claims.Id;
             _reason = claims.Reason;
@@ -35,6 +39,10 @@ namespace Nanoka
                 Reason      = reason ?? _reason,
                 Value       = value
             };
+
+            // require reason for configured event types
+            if (type != SnapshotType.System && _options.RequireReasonForEvents.Contains(@event) && string.IsNullOrWhiteSpace(snapshot.Reason))
+                throw Result.BadRequest($"{@event} of {value.Type} '{value.Id}': reason must be specified for this action.").Exception;
 
             await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
 

@@ -27,5 +27,11 @@ namespace Nanoka
         public int MaxImageUploadCount { get; set; } = 250;
         public int UploadTaskLimitPerUser { get; set; } = 3;
         public double UploadTaskExpiryMs { get; set; } = 10 * 60 * 1000;
+
+        public SnapshotEvent[] RequireReasonForEvents { get; set; } =
+        {
+            SnapshotEvent.Deletion,
+            SnapshotEvent.Rollback
+        };
     }
 }
