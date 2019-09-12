@@ -66,6 +66,8 @@ namespace Nanoka.Database
 
                 _logger.LogWarning($"Administrator user created. USERNAME:{_defaultAdminUsername} --- PASSWORD:{_defaultAdminPassword}");
             }
+
+            await CreateIndexAsync<DbVote>(cancellationToken);
         }
 
         static readonly ConcurrentDictionary<Type, string> _indexNames = new ConcurrentDictionary<Type, string>();
