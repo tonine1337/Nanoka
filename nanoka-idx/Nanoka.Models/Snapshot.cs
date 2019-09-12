@@ -9,7 +9,7 @@ namespace Nanoka.Models
     public abstract class Snapshot : Snapshot<object> { }
 
     /// <summary>
-    /// Represents a snapshot of an object in the database before an event.
+    /// Represents a snapshot of an object in the database after an event.
     /// </summary>
     public class Snapshot<T> : IHasId
     {
