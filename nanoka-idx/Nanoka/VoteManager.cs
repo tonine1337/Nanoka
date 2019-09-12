@@ -17,7 +17,7 @@ namespace Nanoka
             _claims = claims;
         }
 
-        public async Task SetAsync<T>(T entity, VoteType? type, CancellationToken cancellationToken = default)
+        public async Task<Vote> SetAsync<T>(T entity, VoteType? type, CancellationToken cancellationToken = default)
             where T : IHasId, IHasEntityType, IHasScore
         {
             // find existing vote
@@ -26,7 +26,7 @@ namespace Nanoka
             if (vote == null)
             {
                 if (type == null)
-                    return; // no existing vote and not setting a vote
+                    return null; // no existing vote and not setting a vote
 
                 vote = new Vote
                 {
@@ -44,7 +44,7 @@ namespace Nanoka
                 if (type == null)
                 {
                     await _db.DeleteVoteAsync(vote, cancellationToken);
-                    return;
+                    return null;
                 }
             }
 
@@ -66,6 +66,8 @@ namespace Nanoka
             entity.Score += vote.Weight;
 
             await _db.UpdateVoteAsync(vote, cancellationToken);
+
+            return vote;
         }
 
         public async Task DeleteAsync<T>(T entity, CancellationToken cancellationToken = default)

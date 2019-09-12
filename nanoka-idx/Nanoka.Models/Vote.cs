@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
-    public class Vote : IHasEntityType
+    public class Vote : VoteBase
     {
         [JsonProperty("time")]
         public DateTime Time { get; set; }
@@ -17,11 +17,14 @@ namespace Nanoka.Models
         [JsonProperty("entity_id")]
         public int EntityId { get; set; }
 
-        [JsonProperty("type")]
-        public VoteType Type { get; set; }
-
         [JsonProperty("weight")]
         public double Weight { get; set; }
+    }
+
+    public class VoteBase : IHasEntityType
+    {
+        [JsonProperty("type")]
+        public VoteType Type { get; set; }
 
 #region Meta
 

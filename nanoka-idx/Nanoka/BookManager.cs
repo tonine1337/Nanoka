@@ -78,8 +78,27 @@ namespace Nanoka
 
                 await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Deletion, book, cancellationToken);
 
-                await _db.DeleteBookAsync(book, cancellationToken);
                 await _vote.DeleteAsync(book, cancellationToken);
+
+                await _db.DeleteBookAsync(book, cancellationToken);
+            }
+        }
+
+        public async Task<Vote> VoteAsync(int id, VoteType? type, CancellationToken cancellationToken = default)
+        {
+            using (await _locker.EnterAsync(id, cancellationToken))
+            {
+                var book = await _db.GetBookAsync(id, cancellationToken);
+
+                if (book == null)
+                    throw new BookManagerException($"Book '{id}' does not exist.");
+
+                var vote = await _vote.SetAsync(book, type, cancellationToken);
+
+                // score is updated
+                await _db.UpdateBookAsync(book, cancellationToken);
+
+                return vote;
             }
         }
     }

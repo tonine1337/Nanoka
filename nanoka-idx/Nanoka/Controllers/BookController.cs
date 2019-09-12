@@ -38,7 +38,17 @@ namespace Nanoka.Controllers
         public async Task<Result> DeleteAsync(int id)
         {
             await _bookManager.DeleteAsync(id);
+            return Result.Ok();
+        }
 
+        [HttpPut("{id}/vote")]
+        public async Task<Vote> SetVoteAsync(int id, VoteBase model)
+            => await _bookManager.VoteAsync(id, model.Type);
+
+        [HttpDelete("{id}/vote")]
+        public async Task<Result> UnsetVoteAsync(int id)
+        {
+            await _bookManager.VoteAsync(id, null);
             return Result.Ok();
         }
     }
