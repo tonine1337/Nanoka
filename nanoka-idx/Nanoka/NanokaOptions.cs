@@ -24,6 +24,7 @@ namespace Nanoka
 
         public int PasswordHashVersion { get; set; }
         public int MaxImageUploadSize { get; set; } = 4000000;
+        public int MaxImageUploadCount { get; set; } = 250;
         public double UploadTaskExpiryMs { get; set; } = 10 * 60 * 1000;
     }
 }

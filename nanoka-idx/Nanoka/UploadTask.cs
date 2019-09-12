@@ -17,6 +17,7 @@ namespace Nanoka
         protected readonly DateTime StartTime = DateTime.UtcNow;
 
         internal int UploaderId;
+        internal int MaxFileCount = int.MaxValue;
 
         protected struct FileInfo
         {
@@ -61,7 +62,13 @@ namespace Nanoka
                 if (_disposed)
                 {
                     file.Handle.Dispose();
-                    return;
+                    throw new ObjectDisposedException(nameof(UploadTask));
+                }
+
+                if (Files.Count == MaxFileCount)
+                {
+                    file.Handle.Dispose();
+                    throw Result.BadRequest($"Maximum image upload limit reached for task '{Id}'.").Exception;
                 }
 
                 Files.Add(file);

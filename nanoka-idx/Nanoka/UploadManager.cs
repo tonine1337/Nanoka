@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Options;
 
 namespace Nanoka
 {
@@ -7,20 +8,23 @@ namespace Nanoka
     {
         internal static int NextId;
 
+        readonly NanokaOptions _options;
         readonly UploadTaskCollection _tasks;
         readonly UserClaimSet _claims;
 
-        public UploadManager(UploadTaskCollection tasks, UserClaimSet claims)
+        public UploadManager(IOptions<NanokaOptions> options, UploadTaskCollection tasks, UserClaimSet claims)
         {
-            _tasks  = tasks;
-            _claims = claims;
+            _options = options.Value;
+            _tasks   = tasks;
+            _claims  = claims;
         }
 
         public UploadTask<T> CreateTask<T>(T data)
         {
             var task = new UploadTask<T>(data)
             {
-                UploaderId = _claims.Id
+                UploaderId   = _claims.Id,
+                MaxFileCount = _options.MaxImageUploadCount
             };
 
             lock (_tasks)
