@@ -12,6 +12,9 @@ namespace Nanoka.Database
         [Keyword(Name = "id", Index = false), JsonProperty("id")]
         public int Id { get; set; }
 
+        [Keyword(Name = "b", Index = false), JsonProperty("b")]
+        public int? RollbackId { get; set; }
+
         [Date(Name = "t"), JsonProperty("t")]
         public DateTime Time { get; set; }
 
@@ -39,6 +42,7 @@ namespace Nanoka.Database
         public Snapshot<T> ToSnapshot<T>(JsonSerializer serializer) => new Snapshot<T>
         {
             Id          = Id,
+            RollbackId  = RollbackId,
             Time        = Time,
             CommitterId = CommitterId,
             Type        = Type,
@@ -52,6 +56,7 @@ namespace Nanoka.Database
         public static DbSnapshot FromSnapshot<T>(Snapshot<T> snapshot, JsonSerializer serializer) => new DbSnapshot
         {
             Id              = snapshot.Id,
+            RollbackId      = snapshot.RollbackId,
             Time            = snapshot.Time,
             CommitterId     = snapshot.CommitterId,
             Type            = snapshot.Type,

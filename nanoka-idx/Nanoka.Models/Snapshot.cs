@@ -16,6 +16,13 @@ namespace Nanoka.Models
         [JsonProperty("id")]
         public int Id { get; set; }
 
+        /// <summary>
+        /// If <see cref="Event"/> is <see cref="SnapshotEvent.Rollback"/>,
+        /// the ID of the snapshot that was reverted to.
+        /// </summary>
+        [JsonProperty("rollback_id")]
+        public int? RollbackId { get; set; }
+
         [JsonProperty("time")]
         public DateTime Time { get; set; }
 
