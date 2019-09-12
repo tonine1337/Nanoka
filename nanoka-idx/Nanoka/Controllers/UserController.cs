@@ -65,8 +65,7 @@ namespace Nanoka.Controllers
         [HttpPost("register"), AllowAnonymous]
         public async Task<Result<RegistrationResponse>> RegisterAsync(RegistrationRequest request, [FromQuery] string recaptcha)
         {
-            if (!await _recaptcha.ValidateAsync(recaptcha))
-                return Result.InvalidRecaptchaToken(recaptcha);
+            await _recaptcha.ValidateAsync(recaptcha);
 
             await _userManager.CreateAsync(request.Username, request.Password);
 

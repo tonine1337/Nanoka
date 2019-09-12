@@ -28,16 +28,16 @@ namespace Nanoka
             _enabled = _options.SiteKey != null && _options.SecretKey != null;
 
             if (!_enabled)
-                logger.LogWarning("reCAPTCHA validation is disabled.");
+                logger.LogWarning("reCAPTCHA verification is disabled.");
         }
 
-        public async Task<bool> ValidateAsync(string token, CancellationToken cancellationToken = default)
+        public async Task ValidateAsync(string token, CancellationToken cancellationToken = default)
         {
             if (!_enabled)
-                return true;
+                return;
 
             if (string.IsNullOrWhiteSpace(token))
-                return false;
+                throw Result.Forbidden("reCAPTCHA token is not specified.").Exception;
 
             var success = true;
 
@@ -56,9 +56,11 @@ namespace Nanoka
             success &= (bool) result.success;
 
             if (!success)
-                _logger.LogInformation($"reCAPTCHA validation for token '{token}' failed. {response.ReasonPhrase}");
+            {
+                _logger.LogDebug($"reCAPTCHA verification for token '{token}' failed. {response.ReasonPhrase}");
 
-            return success;
+                throw Result.Forbidden("reCAPTCHA verification failed.").Exception;
+            }
         }
     }
 }
