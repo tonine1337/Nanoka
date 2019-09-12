@@ -63,7 +63,8 @@ namespace Nanoka
             services.AddSingleton<INanokaDatabase, NanokaElasticDatabase>()
                     .AddScoped<SnapshotManager>()
                     .AddScoped<UserManager>()
-                    .AddScoped<BookManager>();
+                    .AddScoped<BookManager>()
+                    .AddScoped<VoteManager>();
 
             // storage
             var storage = _configuration.GetSection("Storage")["Type"];

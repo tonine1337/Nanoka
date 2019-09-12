@@ -10,15 +10,17 @@ namespace Nanoka
     {
         readonly INanokaDatabase _db;
         readonly ILocker _locker;
-        readonly SnapshotManager _snapshot;
         readonly IMapper _mapper;
+        readonly SnapshotManager _snapshot;
+        readonly VoteManager _vote;
 
-        public BookManager(INanokaDatabase db, NamedLocker locker, SnapshotManager snapshot, IMapper mapper)
+        public BookManager(INanokaDatabase db, NamedLocker locker, IMapper mapper, SnapshotManager snapshot, VoteManager vote)
         {
             _db       = db;
             _locker   = locker.Get<BookManager>();
-            _snapshot = snapshot;
             _mapper   = mapper;
+            _snapshot = snapshot;
+            _vote     = vote;
         }
 
         public Task<Book> GetAsync(int id, CancellationToken cancellationToken = default)
@@ -77,6 +79,7 @@ namespace Nanoka
                 await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Deletion, book, cancellationToken);
 
                 await _db.DeleteBookAsync(book, cancellationToken);
+                await _vote.DeleteAsync(book, cancellationToken);
             }
         }
     }

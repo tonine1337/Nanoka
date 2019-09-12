@@ -29,5 +29,6 @@ namespace Nanoka.Database
         Task<Vote> GetVoteAsync(int userId, NanokaEntity entity, int entityId, CancellationToken cancellationToken = default);
         Task UpdateVoteAsync(Vote vote, CancellationToken cancellationToken = default);
         Task DeleteVoteAsync(Vote vote, CancellationToken cancellationToken = default);
+        Task<int> DeleteVotesAsync(NanokaEntity entity, int entityId, CancellationToken cancellationToken = default);
     }
 }

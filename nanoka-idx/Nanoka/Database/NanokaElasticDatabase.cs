@@ -199,6 +199,18 @@ namespace Nanoka.Database
         public async Task DeleteVoteAsync(Vote vote, CancellationToken cancellationToken = default)
             => await DeleteAsync<DbVote>(DbVote.CreateId(vote.UserId, vote.EntityType, vote.EntityId), cancellationToken);
 
+        public async Task<int> DeleteVotesAsync(NanokaEntity entity, int entityId, CancellationToken cancellationToken = default)
+        {
+            var deleted = await DeleteAsync<DbVote>(
+                q => q.Query(qq => qq.Bool(b => b.Filter(f => f.Term(t => t.Field(v => v.EntityType)
+                                                                           .Value(entity)),
+                                                         f => f.Term(t => t.Field(v => v.EntityId)
+                                                                           .Value(entityId))))),
+                cancellationToken);
+
+            return deleted;
+        }
+
 #endregion
 
 #region Client calls
@@ -267,6 +279,19 @@ namespace Nanoka.Database
             ValidateResponse(response);
 
             _logger.LogInformation($"Deleted {typeof(TDocument).Name}: {response.Id}");
+        }
+
+        async Task<int> DeleteAsync<TDocument>(Func<DeleteByQueryDescriptor<TDocument>, DeleteByQueryDescriptor<TDocument>> query,
+                                               CancellationToken cancellationToken)
+            where TDocument : class
+        {
+            var response = await _client.DeleteByQueryAsync<TDocument>(
+                x => query(x.Index(IndexName<TDocument>())),
+                cancellationToken);
+
+            ValidateResponse(response);
+
+            return (int) response.Deleted;
         }
 
         void ValidateResponse(IResponse response)
