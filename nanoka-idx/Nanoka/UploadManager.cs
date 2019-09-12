@@ -42,6 +42,9 @@ namespace Nanoka
             }
         }
 
+        /// <summary>
+        /// Note: This does not dispose the task. The task should be disposed by the creator.
+        /// </summary>
         public UploadTask<T> RemoveTask<T>(int id)
         {
             lock (_tasks)
