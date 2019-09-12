@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Options;
 
 namespace Nanoka
@@ -21,16 +22,21 @@ namespace Nanoka
 
         public UploadTask<T> CreateTask<T>(T data)
         {
-            var task = new UploadTask<T>(data)
-            {
-                UploaderId   = _claims.Id,
-                MaxFileCount = _options.MaxImageUploadCount
-            };
-
             lock (_tasks)
+            {
+                if (_tasks.Values.Count(t => t.UploaderId == _claims.Id) == _options.UploadTaskLimitPerUser)
+                    throw Result.TooManyRequests($"May not create more than {_options.UploadTaskLimitPerUser} active upload tasks.").Exception;
+
+                var task = new UploadTask<T>(data)
+                {
+                    UploaderId   = _claims.Id,
+                    MaxFileCount = _options.MaxImageUploadCount
+                };
+
                 _tasks[task.Id] = task;
 
-            return task;
+                return task;
+            }
         }
 
         public UploadTask<T> GetTask<T>(int id)

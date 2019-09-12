@@ -23,6 +23,7 @@ namespace Nanoka
         public static Result InternalServerError(string message = null) => StatusCode(HttpStatusCode.InternalServerError, message);
         public static Result UnprocessableEntity(string message = null) => StatusCode(HttpStatusCode.UnprocessableEntity, message);
         public static Result Conflict(string message = null) => StatusCode(HttpStatusCode.Conflict, message);
+        public static Result TooManyRequests(string message = null) => StatusCode(HttpStatusCode.TooManyRequests, message);
 
 #region Helpers
 
