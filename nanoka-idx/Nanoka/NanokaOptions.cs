@@ -23,5 +23,6 @@ namespace Nanoka
         public UserPermissions DefaultUserPermissions { get; set; }
 
         public int PasswordHashVersion { get; set; }
+        public int MaxImageUploadSize { get; set; } = 4000000;
     }
 }

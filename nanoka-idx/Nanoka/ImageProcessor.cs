@@ -3,20 +3,27 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Nanoka
 {
     public class ImageProcessor
     {
-        const int _maxImageSize = 4000000;
+        readonly NanokaOptions _options;
 
-        public async Task<Stream> LoadAsync(IFormFile file, CancellationToken cancellationToken = default)
+        public ImageProcessor(IOptions<NanokaOptions> options)
+        {
+            _options = options.Value;
+        }
+
+        public async Task<(Stream stream, string mediaType)> LoadAsync(IFormFile file, CancellationToken cancellationToken = default)
         {
             // size check
-            if (file.Length >= _maxImageSize)
-                throw new ImageProcessorException($"File '{file.FileName}' is too big (must be under {Extensions.GetBytesReadable(_maxImageSize)}).");
+            if (file.Length >= _options.MaxImageUploadSize)
+                throw new ImageProcessorException($"File '{file.FileName}' is too big (must be under {Extensions.GetBytesReadable(_options.MaxImageUploadSize)}).");
 
             var memory = new MemoryStream((int) file.Length);
 
@@ -30,10 +37,11 @@ namespace Nanoka
 
                 // ensure file is valid image
                 Image<Rgba32> image;
+                IImageFormat  format;
 
                 try
                 {
-                    image = Image.Load(memory);
+                    image = Image.Load(memory, out format);
                 }
                 catch (Exception e)
                 {
@@ -48,7 +56,7 @@ namespace Nanoka
 
                 memory.Position = 0;
 
-                return memory;
+                return (memory, format.DefaultMimeType);
             }
             catch
             {
