@@ -7,7 +7,7 @@ namespace Nanoka.Models
     /// <summary>
     /// Represents a generic book.
     /// </summary>
-    public class Book : BookBase
+    public class Book : BookBase, IHasId
     {
         [JsonProperty("id")]
         public int Id { get; set; }
@@ -19,7 +19,7 @@ namespace Nanoka.Models
         public BookContent[] Contents { get; set; }
     }
 
-    public class BookBase
+    public class BookBase : ISupportSnapshot
     {
         public const int MinimumTagCount = 5;
 
@@ -37,5 +37,12 @@ namespace Nanoka.Models
 
         [JsonProperty("rating")]
         public MaterialRating Rating { get; set; }
+
+#region Meta
+
+        [JsonIgnore]
+        public SnapshotEntity EntityType => SnapshotEntity.Book;
+
+#endregion
     }
 }

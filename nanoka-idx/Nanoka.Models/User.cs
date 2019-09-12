@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
-    public class User : UserBase
+    public class User : UserBase, IHasId
     {
         [JsonProperty("id")]
         public int Id { get; set; }
@@ -41,10 +41,17 @@ namespace Nanoka.Models
         public UserPermissions Permissions { get; set; }
     }
 
-    public class UserBase
+    public class UserBase : ISupportSnapshot
     {
         public const string UsernameRegex = @"^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$";
         public const int UsernameMaxLength = 20;
         public const int PasswordMaxLength = 2048;
+
+#region Meta
+
+        [JsonIgnore]
+        public SnapshotEntity EntityType => SnapshotEntity.User;
+
+#endregion
     }
 }

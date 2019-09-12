@@ -7,7 +7,7 @@ namespace Nanoka.Models
     /// <summary>
     /// Represents an image in a booru.
     /// </summary>
-    public class Image : ImageBase
+    public class Image : ImageBase, IHasId
     {
         [JsonProperty("id")]
         public int Id { get; set; }
@@ -25,7 +25,7 @@ namespace Nanoka.Models
         public ImageMediaType MediaType { get; set; }
     }
 
-    public class ImageBase
+    public class ImageBase : ISupportSnapshot
     {
         public const int MinimumTagCount = 5;
 
@@ -40,5 +40,12 @@ namespace Nanoka.Models
 
         [JsonProperty("notes")]
         public ImageNote[] Notes { get; set; }
+
+#region Meta
+
+        [JsonIgnore]
+        public SnapshotEntity EntityType => SnapshotEntity.Image;
+
+#endregion
     }
 }

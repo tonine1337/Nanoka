@@ -21,31 +21,22 @@ namespace Nanoka
             _reason = claims.Reason;
         }
 
-        public async Task<Snapshot<T>> CreateAsync<T>(SnapshotType type, SnapshotEvent @event, T value, CancellationToken cancellationToken = default, int? committer = null, string reason = null)
+        public async Task<Snapshot<T>> AddAsync<T>(SnapshotType type, SnapshotEvent @event, T value, CancellationToken cancellationToken = default, int? committer = null, string reason = null)
+            where T : IHasId, ISupportSnapshot
         {
             var snapshot = new Snapshot<T>
             {
                 Time        = DateTime.UtcNow,
                 CommitterId = committer ?? _userId,
                 Type        = type,
+                Entity      = value.EntityType,
+                EntityId    = value.Id,
                 Event       = @event,
                 Reason      = reason ?? _reason,
                 Value       = value
             };
 
-            switch (value)
-            {
-                case User user:
-                    snapshot.Entity   = SnapshotEntity.User;
-                    snapshot.EntityId = user.Id;
-                    break;
-
-                default:
-                    snapshot.Entity = SnapshotEntity.Unknown;
-                    break;
-            }
-
-            snapshot.Id = await _db.AddSnapshotAsync(snapshot, cancellationToken);
+            await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
 
             return snapshot;
         }

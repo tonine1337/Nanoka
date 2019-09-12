@@ -37,7 +37,7 @@ namespace Nanoka
                     throw new SnapshotManagerException($"Snapshot '{snapshotId}' of book '{id}' does not exist.");
 
                 // create snapshot of current value
-                await _snapshot.CreateAsync(SnapshotType.User, SnapshotEvent.Rollback, await _db.GetBookAsync(id, cancellationToken), cancellationToken);
+                await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Rollback, await _db.GetBookAsync(id, cancellationToken), cancellationToken);
 
                 // update current value to loaded snapshot value
                 await _db.UpdateBookAsync(snapshot.Value, cancellationToken);
@@ -55,7 +55,7 @@ namespace Nanoka
                 if (book == null)
                     throw new BookManagerException($"Book '{id}' does not exist.");
 
-                await _snapshot.CreateAsync(SnapshotType.User, SnapshotEvent.Modification, book, cancellationToken);
+                await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Modification, book, cancellationToken);
 
                 _mapper.Map(model, book);
 
@@ -74,7 +74,7 @@ namespace Nanoka
                 if (book == null)
                     throw new BookManagerException($"Book '{id}' does not exist.");
 
-                await _snapshot.CreateAsync(SnapshotType.User, SnapshotEvent.Deletion, book, cancellationToken);
+                await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Deletion, book, cancellationToken);
 
                 await _db.DeleteBookAsync(id, cancellationToken);
             }

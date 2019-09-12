@@ -41,9 +41,9 @@ namespace Nanoka
                     Permissions = _options.DefaultUserPermissions
                 };
 
-                user.Id = await _db.UpdateUserAsync(user, cancellationToken);
+                await _db.UpdateUserAsync(user, cancellationToken);
 
-                await _snapshot.CreateAsync(SnapshotType.System, SnapshotEvent.Creation, user, cancellationToken, user.Id);
+                await _snapshot.AddAsync(SnapshotType.System, SnapshotEvent.Creation, user, cancellationToken, user.Id);
             }
         }
 

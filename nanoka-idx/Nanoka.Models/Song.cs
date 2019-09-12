@@ -7,10 +7,10 @@ namespace Nanoka.Models
     /// <summary>
     /// Represents a song.
     /// </summary>
-    public class Song : SongBase
+    public class Song : SongBase, IHasId
     {
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [JsonProperty("score")]
         public double Score { get; set; }
@@ -22,7 +22,7 @@ namespace Nanoka.Models
         public int Bitrate { get; set; }
     }
 
-    public class SongBase
+    public class SongBase : ISupportSnapshot
     {
         /// <summary>
         /// First element should be the fully localized primary name.
@@ -35,5 +35,12 @@ namespace Nanoka.Models
 
         [JsonProperty("lyrics")]
         public Dictionary<LanguageType, SongLyrics> Lyrics { get; set; }
+
+#region Meta
+
+        [JsonIgnore]
+        public SnapshotEntity EntityType => SnapshotEntity.Song;
+
+#endregion
     }
 }
