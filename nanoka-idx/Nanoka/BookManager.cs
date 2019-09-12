@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,14 +15,17 @@ namespace Nanoka
         readonly IMapper _mapper;
         readonly SnapshotManager _snapshot;
         readonly VoteManager _vote;
+        readonly SoftDeleteManager _softDeleter;
 
-        public BookManager(INanokaDatabase db, NamedLocker locker, IMapper mapper, SnapshotManager snapshot, VoteManager vote)
+        public BookManager(INanokaDatabase db, NamedLocker locker, IMapper mapper, SnapshotManager snapshot, VoteManager vote,
+                           SoftDeleteManager softDeleter)
         {
-            _db       = db;
-            _locker   = locker.Get<BookManager>();
-            _mapper   = mapper;
-            _snapshot = snapshot;
-            _vote     = vote;
+            _db          = db;
+            _locker      = locker.Get<BookManager>();
+            _mapper      = mapper;
+            _snapshot    = snapshot;
+            _vote        = vote;
+            _softDeleter = softDeleter;
         }
 
         public async Task<Book> GetAsync(int id, CancellationToken cancellationToken = default)
@@ -65,10 +69,15 @@ namespace Nanoka
                     throw Result.NotFound<Snapshot>(id, snapshotId).Exception;
 
                 // create snapshot of current value
-                await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Rollback, await _db.GetBookAsync(id, cancellationToken), cancellationToken);
+                var current = await _db.GetBookAsync(id, cancellationToken);
+
+                await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Rollback, current, cancellationToken);
 
                 // update current value to loaded snapshot value
                 await _db.UpdateBookAsync(snapshot.Value, cancellationToken);
+
+                foreach (var content in snapshot.Value.Contents)
+                    await _softDeleter.RestoreAsync(EnumerateBookFiles(snapshot.Value, content), cancellationToken);
 
                 return snapshot.Value;
             }
@@ -101,7 +110,17 @@ namespace Nanoka
                 await _vote.DeleteAsync(book, cancellationToken);
 
                 await _db.DeleteBookAsync(book, cancellationToken);
+
+                foreach (var content in book.Contents)
+                    await _softDeleter.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
             }
+        }
+
+        // ReSharper disable once SuggestBaseTypeForParameter
+        static IEnumerable<string> EnumerateBookFiles(Book book, BookContent content)
+        {
+            for (var i = 0; i < content.PageCount; i++)
+                yield return $"{book.Id}/{content.Id}/{i}";
         }
 
         public async Task<Vote> VoteAsync(int id, VoteType? type, CancellationToken cancellationToken = default)
@@ -182,11 +201,24 @@ namespace Nanoka
             {
                 var (book, content) = await GetContentAsync(id, contentId, cancellationToken);
 
-                await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Modification, book, cancellationToken);
+                if (book.Contents.Length == 1)
+                {
+                    // delete the entire book
+                    await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Deletion, book, cancellationToken);
 
-                book.Contents = book.Contents.Where(c => c != content).ToArray();
+                    await _db.DeleteBookAsync(book, cancellationToken);
+                }
+                else
+                {
+                    // remove the content
+                    await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Modification, book, cancellationToken);
 
-                await _db.UpdateBookAsync(book, cancellationToken);
+                    book.Contents = book.Contents.Where(c => c != content).ToArray();
+
+                    await _db.UpdateBookAsync(book, cancellationToken);
+                }
+
+                await _softDeleter.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
             }
         }
     }

@@ -102,7 +102,7 @@ namespace Nanoka.Controllers
                 {
                     using (stream)
                     {
-                        await _storage.AddAsync(new StorageFile
+                        await _storage.WriteAsync(new StorageFile
                         {
                             Name      = $"{book.Id}/{content.Id}/{index++}",
                             Stream    = stream,

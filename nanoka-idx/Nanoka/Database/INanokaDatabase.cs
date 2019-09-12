@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nanoka.Models;
@@ -30,5 +31,9 @@ namespace Nanoka.Database
         Task UpdateVoteAsync(Vote vote, CancellationToken cancellationToken = default);
         Task DeleteVoteAsync(Vote vote, CancellationToken cancellationToken = default);
         Task<int> DeleteVotesAsync(NanokaEntity entity, int entityId, CancellationToken cancellationToken = default);
+
+        Task AddDeleteFilesAsync(IEnumerable<string> filenames, DateTime softDeleteTime, CancellationToken cancellationToken = default);
+        Task RemoveDeleteFileAsync(IEnumerable<string> filenames, CancellationToken cancellationToken = default);
+        Task<string[]> GetAndRemoveDeleteFilesAsync(DateTime maxSoftDeleteTime, CancellationToken cancellationToken = default);
     }
 }
