@@ -8,7 +8,7 @@ namespace Nanoka
     {
         public Result Result { get; }
 
-        public ResultException(Result result)
+        public ResultException(Result result) : base(result.Message)
         {
             Result = result;
         }
