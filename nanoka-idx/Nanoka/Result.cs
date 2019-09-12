@@ -47,20 +47,24 @@ namespace Nanoka
     public class Result<T> : IActionResult
         where T : class
     {
-        readonly object _value;
-
         [JsonProperty("error")]
         public bool Error => !(200 <= Status && Status < 300);
 
         [JsonProperty("status")]
-        public int Status { get; set; }
+        public int Status { get; }
 
         [JsonProperty("message")]
-        public string Message { get; set; }
+        public string Message { get; }
+
+        /// <summary>
+        /// This property exists for unit testing purposes.
+        /// </summary>
+        [JsonIgnore]
+        public object Value { get; }
 
         public Result(HttpStatusCode status, string message, T value)
         {
-            _value = value;
+            Value = value;
 
             Status  = (int) status;
             Message = message ?? status.ToString();
@@ -70,7 +74,7 @@ namespace Nanoka
         public static implicit operator Result<T>(Result result) => new Result<T>((HttpStatusCode) result.Status, result.Message, null);
 
         public static implicit operator ActionResult(Result<T> result)
-            => new ObjectResult(result._value ?? result)
+            => new ObjectResult(result.Value ?? result)
             {
                 StatusCode = result.Status
             };
