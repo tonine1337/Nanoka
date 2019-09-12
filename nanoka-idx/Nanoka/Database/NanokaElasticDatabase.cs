@@ -127,8 +127,8 @@ namespace Nanoka.Database
         public async Task UpdateUserAsync(User user, CancellationToken cancellationToken = default)
             => user.Id = await IndexAsync(DbUser.FromUser(user), cancellationToken);
 
-        public Task DeleteUserAsync(int id, CancellationToken cancellationToken = default)
-            => DeleteAsync<DbUser>(id, cancellationToken);
+        public Task DeleteUserAsync(User user, CancellationToken cancellationToken = default)
+            => DeleteAsync<DbUser>(user.Id, cancellationToken);
 
 #endregion
 
@@ -140,8 +140,8 @@ namespace Nanoka.Database
         public async Task UpdateBookAsync(Book book, CancellationToken cancellationToken = default)
             => book.Id = await IndexAsync(DbBook.FromBook(book), cancellationToken);
 
-        public Task DeleteBookAsync(int id, CancellationToken cancellationToken = default)
-            => DeleteAsync<DbBook>(id, cancellationToken);
+        public Task DeleteBookAsync(Book book, CancellationToken cancellationToken = default)
+            => DeleteAsync<DbBook>(book.Id, cancellationToken);
 
 #endregion
 
@@ -153,8 +153,8 @@ namespace Nanoka.Database
         public async Task UpdateImageAsync(Image image, CancellationToken cancellationToken = default)
             => image.Id = await IndexAsync(DbImage.FromImage(image), cancellationToken);
 
-        public Task DeleteImageAsync(int id, CancellationToken cancellationToken = default)
-            => DeleteAsync<DbImage>(id, cancellationToken);
+        public Task DeleteImageAsync(Image image, CancellationToken cancellationToken = default)
+            => DeleteAsync<DbImage>(image.Id, cancellationToken);
 
 #endregion
 
@@ -196,8 +196,8 @@ namespace Nanoka.Database
         public async Task UpdateVoteAsync(Vote vote, CancellationToken cancellationToken = default)
             => await IndexAsync(DbVote.FromVote(vote), cancellationToken);
 
-        public async Task DeleteVoteAsync(int userId, NanokaEntity entity, int entityId, CancellationToken cancellationToken = default)
-            => await DeleteAsync<DbVote>(DbVote.CreateId(userId, entity, entityId), cancellationToken);
+        public async Task DeleteVoteAsync(Vote vote, CancellationToken cancellationToken = default)
+            => await DeleteAsync<DbVote>(DbVote.CreateId(vote.UserId, vote.EntityType, vote.EntityId), cancellationToken);
 
 #endregion
 

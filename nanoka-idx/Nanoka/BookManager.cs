@@ -76,7 +76,7 @@ namespace Nanoka
 
                 await _snapshot.AddAsync(SnapshotType.User, SnapshotEvent.Deletion, book, cancellationToken);
 
-                await _db.DeleteBookAsync(id, cancellationToken);
+                await _db.DeleteBookAsync(book, cancellationToken);
             }
         }
     }
