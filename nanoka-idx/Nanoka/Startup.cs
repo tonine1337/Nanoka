@@ -84,6 +84,9 @@ namespace Nanoka
                 default: throw new NotSupportedException($"Unsupported storage type '{storage}'.");
             }
 
+            services.AddScoped<UploadManager>()
+                    .AddSingleton<UploadTaskCollection>();
+
             // other utilities
             services.AddSingleton<JsonSerializer>()
                     .AddSingleton<NamedLocker>()
