@@ -2,6 +2,6 @@ namespace Nanoka.Models
 {
     public interface IHasId
     {
-        int Id { get; }
+        int Id { get; set; }
     }
 }
