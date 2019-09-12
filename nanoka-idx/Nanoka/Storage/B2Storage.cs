@@ -41,6 +41,8 @@ namespace Nanoka.Storage
 
             _bucketName = bucket.BucketName;
             _bucketId   = bucket.BucketId;
+
+            _logger.LogInformation($"B2 bucket '{_bucketName}' ({_bucketId}).");
         }
 
         public async Task<StorageFile> ReadAsync(string name, CancellationToken cancellationToken = default)
@@ -87,6 +89,8 @@ namespace Nanoka.Storage
 
                 await _client.Files.Upload(buffer, file.Name, upload, _bucketId, fileInfo, cancellationToken);
 
+                _logger.LogInformation($"Wrote file '{file.Name}' ({file.MediaType}).");
+
                 return true;
             }
             catch (Exception e)
@@ -107,6 +111,8 @@ namespace Nanoka.Storage
 
                 foreach (var file in versions.Files)
                     await _client.Files.Delete(file.FileId, name, cancellationToken);
+
+                _logger.LogInformation($"Deleted file '{name}'.");
 
                 return true;
             }
