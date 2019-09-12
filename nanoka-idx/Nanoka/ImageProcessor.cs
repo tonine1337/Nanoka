@@ -21,9 +21,12 @@ namespace Nanoka
 
         public async Task<(Stream stream, string mediaType)> LoadAsync(IFormFile file, CancellationToken cancellationToken = default)
         {
+            if (file == null)
+                throw Result.BadRequest("File not attached as multipart/form-data in request.").Exception;
+
             // size check
             if (file.Length >= _options.MaxImageUploadSize)
-                throw new ImageProcessorException($"File '{file.FileName}' is too big (must be under {Extensions.GetBytesReadable(_options.MaxImageUploadSize)}).");
+                throw Result.UnprocessableEntity($"File '{file.FileName}' is too big (must be under {Extensions.GetBytesReadable(_options.MaxImageUploadSize)}).").Exception;
 
             var memory = new MemoryStream((int) file.Length);
 
@@ -45,13 +48,13 @@ namespace Nanoka
                 }
                 catch (Exception e)
                 {
-                    throw new ImageProcessorException($"File '{file.FileName}' is not a recognized image.", e);
+                    throw Result.UnprocessableEntity($"File '{file.FileName}' is not a recognized image: {e.Message}").Exception;
                 }
 
                 using (image)
                 {
                     if (image.Frames.Count != 1)
-                        throw new FormatException($"File '{file.FileName}' is not a static image.");
+                        throw Result.UnprocessableEntity($"File '{file.FileName}' is not a static image.").Exception;
                 }
 
                 memory.Position = 0;
@@ -71,7 +74,7 @@ namespace Nanoka
             var format = Image.DetectFormat(stream);
 
             if (format == null)
-                throw new ImageProcessorException("Could not detect the format of this image.");
+                throw Result.UnprocessableEntity("Could not detect the format of this image.").Exception;
 
             return format.DefaultMimeType;
         }
