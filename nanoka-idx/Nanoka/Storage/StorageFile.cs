@@ -6,6 +6,6 @@ namespace Nanoka.Storage
     {
         public string Name { get; set; }
         public Stream Stream { get; set; }
-        public string ContentType { get; set; }
+        public string MediaType { get; set; }
     }
 }

@@ -51,9 +51,9 @@ namespace Nanoka.Storage
 
                 return new StorageFile
                 {
-                    Name        = file.FileName,
-                    Stream      = new MemoryStream(file.FileData),
-                    ContentType = file.FileInfo.GetValueOrDefault("type")
+                    Name      = file.FileName,
+                    Stream    = new MemoryStream(file.FileData),
+                    MediaType = file.FileInfo.GetValueOrDefault("type")
                 };
             }
             catch (Exception e)
@@ -80,7 +80,7 @@ namespace Nanoka.Storage
 
                 var fileInfo = new Dictionary<string, string>
                 {
-                    { "type", file.ContentType ?? "application/octet-stream" }
+                    { "type", file.MediaType ?? "application/octet-stream" }
                 };
 
                 var upload = await _client.Files.GetUploadUrl(_bucketId, cancellationToken);

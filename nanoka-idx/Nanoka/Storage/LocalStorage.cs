@@ -45,7 +45,7 @@ namespace Nanoka.Storage
             public string Hash { get; set; }
 
             [JsonProperty("type")]
-            public string ContentType { get; set; }
+            public string MediaType { get; set; }
         }
 
         public async Task<StorageFile> GetAsync(string name, CancellationToken cancellationToken = default)
@@ -68,9 +68,9 @@ namespace Nanoka.Storage
                 // read content stream
                 return new StorageFile
                 {
-                    Name        = name,
-                    Stream      = File.OpenRead(GetHashPath(entry.Hash)),
-                    ContentType = entry.ContentType
+                    Name      = name,
+                    Stream    = File.OpenRead(GetHashPath(entry.Hash)),
+                    MediaType = entry.MediaType
                 };
             }
             catch (Exception e)
@@ -107,7 +107,7 @@ namespace Nanoka.Storage
 
                 var entry = new Entry
                 {
-                    ContentType = file.ContentType
+                    MediaType = file.MediaType
                 };
 
                 // compute content hash

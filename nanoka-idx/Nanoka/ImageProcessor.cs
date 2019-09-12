@@ -58,7 +58,7 @@ namespace Nanoka
         }
 
         // ReSharper disable once MemberCanBeMadeStatic.Global
-        public string DetectContentType(Stream stream)
+        public string DetectMediaType(Stream stream)
         {
             var format = Image.DetectFormat(stream);
 
