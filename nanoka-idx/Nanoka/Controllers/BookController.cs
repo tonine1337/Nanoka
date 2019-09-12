@@ -22,11 +22,11 @@ namespace Nanoka.Controllers
         public async Task<Result<Book>> GetAsync(int id)
             => await _bookManager.GetAsync(id);
 
-        [HttpGet("{id}/history")]
+        [HttpGet("{id}/snapshots")]
         public async Task<Result<Snapshot<Book>[]>> GetSnapshotsAsync(int id)
             => await _bookManager.GetSnapshotsAsync(id);
 
-        [HttpPost("{id}/history/revert"), RequireUnrestricted]
+        [HttpPost("{id}/snapshots/revert"), RequireUnrestricted]
         public async Task<Result<Book>> RevertAsync(int id, RevertEntityRequest request)
             => await _bookManager.RevertAsync(id, request.SnapshotId);
 
