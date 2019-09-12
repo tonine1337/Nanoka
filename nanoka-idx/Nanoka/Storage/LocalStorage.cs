@@ -48,7 +48,7 @@ namespace Nanoka.Storage
             public string MediaType { get; set; }
         }
 
-        public async Task<StorageFile> GetAsync(string name, CancellationToken cancellationToken = default)
+        public async Task<StorageFile> ReadAsync(string name, CancellationToken cancellationToken = default)
         {
             await _semaphore.WaitAsync(cancellationToken);
             try
@@ -84,7 +84,7 @@ namespace Nanoka.Storage
             }
         }
 
-        public async Task<bool> AddAsync(StorageFile file, CancellationToken cancellationToken = default)
+        public async Task<bool> WriteAsync(StorageFile file, CancellationToken cancellationToken = default)
         {
             await _semaphore.WaitAsync(cancellationToken);
             try
@@ -168,7 +168,7 @@ namespace Nanoka.Storage
             }
         }
 
-        public async Task<bool> RemoveAsync(string name, CancellationToken cancellationToken = default)
+        public async Task<bool> DeleteAsync(string name, CancellationToken cancellationToken = default)
         {
             await _semaphore.WaitAsync(cancellationToken);
             try

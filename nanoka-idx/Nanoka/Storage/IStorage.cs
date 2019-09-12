@@ -12,10 +12,10 @@ namespace Nanoka.Storage
     {
         Task InitializeAsync(CancellationToken cancellationToken = default);
 
-        Task<StorageFile> GetAsync(string name, CancellationToken cancellationToken = default);
+        Task<StorageFile> ReadAsync(string name, CancellationToken cancellationToken = default);
 
-        Task<bool> AddAsync(StorageFile file, CancellationToken cancellationToken = default);
+        Task<bool> WriteAsync(StorageFile file, CancellationToken cancellationToken = default);
 
-        Task<bool> RemoveAsync(string name, CancellationToken cancellationToken = default);
+        Task<bool> DeleteAsync(string name, CancellationToken cancellationToken = default);
     }
 }

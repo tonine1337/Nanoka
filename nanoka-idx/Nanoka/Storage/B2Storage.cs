@@ -43,7 +43,7 @@ namespace Nanoka.Storage
             _bucketId   = bucket.BucketId;
         }
 
-        public async Task<StorageFile> GetAsync(string name, CancellationToken cancellationToken = default)
+        public async Task<StorageFile> ReadAsync(string name, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -63,7 +63,7 @@ namespace Nanoka.Storage
             }
         }
 
-        public async Task<bool> AddAsync(StorageFile file, CancellationToken cancellationToken = default)
+        public async Task<bool> WriteAsync(StorageFile file, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -96,7 +96,7 @@ namespace Nanoka.Storage
             }
         }
 
-        public async Task<bool> RemoveAsync(string name, CancellationToken cancellationToken = default)
+        public async Task<bool> DeleteAsync(string name, CancellationToken cancellationToken = default)
         {
             try
             {
