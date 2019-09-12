@@ -13,6 +13,7 @@ namespace Nanoka
 
         protected readonly object Lock = new object();
         protected readonly List<FileInfo> Files = new List<FileInfo>();
+
         protected readonly DateTime StartTime = DateTime.UtcNow;
 
         internal int UploaderId;
@@ -22,6 +23,17 @@ namespace Nanoka
             public string Name;
             public TemporaryFile Handle;
             public string MediaType;
+        }
+
+        DateTime _updateTime = DateTime.UtcNow;
+
+        public DateTime UpdateTime
+        {
+            get
+            {
+                lock (Lock)
+                    return _updateTime;
+            }
         }
 
         public async Task AddFileAsync(string name, Stream stream, string mediaType, CancellationToken cancellationToken = default)
@@ -53,6 +65,8 @@ namespace Nanoka
                 }
 
                 Files.Add(file);
+
+                _updateTime = DateTime.UtcNow;
             }
         }
 

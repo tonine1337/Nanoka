@@ -85,7 +85,8 @@ namespace Nanoka
             }
 
             services.AddScoped<UploadManager>()
-                    .AddSingleton<UploadTaskCollection>();
+                    .AddSingleton<UploadTaskCollection>()
+                    .AddHostedService<UploadAutoExpiryJob>();
 
             // other utilities
             services.AddSingleton<JsonSerializer>()
