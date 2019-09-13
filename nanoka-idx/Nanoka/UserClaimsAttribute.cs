@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -8,6 +9,10 @@ namespace Nanoka
 {
     public class UserClaimsAttribute : TypeFilterAttribute
     {
+        static readonly UserPermissions[] _permFlags = Enum.GetValues(typeof(UserPermissions))
+                                                           .Cast<UserPermissions>()
+                                                           .ToArray();
+
         public UserClaimsAttribute(UserPermissions permissions = UserPermissions.None,
                                    double reputation = 0,
                                    bool unrestricted = false)
@@ -15,7 +20,7 @@ namespace Nanoka
         {
             Arguments = new object[]
             {
-                permissions,
+                _permFlags.Where(f => permissions.HasFlag(f)).ToArray(),
                 reputation,
                 unrestricted
             };
