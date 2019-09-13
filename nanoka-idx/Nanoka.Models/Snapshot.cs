@@ -46,5 +46,7 @@ namespace Nanoka.Models
 
         [JsonProperty("value")]
         public T Value { get; set; }
+
+        public override string ToString() => $"{EntityType} {EntityId} [{Type}]: \"{Reason ?? "<no reason>"}\" #{Id}";
     }
 }
