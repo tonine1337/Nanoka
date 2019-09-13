@@ -68,7 +68,7 @@ namespace Nanoka
                 if (Files.Count == MaxFileCount)
                 {
                     file.Handle.Dispose();
-                    throw Result.BadRequest($"Maximum image upload limit reached for task '{Id}'.").Exception;
+                    throw Result.BadRequest($"Maximum image upload limit reached for task {Id}.").Exception;
                 }
 
                 Files.Add(file);

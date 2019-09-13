@@ -59,7 +59,7 @@ namespace Nanoka
 
             // require reason for configured event types
             if (snapshot.Type != SnapshotType.System && _options.RequireReasonForEvents.Contains(snapshot.Event) && string.IsNullOrWhiteSpace(snapshot.Reason))
-                throw Result.BadRequest($"{snapshot.Event} of {snapshot.EntityType} '{snapshot.EntityId}': reason must be specified for this action.").Exception;
+                throw Result.BadRequest($"{snapshot.Event} of {snapshot.EntityType} {snapshot.EntityId}: reason must be specified for this action.").Exception;
 
             await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
 

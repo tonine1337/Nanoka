@@ -147,6 +147,8 @@ namespace Nanoka.Storage
                         throw;
                     }
 
+                    _logger.LogInformation($"Wrote file '{file.Name}'.");
+
                     return true;
                 }
                 catch
@@ -181,6 +183,8 @@ namespace Nanoka.Storage
                 File.Delete(entryPath);
 
                 // content file is not deleted because it may be referenced by other entries
+
+                _logger.LogInformation($"Deleted file '{name}'.");
 
                 return true;
             }
