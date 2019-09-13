@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.Extensions.Logging;
 using Nanoka.Database;
 using Nanoka.Models;
 
@@ -17,10 +16,9 @@ namespace Nanoka
         readonly SnapshotManager _snapshot;
         readonly VoteManager _vote;
         readonly SoftDeleteManager _softDeleter;
-        readonly ILogger<BookManager> _logger;
 
         public BookManager(INanokaDatabase db, NamedLocker locker, IMapper mapper, SnapshotManager snapshot, VoteManager vote,
-                           SoftDeleteManager softDeleter, ILogger<BookManager> logger)
+                           SoftDeleteManager softDeleter)
         {
             _db          = db;
             _locker      = locker.Get<BookManager>();
@@ -28,7 +26,6 @@ namespace Nanoka
             _snapshot    = snapshot;
             _vote        = vote;
             _softDeleter = softDeleter;
-            _logger      = logger;
         }
 
         public async Task<Book> GetAsync(int id, CancellationToken cancellationToken = default)
@@ -55,34 +52,34 @@ namespace Nanoka
         public Task<Snapshot<Book>[]> GetSnapshotsAsync(int id, CancellationToken cancellationToken = default)
             => _snapshot.GetAsync<Book>(id, cancellationToken);
 
-        public async Task<Book> RevertAsync(int id, int snapshotId, CancellationToken cancellationToken = default)
+        public async Task<Book> RevertAsync(int id, int rollbackId, CancellationToken cancellationToken = default)
         {
             using (await _locker.EnterAsync(id, cancellationToken))
             {
-                var snapshot = await _snapshot.GetAsync<Book>(snapshotId, id, cancellationToken);
-                var current  = await _db.GetBookAsync(id, cancellationToken);
+                var rollback = await _snapshot.GetAsync<Book>(rollbackId, id, cancellationToken);
+                var book     = await _db.GetBookAsync(id, cancellationToken);
 
-                if (current != null && snapshot.Value == null)
+                if (book != null && rollback.Value == null)
                 {
-                    await _vote.DeleteAsync(current, cancellationToken);
-                    await _db.DeleteBookAsync(current, cancellationToken);
+                    await _vote.DeleteAsync(book, cancellationToken);
+                    await _db.DeleteBookAsync(book, cancellationToken);
 
-                    foreach (var content in current.Contents)
-                        await _softDeleter.DeleteAsync(EnumerateBookFiles(current, content), cancellationToken);
+                    foreach (var content in book.Contents)
+                        await _softDeleter.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
 
-                    current = null;
+                    book = null;
                 }
-                else if (snapshot.Value != null)
+                else if (rollback.Value != null)
                 {
-                    await _db.UpdateBookAsync(current = snapshot.Value, cancellationToken);
+                    await _db.UpdateBookAsync(book = rollback.Value, cancellationToken);
 
-                    foreach (var content in current.Contents)
-                        await _softDeleter.RestoreAsync(EnumerateBookFiles(current, content), cancellationToken);
+                    foreach (var content in book.Contents)
+                        await _softDeleter.RestoreAsync(EnumerateBookFiles(book, content), cancellationToken);
                 }
 
-                await _snapshot.RolledBackAsync(SnapshotType.User, current, snapshot, cancellationToken);
+                await _snapshot.RevertedAsync(SnapshotType.User, book, rollback, cancellationToken);
 
-                return current;
+                return book;
             }
         }
 

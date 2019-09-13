@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Nanoka.Database;
 using Nanoka.Models;
 
@@ -10,11 +11,13 @@ namespace Nanoka
     {
         readonly INanokaDatabase _db;
         readonly UserClaimSet _claims;
+        readonly ILogger<VoteManager> _logger;
 
-        public VoteManager(INanokaDatabase db, UserClaimSet claims)
+        public VoteManager(INanokaDatabase db, UserClaimSet claims, ILogger<VoteManager> logger)
         {
             _db     = db;
             _claims = claims;
+            _logger = logger;
         }
 
         /// <returns>Null if nothing was affected. Otherwise a <see cref="Vote"/> object.</returns>
@@ -45,6 +48,9 @@ namespace Nanoka
                 if (type == null)
                 {
                     await _db.DeleteVoteAsync(vote, cancellationToken);
+
+                    _logger.LogInformation("Unset vote of {0} score={1:F}", vote, entity.Score);
+
                     return vote;
                 }
             }
@@ -68,11 +74,17 @@ namespace Nanoka
 
             await _db.UpdateVoteAsync(vote, cancellationToken);
 
+            _logger.LogInformation("Set vote of {0} score={1:F}", vote, entity.Score);
+
             return vote;
         }
 
         public async Task DeleteAsync<T>(T entity, CancellationToken cancellationToken = default)
             where T : IHasId, IHasEntityType
-            => await _db.DeleteVotesAsync(entity.Type, entity.Id, cancellationToken);
+        {
+            var deleted = await _db.DeleteVotesAsync(entity.Type, entity.Id, cancellationToken);
+
+            _logger.LogInformation($"Deleted {deleted} votes of {entity.Type} {entity.Id}.");
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Nanoka.Models;
 
 namespace Nanoka
@@ -37,6 +38,8 @@ namespace Nanoka
             }
         }
 
+        public ILogger Logger;
+
         public async Task AddFileAsync(string name, Stream stream, string mediaType, CancellationToken cancellationToken = default)
         {
             var file = new FileInfo
@@ -62,7 +65,7 @@ namespace Nanoka
                 if (_disposed)
                 {
                     file.Handle.Dispose();
-                    throw new ObjectDisposedException(nameof(UploadTask));
+                    return;
                 }
 
                 if (Files.Count == MaxFileCount)
@@ -72,6 +75,8 @@ namespace Nanoka
                 }
 
                 Files.Add(file);
+
+                Logger?.LogInformation("Added file {0} '{1}' ({2}).", Files.Count, name, mediaType);
 
                 _updateTime = DateTime.UtcNow;
             }

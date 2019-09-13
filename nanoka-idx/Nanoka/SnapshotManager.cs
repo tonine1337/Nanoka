@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nanoka.Database;
 using Nanoka.Models;
@@ -13,12 +14,14 @@ namespace Nanoka
         readonly NanokaOptions _options;
         readonly INanokaDatabase _db;
         readonly UserClaimSet _claims;
+        readonly ILogger<SnapshotManager> _logger;
 
-        public SnapshotManager(IOptions<NanokaOptions> options, INanokaDatabase db, UserClaimSet claims)
+        public SnapshotManager(IOptions<NanokaOptions> options, INanokaDatabase db, UserClaimSet claims, ILogger<SnapshotManager> logger)
         {
             _options = options.Value;
             _db      = db;
             _claims  = claims;
+            _logger  = logger;
         }
 
         public Task<Snapshot<T>> CreatedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, int? committer = null, string reason = null)
@@ -33,7 +36,7 @@ namespace Nanoka
             where T : IHasId, IHasEntityType
             => SnapshotInternal(type, SnapshotEvent.Deletion, value, cancellationToken, null, committer, reason);
 
-        public Task<Snapshot<T>> RolledBackAsync<T>(SnapshotType type, T value, Snapshot<T> previous, CancellationToken cancellationToken = default, int? committer = null, string reason = null)
+        public Task<Snapshot<T>> RevertedAsync<T>(SnapshotType type, T value, Snapshot<T> previous, CancellationToken cancellationToken = default, int? committer = null, string reason = null)
             where T : IHasId, IHasEntityType
             => SnapshotInternal(type, SnapshotEvent.Rollback, value, cancellationToken, previous.Id, committer, reason);
 
@@ -62,6 +65,22 @@ namespace Nanoka
                 throw Result.BadRequest($"{snapshot.Event} of {snapshot.EntityType} {snapshot.EntityId}: reason must be specified for this action.").Exception;
 
             await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
+
+            switch (@event)
+            {
+                case SnapshotEvent.Creation:
+                    _logger.LogInformation("Created {0}", snapshot);
+                    break;
+                case SnapshotEvent.Modification:
+                    _logger.LogInformation("Modified {0}", snapshot);
+                    break;
+                case SnapshotEvent.Deletion:
+                    _logger.LogInformation("Deleted {0}", snapshot);
+                    break;
+                case SnapshotEvent.Rollback:
+                    _logger.LogInformation("Reverted {0}", snapshot);
+                    break;
+            }
 
             return snapshot;
         }

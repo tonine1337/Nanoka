@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Nanoka
 {
@@ -19,6 +20,13 @@ namespace Nanoka
 
         const int _poolCapacity = 200;
 
+        public NamedLocker(ILoggerFactory loggerFactory)
+        {
+            _loggerFactory = loggerFactory;
+        }
+
+        readonly ILoggerFactory _loggerFactory;
+
         public ILocker Get<T>()
         {
             lock (_lockers)
@@ -27,7 +35,10 @@ namespace Nanoka
                     throw new ObjectDisposedException(nameof(NamedLocker));
 
                 if (!_lockers.TryGetValue(typeof(T), out var locker))
-                    locker = _lockers[typeof(T)] = new NamedLockerInstance(_sharedLock, _sharedPool, _poolCapacity);
+                    locker = _lockers[typeof(T)] = new NamedLockerInstance(_sharedLock, _sharedPool, _poolCapacity)
+                    {
+                        Logger = _loggerFactory.CreateLogger<T>()
+                    };
 
                 return locker;
             }

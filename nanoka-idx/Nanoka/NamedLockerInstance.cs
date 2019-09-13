@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Nanoka
 {
@@ -20,6 +21,8 @@ namespace Nanoka
         readonly int _poolCapacity;
 
         volatile bool _isDisposed;
+
+        public ILogger Logger;
 
         public NamedLockerInstance()
         {
@@ -55,10 +58,16 @@ namespace Nanoka
                 ++l.References;
             }
 
-            // wait for this semaphore
-            await l.Semaphore.WaitAsync(cancellationToken);
+            using (var measure = new MeasureContext())
+            {
+                // wait for this semaphore
+                await l.Semaphore.WaitAsync(cancellationToken);
 
-            // we own this semaphore, assume caller calls Lock.Dispose
+                if (measure.Seconds >= 1)
+                    Logger?.LogWarning($"Took {measure.Seconds:F}s to obtain lock for resource '{id}'.");
+            }
+
+            // we own this semaphore; assume caller calls Lock.Dispose
             return l;
         }
 

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Nanoka
@@ -11,11 +12,13 @@ namespace Nanoka
     {
         readonly NanokaOptions _options;
         readonly UploadTaskCollection _tasks;
+        readonly ILogger<UploadAutoExpiryJob> _logger;
 
-        public UploadAutoExpiryJob(IOptions<NanokaOptions> options, UploadTaskCollection tasks)
+        public UploadAutoExpiryJob(IOptions<NanokaOptions> options, UploadTaskCollection tasks, ILogger<UploadAutoExpiryJob> logger)
         {
             _options = options.Value;
             _tasks   = tasks;
+            _logger  = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,7 +38,18 @@ namespace Nanoka
                 }
 
                 foreach (var task in expiredTasks)
-                    task.Dispose(); // disposal is expensive so run outside lock
+                {
+                    try
+                    {
+                        task.Dispose(); // disposal is expensive so run outside lock
+
+                        _logger.LogInformation($"Upload worker {task.Id} expired after inactivity.");
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogWarning(e, $"Failed to dispose upload worker {task.Id}'.");
+                    }
+                }
 
                 await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }

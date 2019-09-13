@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Nanoka
@@ -12,12 +13,14 @@ namespace Nanoka
         readonly NanokaOptions _options;
         readonly UploadTaskCollection _tasks;
         readonly UserClaimSet _claims;
+        readonly ILoggerFactory _loggerFactory;
 
-        public UploadManager(IOptions<NanokaOptions> options, UploadTaskCollection tasks, UserClaimSet claims)
+        public UploadManager(IOptions<NanokaOptions> options, UploadTaskCollection tasks, UserClaimSet claims, ILoggerFactory loggerFactory)
         {
-            _options = options.Value;
-            _tasks   = tasks;
-            _claims  = claims;
+            _options       = options.Value;
+            _tasks         = tasks;
+            _claims        = claims;
+            _loggerFactory = loggerFactory;
         }
 
         public UploadTask<T> CreateTask<T>(T data)
@@ -30,7 +33,8 @@ namespace Nanoka
                 var task = new UploadTask<T>(data)
                 {
                     UploaderId   = _claims.Id,
-                    MaxFileCount = _options.MaxImageUploadCount
+                    MaxFileCount = _options.MaxImageUploadCount,
+                    Logger       = _loggerFactory.CreateLogger<UploadTask<T>>()
                 };
 
                 _tasks[task.Id] = task;
@@ -72,7 +76,7 @@ namespace Nanoka
     {
         public void Dispose()
         {
-            // nothing calls Dispose other than DI
+            // nothing calls Dispose other than DI, so deadlock would not occur
             lock (this)
             {
                 foreach (var task in Values)

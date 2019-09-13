@@ -57,7 +57,7 @@ namespace Nanoka
 
             if (!success)
             {
-                _logger.LogDebug($"reCAPTCHA verification for token '{token}' failed. {response.ReasonPhrase}");
+                _logger.LogDebug($"Failed reCAPTCHA verification for token '{token}'. {response.ReasonPhrase}");
                 return false;
             }
 
