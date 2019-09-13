@@ -30,7 +30,7 @@ namespace Nanoka.Database
             PageCount = PageCount,
             Language  = Language,
             IsColor   = IsColor,
-            Sources   = Sources.ToArray(ExternalSource.Parse)
+            Sources   = Sources?.ToArray(ExternalSource.Parse)
         };
 
         public static DbBookContent FromContent(BookContent content) => new DbBookContent
@@ -39,7 +39,7 @@ namespace Nanoka.Database
             PageCount     = content.PageCount,
             Language      = content.Language,
             IsColor       = content.IsColor,
-            Sources       = content.Sources.ToArray(s => s.ToString())
+            Sources       = content.Sources?.ToArray(s => s.ToString())
         };
     }
 }

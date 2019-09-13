@@ -73,9 +73,9 @@ namespace Nanoka.Database
                 { ImageTag.Metadata, TagsMetadata },
                 { ImageTag.Pool, TagsPool }
             }.RemoveNullValues(),
-            Sources = Sources.ToArray(ExternalSource.Parse),
+            Sources = Sources?.ToArray(ExternalSource.Parse),
             Rating  = Rating,
-            Notes   = Notes.ToArray(n => n.ToNote())
+            Notes   = Notes?.ToArray(n => n.ToNote())
         };
 
         public static DbImage FromImage(Image image)
@@ -95,10 +95,10 @@ namespace Nanoka.Database
                 TagsCopyright = image.Tags.GetValueOrDefault(ImageTag.Copyright),
                 TagsMetadata  = image.Tags.GetValueOrDefault(ImageTag.Metadata),
                 TagsPool      = image.Tags.GetValueOrDefault(ImageTag.Pool),
-                Sources       = image.Sources.ToArray(s => s.ToString()),
+                Sources       = image.Sources?.ToArray(s => s.ToString()),
                 Rating        = image.Rating,
                 Notes         = notes,
-                NoteCount     = notes.Length
+                NoteCount     = notes?.Length ?? 0
             };
         }
     }
