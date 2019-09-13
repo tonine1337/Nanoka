@@ -32,10 +32,13 @@ namespace Nanoka
             {
                 var filenames = await _db.GetAndRemoveDeleteFilesAsync(DateTime.UtcNow.AddMilliseconds(-_options.SoftDeleteDelayMs), stoppingToken);
 
-                foreach (var filename in filenames)
-                    await _storage.DeleteAsync(filename, stoppingToken);
+                if (filenames.Length != 0)
+                {
+                    foreach (var filename in filenames)
+                        await _storage.DeleteAsync(filename, stoppingToken);
 
-                _logger.LogInformation($"Hard deleted files: {string.Join(", ", filenames)}");
+                    _logger.LogInformation($"Hard deleted files: {string.Join(", ", filenames)}");
+                }
 
                 await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
             }
