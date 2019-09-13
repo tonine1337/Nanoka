@@ -313,9 +313,13 @@ namespace Nanoka.Database
             return doc.Id;
         }
 
+        // ReSharper disable once SuggestBaseTypeForParameter
         async Task<string[]> IndexAsync<TDocument>(TDocument[] docs, CancellationToken cancellationToken)
             where TDocument : class, IHasId
         {
+            if (docs.Length == 0)
+                return new string[0];
+
             // id autogeneration
             foreach (var doc in docs)
             {
@@ -363,9 +367,13 @@ namespace Nanoka.Database
             return (int) response.Deleted;
         }
 
-        async Task<int> DeleteAsync<TDocument>(IEnumerable<string> ids, CancellationToken cancellationToken)
+        // ReSharper disable once SuggestBaseTypeForParameter
+        async Task<int> DeleteAsync<TDocument>(string[] ids, CancellationToken cancellationToken)
             where TDocument : class
         {
+            if (ids.Length == 0)
+                return 0;
+
             var response = await _client.BulkAsync(
                 x => x.Index(_indexNames[typeof(TDocument)])
                       .DeleteMany<TDocument>(ids),
