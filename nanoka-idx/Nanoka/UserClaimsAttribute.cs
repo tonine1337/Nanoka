@@ -71,7 +71,7 @@ namespace Nanoka
                     context.Result = Result.Forbidden("Insufficient reputation to perform this action. " +
                                                       $"Required: {_reputation:F}");
 
-                if (_reason && (string.IsNullOrWhiteSpace(claims.Reason) || claims.Reason.Length <= 3))
+                if (_reason && (string.IsNullOrEmpty(claims.Reason) || claims.Reason.Length <= 3))
                     context.Result = Result.BadRequest("Valid reason must be provided for this action.");
             }
         }
