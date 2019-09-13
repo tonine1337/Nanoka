@@ -108,7 +108,7 @@ namespace Nanoka.Database
 #region User
 
         public async Task<User> GetUserByIdAsync(string id, CancellationToken cancellationToken = default)
-            => (await GetAsync<DbUser>(id, cancellationToken)).ToUser();
+            => (await GetAsync<DbUser>(id, cancellationToken))?.ToUser();
 
         public async Task<User> GetUserByNameAsync(string username, CancellationToken cancellationToken = default)
         {
@@ -135,7 +135,7 @@ namespace Nanoka.Database
 #region Book
 
         public async Task<Book> GetBookAsync(string id, CancellationToken cancellationToken = default)
-            => (await GetAsync<DbBook>(id, cancellationToken)).ToBook();
+            => (await GetAsync<DbBook>(id, cancellationToken))?.ToBook();
 
         public async Task UpdateBookAsync(Book book, CancellationToken cancellationToken = default)
             => book.Id = await IndexAsync(DbBook.FromBook(book), cancellationToken);
@@ -148,7 +148,7 @@ namespace Nanoka.Database
 #region Image
 
         public async Task<Image> GetImageAsync(string id, CancellationToken cancellationToken = default)
-            => (await GetAsync<DbImage>(id, cancellationToken)).ToImage();
+            => (await GetAsync<DbImage>(id, cancellationToken))?.ToImage();
 
         public async Task UpdateImageAsync(Image image, CancellationToken cancellationToken = default)
             => image.Id = await IndexAsync(DbImage.FromImage(image), cancellationToken);
@@ -162,9 +162,9 @@ namespace Nanoka.Database
 
         public async Task<Snapshot<T>> GetSnapshotAsync<T>(string id, string entityId, CancellationToken cancellationToken = default)
         {
-            var snapshot = (await GetAsync<DbSnapshot>(id, cancellationToken)).ToSnapshot<T>(_serializer);
+            var snapshot = (await GetAsync<DbSnapshot>(id, cancellationToken))?.ToSnapshot<T>(_serializer);
 
-            return snapshot.EntityId == entityId
+            return snapshot?.EntityId == entityId
                 ? snapshot
                 : null;
         }
@@ -191,7 +191,7 @@ namespace Nanoka.Database
 #region Vote
 
         public async Task<Vote> GetVoteAsync(string userId, NanokaEntity entity, string entityId, CancellationToken cancellationToken = default)
-            => (await GetAsync<DbVote>(DbVote.CreateId(userId, entity, entityId), cancellationToken)).ToVote();
+            => (await GetAsync<DbVote>(DbVote.CreateId(userId, entity, entityId), cancellationToken))?.ToVote();
 
         public async Task UpdateVoteAsync(Vote vote, CancellationToken cancellationToken = default)
             => await IndexAsync(DbVote.FromVote(vote), cancellationToken);
