@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Nanoka.Models
@@ -25,11 +26,11 @@ namespace Nanoka.Models
         public ImageMediaType MediaType { get; set; }
     }
 
-    public class ImageBase : IHasEntityType
+    public class ImageBase : IHasEntityType, IValidatableObject
     {
         public const int MinimumTagCount = 5;
 
-        [JsonProperty("tags"), Required, MinLength(MinimumTagCount)]
+        [JsonProperty("tags"), Required]
         public Dictionary<ImageTag, string[]> Tags { get; set; }
 
         [JsonProperty("source")]
@@ -47,5 +48,11 @@ namespace Nanoka.Models
         NanokaEntity IHasEntityType.Type => NanokaEntity.Image;
 
 #endregion
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Tags.Values.SelectMany(x => x).Count() < MinimumTagCount)
+                yield return new ValidationResult($"Must provide at least {MinimumTagCount} tags.");
+        }
     }
 }

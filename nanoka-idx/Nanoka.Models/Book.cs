@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Nanoka.Models
@@ -19,7 +20,7 @@ namespace Nanoka.Models
         public BookContent[] Contents { get; set; }
     }
 
-    public class BookBase : IHasEntityType
+    public class BookBase : IHasEntityType, IValidatableObject
     {
         public const int MinimumTagCount = 5;
 
@@ -29,7 +30,7 @@ namespace Nanoka.Models
         [JsonProperty("names"), Required, MinLength(1)]
         public string[] Name { get; set; }
 
-        [JsonProperty("tags"), Required, MinLength(MinimumTagCount)]
+        [JsonProperty("tags"), Required]
         public Dictionary<BookTag, string[]> Tags { get; set; }
 
         [JsonProperty("category")]
@@ -44,5 +45,11 @@ namespace Nanoka.Models
         NanokaEntity IHasEntityType.Type => NanokaEntity.Book;
 
 #endregion
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Tags.Values.SelectMany(x => x).Count() < MinimumTagCount)
+                yield return new ValidationResult($"Must provide at least {MinimumTagCount} tags.");
+        }
     }
 }
