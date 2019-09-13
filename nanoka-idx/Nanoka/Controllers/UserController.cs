@@ -20,13 +20,11 @@ namespace Nanoka.Controllers
     {
         readonly NanokaOptions _options;
         readonly UserManager _userManager;
-        readonly RecaptchaValidator _recaptcha;
 
-        public UserController(IOptions<NanokaOptions> options, UserManager userManager, RecaptchaValidator recaptcha)
+        public UserController(IOptions<NanokaOptions> options, UserManager userManager)
         {
             _options     = options.Value;
             _userManager = userManager;
-            _recaptcha   = recaptcha;
         }
 
         [HttpPost("auth"), AllowAnonymous]
@@ -62,11 +60,9 @@ namespace Nanoka.Controllers
             };
         }
 
-        [HttpPost("register"), AllowAnonymous]
-        public async Task<Result<RegistrationResponse>> RegisterAsync(RegistrationRequest request, [FromQuery] string recaptcha)
+        [HttpPost("register"), AllowAnonymous, VerifyHuman]
+        public async Task<Result<RegistrationResponse>> RegisterAsync(RegistrationRequest request)
         {
-            await _recaptcha.ValidateAsync(recaptcha);
-
             await _userManager.CreateAsync(request.Username, request.Password);
 
             return new RegistrationResponse();

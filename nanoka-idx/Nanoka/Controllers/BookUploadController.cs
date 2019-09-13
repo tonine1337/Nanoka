@@ -35,7 +35,7 @@ namespace Nanoka.Controllers
             public BookContentBase Content;
         }
 
-        [HttpPost, UserUnrestricted]
+        [HttpPost, UserClaims(unrestricted: true)]
         public async Task<UploadState> CreateUploadAsync(CreateNewBookRequest request)
         {
             // creating an entirely new book
