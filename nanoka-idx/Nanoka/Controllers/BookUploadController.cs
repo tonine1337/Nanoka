@@ -111,7 +111,7 @@ namespace Nanoka.Controllers
                     }
                 }
 
-                return null;
+                return book;
             }
         }
     }
