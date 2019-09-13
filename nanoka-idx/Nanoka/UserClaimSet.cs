@@ -22,7 +22,7 @@ namespace Nanoka
             Reputation   = double.TryParse(ctx.User.FindFirst("rep")?.Value, out var c) ? c : 0;
             IsRestricted = bool.TryParse(ctx.User.FindFirst("rest")?.Value, out var d) && d;
 
-            Reason = ctx.Request.Query["reason"];
+            Reason = ((string) ctx.Request.Query["reason"]).Trim();
         }
 
         public bool HasPermissions(UserPermissions required) => Permissions.HasFlag(required);

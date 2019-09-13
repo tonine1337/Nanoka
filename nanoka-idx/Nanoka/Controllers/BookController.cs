@@ -26,7 +26,7 @@ namespace Nanoka.Controllers
         public async Task<Result<Book>> UpdateAsync(string id, BookBase model)
             => await _bookManager.UpdateAsync(id, model);
 
-        [HttpDelete("{id}"), UserClaims(unrestricted: true, reputation: 100), VerifyHuman]
+        [HttpDelete("{id}"), UserClaims(unrestricted: true, reputation: 100, reason: true), VerifyHuman]
         public async Task<Result> DeleteAsync(string id)
         {
             await _bookManager.DeleteAsync(id);
@@ -37,7 +37,7 @@ namespace Nanoka.Controllers
         public async Task<Result<Snapshot<Book>[]>> GetSnapshotsAsync(string id)
             => await _bookManager.GetSnapshotsAsync(id);
 
-        [HttpPost("{id}/snapshots/revert"), UserClaims(unrestricted: true)]
+        [HttpPost("{id}/snapshots/revert"), UserClaims(unrestricted: true, reason: true)]
         public async Task<Result<Book>> RevertAsync(string id, RevertEntityRequest request)
             => await _bookManager.RevertAsync(id, request.SnapshotId);
 
@@ -60,7 +60,7 @@ namespace Nanoka.Controllers
         public async Task<Result<BookContent>> UpdateContentAsync(string id, string contentId, BookContentBase model)
             => await _bookManager.UpdateContentAsync(id, contentId, model);
 
-        [HttpDelete("{id}/contents/{contentId}"), UserClaims(unrestricted: true, reputation: 100), VerifyHuman]
+        [HttpDelete("{id}/contents/{contentId}"), UserClaims(unrestricted: true, reputation: 100, reason: true), VerifyHuman]
         public async Task<Result> DeleteContentAsync(string id, string contentId)
         {
             await _bookManager.RemoveContentAsync(id, contentId);

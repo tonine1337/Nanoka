@@ -15,14 +15,16 @@ namespace Nanoka
 
         public UserClaimsAttribute(UserPermissions permissions = UserPermissions.None,
                                    double reputation = 0,
-                                   bool unrestricted = false)
+                                   bool unrestricted = false,
+                                   bool reason = false)
             : base(typeof(Filter))
         {
             Arguments = new object[]
             {
                 _permFlags.Where(f => permissions.HasFlag(f)).ToArray(),
                 reputation,
-                unrestricted
+                unrestricted,
+                reason
             };
         }
 
@@ -31,12 +33,17 @@ namespace Nanoka
             readonly UserPermissions[] _permissions;
             readonly double _reputation;
             readonly bool _unrestricted;
+            readonly bool _reason;
 
-            public Filter(UserPermissions[] permissions, double reputation, bool unrestricted)
+            public Filter(UserPermissions[] permissions,
+                          double reputation,
+                          bool unrestricted,
+                          bool reason)
             {
                 _permissions  = permissions;
                 _reputation   = reputation;
                 _unrestricted = unrestricted;
+                _reason       = reason;
             }
 
             public void OnAuthorization(AuthorizationFilterContext context)
@@ -63,6 +70,9 @@ namespace Nanoka
                 if (claims.Reputation < _reputation)
                     context.Result = Result.Forbidden("Insufficient reputation to perform this action. " +
                                                       $"Required: {_reputation:F}");
+
+                if (_reason && (string.IsNullOrWhiteSpace(claims.Reason) || claims.Reason.Length <= 3))
+                    context.Result = Result.BadRequest("Valid reason must be provided for this action.");
             }
         }
     }

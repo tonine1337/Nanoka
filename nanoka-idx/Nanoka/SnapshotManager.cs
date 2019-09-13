@@ -1,9 +1,7 @@
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Nanoka.Database;
 using Nanoka.Models;
 
@@ -11,17 +9,15 @@ namespace Nanoka
 {
     public class SnapshotManager
     {
-        readonly NanokaOptions _options;
         readonly INanokaDatabase _db;
         readonly UserClaimSet _claims;
         readonly ILogger<SnapshotManager> _logger;
 
-        public SnapshotManager(IOptions<NanokaOptions> options, INanokaDatabase db, UserClaimSet claims, ILogger<SnapshotManager> logger)
+        public SnapshotManager(INanokaDatabase db, UserClaimSet claims, ILogger<SnapshotManager> logger)
         {
-            _options = options.Value;
-            _db      = db;
-            _claims  = claims;
-            _logger  = logger;
+            _db     = db;
+            _claims = claims;
+            _logger = logger;
         }
 
         public Task<Snapshot<T>> CreatedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, string committer = null, string reason = null)
@@ -59,10 +55,6 @@ namespace Nanoka
 
             if (@event == SnapshotEvent.Deletion)
                 snapshot.Value = default;
-
-            // require reason for configured event types
-            if (snapshot.Type != SnapshotType.System && _options.RequireReasonForEvents.Contains(snapshot.Event) && string.IsNullOrWhiteSpace(snapshot.Reason))
-                throw Result.BadRequest($"{snapshot.Event} of {snapshot.EntityType} {snapshot.EntityId}: reason must be specified for this action.").Exception;
 
             await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
 
