@@ -20,59 +20,90 @@ namespace Nanoka
             _logger = logger;
         }
 
-        public Task<Snapshot<T>> CreatedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, string committer = null, string reason = null)
-            where T : IHasId, IHasEntityType
-            => SnapshotInternal(type, SnapshotEvent.Creation, value, cancellationToken, null, committer, reason);
-
-        public Task<Snapshot<T>> ModifiedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, string committer = null, string reason = null)
-            where T : IHasId, IHasEntityType
-            => SnapshotInternal(type, SnapshotEvent.Modification, value, cancellationToken, null, committer, reason);
-
-        public Task<Snapshot<T>> DeletedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, string committer = null, string reason = null)
-            where T : IHasId, IHasEntityType
-            => SnapshotInternal(type, SnapshotEvent.Deletion, value, cancellationToken, null, committer, reason);
-
-        public Task<Snapshot<T>> RevertedAsync<T>(SnapshotType type, T value, Snapshot<T> previous, CancellationToken cancellationToken = default, string committer = null, string reason = null)
-            where T : IHasId, IHasEntityType
-            => SnapshotInternal(type, SnapshotEvent.Rollback, value, cancellationToken, previous.Id, committer, reason);
-
-        async Task<Snapshot<T>> SnapshotInternal<T>(SnapshotType type, SnapshotEvent @event, T value, CancellationToken cancellationToken = default,
-                                                    string rollbackId = null, string committer = null, string reason = null)
+        public async Task<Snapshot<T>> CreatedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, string committer = null, string reason = null)
             where T : IHasId, IHasEntityType
         {
             var snapshot = new Snapshot<T>
             {
                 Time        = DateTime.UtcNow,
-                RollbackId  = rollbackId,
                 CommitterId = committer ?? _claims.Id,
                 Type        = type,
                 EntityType  = value.Type,
                 EntityId    = value.Id,
-                Event       = @event,
+                Event       = SnapshotEvent.Creation,
                 Reason      = reason ?? _claims.Reason,
                 Value       = value
             };
 
-            if (@event == SnapshotEvent.Deletion)
-                snapshot.Value = default;
+            await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
+
+            _logger.LogInformation("Created {0}", snapshot);
+
+            return snapshot;
+        }
+
+        public async Task<Snapshot<T>> ModifiedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, string committer = null, string reason = null)
+            where T : IHasId, IHasEntityType
+        {
+            var snapshot = new Snapshot<T>
+            {
+                Time        = DateTime.UtcNow,
+                CommitterId = committer ?? _claims.Id,
+                Type        = type,
+                EntityType  = value.Type,
+                EntityId    = value.Id,
+                Event       = SnapshotEvent.Modification,
+                Reason      = reason ?? _claims.Reason,
+                Value       = value
+            };
 
             await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
 
-            switch (@event)
+            _logger.LogInformation("Modified {0}", snapshot);
+
+            return snapshot;
+        }
+
+        public async Task<Snapshot<T>> DeletedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, string committer = null, string reason = null)
+            where T : IHasId, IHasEntityType
+        {
+            var snapshot = new Snapshot<T>
             {
-                case SnapshotEvent.Creation:
-                    _logger.LogInformation("Created {0}", snapshot);
-                    break;
-                case SnapshotEvent.Modification:
-                    _logger.LogInformation("Modified {0}", snapshot);
-                    break;
-                case SnapshotEvent.Deletion:
-                    _logger.LogInformation("Deleted {0}", snapshot);
-                    break;
-                case SnapshotEvent.Rollback:
-                    _logger.LogInformation("Reverted {0}", snapshot);
-                    break;
-            }
+                Time        = DateTime.UtcNow,
+                CommitterId = committer ?? _claims.Id,
+                Type        = type,
+                EntityType  = value.Type,
+                EntityId    = value.Id,
+                Event       = SnapshotEvent.Deletion,
+                Reason      = reason ?? _claims.Reason
+            };
+
+            await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
+
+            _logger.LogInformation("Deleted {0}", snapshot);
+
+            return snapshot;
+        }
+
+        public async Task<Snapshot<T>> RevertedAsync<T>(SnapshotType type, T value, Snapshot<T> previous, CancellationToken cancellationToken = default, string committer = null, string reason = null)
+            where T : IHasId, IHasEntityType
+        {
+            var snapshot = new Snapshot<T>
+            {
+                Time        = DateTime.UtcNow,
+                RollbackId  = previous.Id,
+                CommitterId = committer ?? _claims.Id,
+                Type        = type,
+                EntityType  = value?.Type ?? previous.EntityType,
+                EntityId    = value?.Id ?? previous.EntityId,
+                Event       = SnapshotEvent.Rollback,
+                Reason      = reason ?? _claims.Reason,
+                Value       = value
+            };
+
+            await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
+
+            _logger.LogInformation("Reverted {0}", snapshot);
 
             return snapshot;
         }
