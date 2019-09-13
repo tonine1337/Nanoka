@@ -20,7 +20,7 @@ namespace Nanoka.Models
         [JsonProperty("weight")]
         public double Weight { get; set; }
 
-        public override string ToString() => $"{EntityType} {EntityId}: {Weight:F}";
+        public override string ToString() => $"{EntityType} {EntityId} ~ {Weight:+##.##;-##.##}";
     }
 
     public class VoteBase : IHasEntityType
