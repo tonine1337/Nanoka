@@ -107,10 +107,10 @@ namespace Nanoka.Database
 
 #region User
 
-        public async Task<User> GetUserAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<User> GetUserByIdAsync(string id, CancellationToken cancellationToken = default)
             => (await GetAsync<DbUser>(id, cancellationToken)).ToUser();
 
-        public async Task<User> GetUserAsync(string username, CancellationToken cancellationToken = default)
+        public async Task<User> GetUserByNameAsync(string username, CancellationToken cancellationToken = default)
         {
             var result = await SearchAsync<DbUser>(
                 (0, 1),
@@ -134,7 +134,7 @@ namespace Nanoka.Database
 
 #region Book
 
-        public async Task<Book> GetBookAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<Book> GetBookAsync(string id, CancellationToken cancellationToken = default)
             => (await GetAsync<DbBook>(id, cancellationToken)).ToBook();
 
         public async Task UpdateBookAsync(Book book, CancellationToken cancellationToken = default)
@@ -147,7 +147,7 @@ namespace Nanoka.Database
 
 #region Image
 
-        public async Task<Image> GetImageAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<Image> GetImageAsync(string id, CancellationToken cancellationToken = default)
             => (await GetAsync<DbImage>(id, cancellationToken)).ToImage();
 
         public async Task UpdateImageAsync(Image image, CancellationToken cancellationToken = default)
@@ -160,7 +160,7 @@ namespace Nanoka.Database
 
 #region Snapshot
 
-        public async Task<Snapshot<T>> GetSnapshotAsync<T>(int id, int entityId, CancellationToken cancellationToken = default)
+        public async Task<Snapshot<T>> GetSnapshotAsync<T>(string id, string entityId, CancellationToken cancellationToken = default)
         {
             var snapshot = (await GetAsync<DbSnapshot>(id, cancellationToken)).ToSnapshot<T>(_serializer);
 
@@ -169,7 +169,7 @@ namespace Nanoka.Database
                 : null;
         }
 
-        public async Task<Snapshot<T>[]> GetSnapshotsAsync<T>(int entityId, CancellationToken cancellationToken = default)
+        public async Task<Snapshot<T>[]> GetSnapshotsAsync<T>(string entityId, CancellationToken cancellationToken = default)
         {
             var result = await SearchAsync<DbSnapshot>(
                 (0, 256),
@@ -190,7 +190,7 @@ namespace Nanoka.Database
 
 #region Vote
 
-        public async Task<Vote> GetVoteAsync(int userId, NanokaEntity entity, int entityId, CancellationToken cancellationToken = default)
+        public async Task<Vote> GetVoteAsync(string userId, NanokaEntity entity, string entityId, CancellationToken cancellationToken = default)
             => (await GetAsync<DbVote>(DbVote.CreateId(userId, entity, entityId), cancellationToken)).ToVote();
 
         public async Task UpdateVoteAsync(Vote vote, CancellationToken cancellationToken = default)
@@ -199,7 +199,7 @@ namespace Nanoka.Database
         public async Task DeleteVoteAsync(Vote vote, CancellationToken cancellationToken = default)
             => await DeleteAsync<DbVote>(DbVote.CreateId(vote.UserId, vote.EntityType, vote.EntityId), cancellationToken);
 
-        public async Task<int> DeleteVotesAsync(NanokaEntity entity, int entityId, CancellationToken cancellationToken = default)
+        public async Task<int> DeleteVotesAsync(NanokaEntity entity, string entityId, CancellationToken cancellationToken = default)
         {
             var deleted = await DeleteAsync<DbVote>(
                 q => q.Query(qq => qq.Bool(b => b.Filter(f => f.Term(t => t.Field(v => v.EntityType)
@@ -215,9 +215,9 @@ namespace Nanoka.Database
 
 #region DeleteFile
 
-        public async Task AddDeleteFilesAsync(IEnumerable<string> filenames, DateTime softDeleteTime, CancellationToken cancellationToken = default)
+        public async Task AddDeleteFilesAsync(string[] filenames, DateTime softDeleteTime, CancellationToken cancellationToken = default)
         {
-            var files = filenames.Select(name => new DbDeleteFile
+            var files = filenames.ToArray(name => new DbDeleteFile
             {
                 Id             = name,
                 SoftDeleteTime = softDeleteTime
@@ -226,15 +226,8 @@ namespace Nanoka.Database
             await IndexAsync(files, cancellationToken);
         }
 
-        public async Task RemoveDeleteFileAsync(IEnumerable<string> filenames, CancellationToken cancellationToken = default)
-        {
-            var files = filenames.Select(name => new DbDeleteFile
-            {
-                Id = name
-            });
-
-            await DeleteAsync(files, cancellationToken);
-        }
+        public async Task RemoveDeleteFileAsync(string[] filenames, CancellationToken cancellationToken = default)
+            => await DeleteAsync<DbDeleteFile>(filenames, cancellationToken);
 
         public async Task<string[]> GetAndRemoveDeleteFilesAsync(DateTime maxSoftDeleteTime, CancellationToken cancellationToken = default)
         {
@@ -246,7 +239,7 @@ namespace Nanoka.Database
                 cancellationToken);
 
             if (result.Items.Count != 0)
-                await DeleteAsync(result.Items, cancellationToken);
+                await DeleteAsync<DbDeleteFile>(result.Items.ToArray(x => x.Id), cancellationToken);
 
             return result.Items.ToArray(f => f.Id);
         }
@@ -258,7 +251,10 @@ namespace Nanoka.Database
         async Task<TDocument> GetAsync<TDocument>(DocumentPath<TDocument> id, CancellationToken cancellationToken)
             where TDocument : class
         {
-            var response = await _client.GetAsync(id, x => x.Index(_indexNames[typeof(TDocument)]), cancellationToken);
+            var response = await _client.GetAsync(
+                id,
+                x => x.Index(_indexNames[typeof(TDocument)]),
+                cancellationToken);
 
             ValidateResponse(response);
 
@@ -298,33 +294,54 @@ namespace Nanoka.Database
             public IReadOnlyCollection<TDocument> Items;
         }
 
-        async Task<int> IndexAsync<TDocument>(TDocument doc, CancellationToken cancellationToken)
-            where TDocument : class
+        async Task<string> IndexAsync<TDocument>(TDocument doc, CancellationToken cancellationToken)
+            where TDocument : class, IHasId
         {
-            var response = await _client.IndexAsync(doc, x => x.Index(_indexNames[typeof(TDocument)]), cancellationToken);
+            // id autogeneration
+            if (string.IsNullOrEmpty(doc.Id))
+                doc.Id = Snowflake.New;
+
+            var response = await _client.IndexAsync(
+                doc,
+                x => x.Index(_indexNames[typeof(TDocument)]),
+                cancellationToken);
 
             ValidateResponse(response);
 
-            _logger.LogInformation($"Indexed {typeof(TDocument).Name}: {response.Id}");
+            _logger.LogInformation($"Indexed {typeof(TDocument).Name}: {doc.Id}");
 
-            // assuming we always use integer ID
-            return int.Parse(response.Id);
+            return doc.Id;
         }
 
-        async Task IndexAsync<TDocument>(IEnumerable<TDocument> documents, CancellationToken cancellationToken)
-            where TDocument : class
+        async Task<string[]> IndexAsync<TDocument>(TDocument[] docs, CancellationToken cancellationToken)
+            where TDocument : class, IHasId
         {
-            var response = await _client.IndexManyAsync(documents, _indexNames[typeof(TDocument)], cancellationToken);
+            // id autogeneration
+            foreach (var doc in docs)
+            {
+                if (string.IsNullOrEmpty(doc.Id))
+                    doc.Id = Snowflake.New;
+            }
+
+            var response = await _client.BulkAsync(
+                x => x.Index(_indexNames[typeof(TDocument)])
+                      .IndexMany(docs),
+                cancellationToken);
 
             ValidateResponse(response);
 
-            _logger.LogInformation($"Indexed {typeof(TDocument).Name}: {string.Join(", ", response.Items.Select(x => x.Id))}");
+            _logger.LogInformation($"Indexed {response.Items.Count} {typeof(TDocument).Name}: {string.Join(", ", docs.Select(d => d.Id))}");
+
+            return docs.ToArray(d => d.Id);
         }
 
-        async Task DeleteAsync<TDocument>(DocumentPath<TDocument> id, CancellationToken cancellationToken)
+        async Task DeleteAsync<TDocument>(string id, CancellationToken cancellationToken)
             where TDocument : class
         {
-            var response = await _client.DeleteAsync(id, x => x.Index(_indexNames[typeof(TDocument)]), cancellationToken);
+            var response = await _client.DeleteAsync<TDocument>(
+                id,
+                x => x.Index(_indexNames[typeof(TDocument)]),
+                cancellationToken);
 
             ValidateResponse(response);
 
@@ -341,19 +358,22 @@ namespace Nanoka.Database
 
             ValidateResponse(response);
 
-            _logger.LogInformation($"Deleted {typeof(TDocument).Name} by query ({response.Deleted} items).");
+            _logger.LogInformation($"Deleted {response.Deleted} {typeof(TDocument).Name} by query.");
 
             return (int) response.Deleted;
         }
 
-        async Task<int> DeleteAsync<TDocument>(IEnumerable<TDocument> documents, CancellationToken cancellationToken)
+        async Task<int> DeleteAsync<TDocument>(IEnumerable<string> ids, CancellationToken cancellationToken)
             where TDocument : class
         {
-            var response = await _client.DeleteManyAsync(documents, _indexNames[typeof(DbDeleteFile)], cancellationToken);
+            var response = await _client.BulkAsync(
+                x => x.Index(_indexNames[typeof(TDocument)])
+                      .DeleteMany<TDocument>(ids),
+                cancellationToken);
 
             ValidateResponse(response);
 
-            _logger.LogInformation($"Deleted {typeof(TDocument).Name}: {string.Join(", ", response.Items.Select(x => x.Id))}");
+            _logger.LogInformation($"Deleted {response.Items.Count} {typeof(TDocument).Name}: {string.Join(", ", response.Items.Select(x => x.Id))}");
 
             return response.Items.Count;
         }

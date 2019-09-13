@@ -18,7 +18,7 @@ namespace Nanoka.Models.Requests
         /// If this is specified, <see cref="Book"/> must be null.
         /// </summary>
         [JsonProperty("book_id")]
-        public int? BookId { get; set; }
+        public string BookId { get; set; }
 
         /// <summary>
         /// Content of the book to add.

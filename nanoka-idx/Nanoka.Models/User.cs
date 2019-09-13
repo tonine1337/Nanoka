@@ -5,7 +5,7 @@ namespace Nanoka.Models
     public class User : UserBase, IHasId
     {
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("name")]
         public string Username { get; set; }

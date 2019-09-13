@@ -8,8 +8,6 @@ namespace Nanoka
 {
     public class UploadManager
     {
-        internal static int NextId;
-
         readonly NanokaOptions _options;
         readonly UploadTaskCollection _tasks;
         readonly UserClaimSet _claims;
@@ -43,7 +41,7 @@ namespace Nanoka
             }
         }
 
-        public UploadTask<T> GetTask<T>(int id)
+        public UploadTask<T> GetTask<T>(string id)
         {
             lock (_tasks)
             {
@@ -59,7 +57,7 @@ namespace Nanoka
         /// <summary>
         /// Note: This does not dispose the task. The task should be disposed by the creator.
         /// </summary>
-        public UploadTask<T> RemoveTask<T>(int id)
+        public UploadTask<T> RemoveTask<T>(string id)
         {
             lock (_tasks)
             {
@@ -72,7 +70,7 @@ namespace Nanoka
         }
     }
 
-    public class UploadTaskCollection : Dictionary<int, UploadTask>, IDisposable
+    public class UploadTaskCollection : Dictionary<string, UploadTask>, IDisposable
     {
         public void Dispose()
         {

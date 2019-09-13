@@ -46,31 +46,31 @@ namespace Nanoka
 
         public async Task DeleteAsync(IEnumerable<string> filenames, CancellationToken cancellationToken = default)
         {
-            filenames = filenames.ToArray();
+            var array = filenames.ToArray();
 
             if (_options.EnableSoftDelete)
             {
-                await _db.AddDeleteFilesAsync(filenames, DateTime.UtcNow, cancellationToken);
+                await _db.AddDeleteFilesAsync(array, DateTime.UtcNow, cancellationToken);
 
-                _logger.LogInformation($"Soft deleted files: {string.Join(", ", filenames)}");
+                _logger.LogInformation($"Soft deleted files: {string.Join(", ", array)}");
             }
             else
             {
-                foreach (var filename in filenames)
+                foreach (var filename in array)
                     await _storage.DeleteAsync(filename, cancellationToken);
 
-                _logger.LogInformation($"Hard deleted files: {string.Join(", ", filenames)}");
+                _logger.LogInformation($"Hard deleted files: {string.Join(", ", array)}");
             }
         }
 
         public async Task RestoreAsync(IEnumerable<string> filenames, CancellationToken cancellationToken = default)
         {
-            filenames = filenames.ToArray();
+            var array = filenames.ToArray();
 
             // this won't do much if the file was already hard-deleted
-            await _db.RemoveDeleteFileAsync(filenames, cancellationToken);
+            await _db.RemoveDeleteFileAsync(array, cancellationToken);
 
-            _logger.LogInformation($"Restored soft deleted files: {string.Join(", ", filenames)}");
+            _logger.LogInformation($"Restored soft deleted files: {string.Join(", ", array)}");
         }
     }
 }

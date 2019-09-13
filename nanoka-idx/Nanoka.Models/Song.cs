@@ -10,7 +10,7 @@ namespace Nanoka.Models
     public class Song : SongBase, IHasId, IHasScore
     {
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("score")]
         public double Score { get; set; }

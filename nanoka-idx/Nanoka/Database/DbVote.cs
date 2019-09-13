@@ -5,8 +5,8 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Database
 {
-    [ElasticsearchType(IdProperty = nameof(Id), RelationName = nameof(Vote))]
-    public class DbVote
+    [ElasticsearchType(RelationName = nameof(Vote))]
+    public class DbVote : IHasId
     {
         // this is similar to a composite key
         // the format is: userId_entityType_entityId
@@ -14,13 +14,13 @@ namespace Nanoka.Database
         public string Id { get; set; }
 
         [Keyword(Name = "u"), JsonProperty("u")]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         [Keyword(Name = "x"), JsonProperty("e")]
         public NanokaEntity EntityType { get; set; }
 
         [Keyword(Name = "e"), JsonProperty("e")]
-        public int EntityId { get; set; }
+        public string EntityId { get; set; }
 
         [Keyword(Name = "y", Index = false), JsonProperty("x")]
         public VoteType Type { get; set; }
@@ -52,7 +52,7 @@ namespace Nanoka.Database
             Weight     = vote.Weight
         };
 
-        public static string CreateId(int userId, NanokaEntity entity, int entityId)
+        public static string CreateId(string userId, NanokaEntity entity, string entityId)
             => $"{userId}_{ExtensionsEnum<NanokaEntity>.GetName(entity)}_{entityId}";
     }
 }

@@ -24,24 +24,24 @@ namespace Nanoka
             _logger  = logger;
         }
 
-        public Task<Snapshot<T>> CreatedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, int? committer = null, string reason = null)
+        public Task<Snapshot<T>> CreatedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, string committer = null, string reason = null)
             where T : IHasId, IHasEntityType
             => SnapshotInternal(type, SnapshotEvent.Creation, value, cancellationToken, null, committer, reason);
 
-        public Task<Snapshot<T>> ModifiedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, int? committer = null, string reason = null)
+        public Task<Snapshot<T>> ModifiedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, string committer = null, string reason = null)
             where T : IHasId, IHasEntityType
             => SnapshotInternal(type, SnapshotEvent.Modification, value, cancellationToken, null, committer, reason);
 
-        public Task<Snapshot<T>> DeletedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, int? committer = null, string reason = null)
+        public Task<Snapshot<T>> DeletedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, string committer = null, string reason = null)
             where T : IHasId, IHasEntityType
             => SnapshotInternal(type, SnapshotEvent.Deletion, value, cancellationToken, null, committer, reason);
 
-        public Task<Snapshot<T>> RevertedAsync<T>(SnapshotType type, T value, Snapshot<T> previous, CancellationToken cancellationToken = default, int? committer = null, string reason = null)
+        public Task<Snapshot<T>> RevertedAsync<T>(SnapshotType type, T value, Snapshot<T> previous, CancellationToken cancellationToken = default, string committer = null, string reason = null)
             where T : IHasId, IHasEntityType
             => SnapshotInternal(type, SnapshotEvent.Rollback, value, cancellationToken, previous.Id, committer, reason);
 
         async Task<Snapshot<T>> SnapshotInternal<T>(SnapshotType type, SnapshotEvent @event, T value, CancellationToken cancellationToken = default,
-                                                    int? rollbackId = null, int? committer = null, string reason = null)
+                                                    string rollbackId = null, string committer = null, string reason = null)
             where T : IHasId, IHasEntityType
         {
             var snapshot = new Snapshot<T>
@@ -85,7 +85,7 @@ namespace Nanoka
             return snapshot;
         }
 
-        public async Task<Snapshot<T>[]> GetAsync<T>(int entityId, CancellationToken cancellationToken = default)
+        public async Task<Snapshot<T>[]> GetAsync<T>(string entityId, CancellationToken cancellationToken = default)
         {
             var snapshots = await _db.GetSnapshotsAsync<T>(entityId, cancellationToken);
 
@@ -95,7 +95,7 @@ namespace Nanoka
             return snapshots;
         }
 
-        public async Task<Snapshot<T>> GetAsync<T>(int id, int entityId, CancellationToken cancellationToken = default)
+        public async Task<Snapshot<T>> GetAsync<T>(string id, string entityId, CancellationToken cancellationToken = default)
         {
             var snapshot = await _db.GetSnapshotAsync<T>(id, entityId, cancellationToken);
 

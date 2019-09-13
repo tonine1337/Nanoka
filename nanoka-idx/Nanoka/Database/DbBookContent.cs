@@ -10,7 +10,7 @@ namespace Nanoka.Database
     {
         // used to distinguish different book contents
         [Keyword(Name = "d", Index = false), JsonProperty("id")]
-        public int Discriminator { get; set; }
+        public string Discriminator { get; set; }
 
         [Number(NumberType.Integer, Name = "pc", Index = false), JsonProperty("pc")]
         public int PageCount { get; set; }

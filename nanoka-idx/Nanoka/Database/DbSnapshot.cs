@@ -6,20 +6,20 @@ using Snapshot = Nanoka.Models.Snapshot;
 
 namespace Nanoka.Database
 {
-    [ElasticsearchType(IdProperty = nameof(Id), RelationName = nameof(Snapshot))]
-    public class DbSnapshot
+    [ElasticsearchType(RelationName = nameof(Snapshot))]
+    public class DbSnapshot : IHasId
     {
         [Keyword(Name = "id", Index = false), JsonProperty("id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Keyword(Name = "b", Index = false), JsonProperty("b")]
-        public int? RollbackId { get; set; }
+        public string RollbackId { get; set; }
 
         [Date(Name = "t"), JsonProperty("t")]
         public DateTime Time { get; set; }
 
         [Keyword(Name = "c"), JsonProperty("c")]
-        public int CommitterId { get; set; }
+        public string CommitterId { get; set; }
 
         [Keyword(Name = "s"), JsonProperty("s")]
         public SnapshotType Type { get; set; }
@@ -28,7 +28,7 @@ namespace Nanoka.Database
         public NanokaEntity EntityType { get; set; }
 
         [Keyword(Name = "x"), JsonProperty("x")]
-        public int EntityId { get; set; }
+        public string EntityId { get; set; }
 
         [Keyword(Name = "a"), JsonProperty("a")]
         public SnapshotEvent Event { get; set; }

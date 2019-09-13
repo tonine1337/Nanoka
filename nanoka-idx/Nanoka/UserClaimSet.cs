@@ -6,7 +6,7 @@ namespace Nanoka
 {
     public class UserClaimSet
     {
-        public int Id { get; }
+        public string Id { get; }
         public UserPermissions Permissions { get; }
         public double Reputation { get; }
         public bool IsRestricted { get; }
@@ -17,7 +17,7 @@ namespace Nanoka
         {
             var ctx = httpContextAccessor.HttpContext;
 
-            Id           = int.TryParse(ctx.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var a) ? a : 0;
+            Id           = ctx.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             Permissions  = int.TryParse(ctx.User.FindFirst(ClaimTypes.Role)?.Value, out var b) ? (UserPermissions) b : UserPermissions.None;
             Reputation   = double.TryParse(ctx.User.FindFirst("rep")?.Value, out var c) ? c : 0;
             IsRestricted = bool.TryParse(ctx.User.FindFirst("rest")?.Value, out var d) && d;

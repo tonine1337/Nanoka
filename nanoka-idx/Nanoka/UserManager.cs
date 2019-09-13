@@ -31,7 +31,7 @@ namespace Nanoka
             using (await _locker.EnterAsync(username, cancellationToken))
             {
                 // ensure username is unique
-                if (await _db.GetUserAsync(username, cancellationToken) != null)
+                if (await _db.GetUserByNameAsync(username, cancellationToken) != null)
                     throw Result.BadRequest($"Cannot use the username '{username}'.").Exception;
 
                 var user = new User
@@ -48,7 +48,7 @@ namespace Nanoka
 
         public async Task<User> TryAuthenticateAsync(string username, string password, CancellationToken cancellationToken = default)
         {
-            var user = await _db.GetUserAsync(username, cancellationToken);
+            var user = await _db.GetUserByNameAsync(username, cancellationToken);
 
             return _hash.Test(password, user?.Secret)
                 ? EraseConfidentialFields(user)

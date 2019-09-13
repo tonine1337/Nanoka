@@ -10,7 +10,7 @@ namespace Nanoka.Models
     public class Image : ImageBase, IHasId, IHasScore
     {
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("score")]
         public double Score { get; set; }

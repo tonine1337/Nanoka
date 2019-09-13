@@ -5,11 +5,11 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Database
 {
-    [ElasticsearchType(IdProperty = nameof(Id), RelationName = nameof(Image))]
-    public class DbImage
+    [ElasticsearchType(RelationName = nameof(Image))]
+    public class DbImage : IHasId
     {
         [Keyword(Name = "id", Index = false), JsonProperty("id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Number(NumberType.Double, Name = "s"), JsonProperty("s")]
         public double Score { get; set; }

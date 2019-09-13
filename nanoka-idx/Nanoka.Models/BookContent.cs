@@ -8,7 +8,7 @@ namespace Nanoka.Models
     public class BookContent : BookContentBase
     {
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("page_count")]
         public int PageCount { get; set; }

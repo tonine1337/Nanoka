@@ -10,14 +10,14 @@ namespace Nanoka
 {
     public abstract class UploadTask : IDisposable
     {
-        public readonly int Id = Interlocked.Increment(ref UploadManager.NextId);
+        public readonly string Id = Snowflake.New;
 
         protected readonly object Lock = new object();
         protected readonly List<FileInfo> Files = new List<FileInfo>();
 
         protected readonly DateTime StartTime = DateTime.UtcNow;
 
-        internal int UploaderId;
+        internal string UploaderId;
         internal int MaxFileCount = int.MaxValue;
 
         protected struct FileInfo

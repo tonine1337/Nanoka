@@ -14,20 +14,20 @@ namespace Nanoka.Models
     public class Snapshot<T> : IHasId
     {
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// If <see cref="Event"/> is <see cref="SnapshotEvent.Rollback"/>,
         /// the ID of the snapshot that was reverted to.
         /// </summary>
         [JsonProperty("rollback_id")]
-        public int? RollbackId { get; set; }
+        public string RollbackId { get; set; }
 
         [JsonProperty("time")]
         public DateTime Time { get; set; }
 
         [JsonProperty("committer")]
-        public int CommitterId { get; set; }
+        public string CommitterId { get; set; }
 
         [JsonProperty("type")]
         public SnapshotType Type { get; set; }
@@ -36,7 +36,7 @@ namespace Nanoka.Models
         public NanokaEntity EntityType { get; set; }
 
         [JsonProperty("entity_id")]
-        public int EntityId { get; set; }
+        public string EntityId { get; set; }
 
         [JsonProperty("event")]
         public SnapshotEvent Event { get; set; }

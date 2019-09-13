@@ -29,7 +29,7 @@ namespace Nanoka.Controllers
 
         sealed class BookUpload
         {
-            public int? BookId;
+            public string BookId;
 
             public BookBase Book;
             public BookContentBase Content;
@@ -50,7 +50,7 @@ namespace Nanoka.Controllers
             if (request.BookId != null)
                 return _uploadManager.CreateTask(new BookUpload
                 {
-                    BookId  = (await _bookManager.GetAsync(request.BookId.Value)).Id,
+                    BookId  = (await _bookManager.GetAsync(request.BookId)).Id,
                     Content = request.Content
                 });
 
@@ -58,11 +58,11 @@ namespace Nanoka.Controllers
         }
 
         [HttpGet("{id}")]
-        public Result<UploadState> GetUpload(int id)
+        public Result<UploadState> GetUpload(string id)
             => _uploadManager.GetTask<BookUpload>(id);
 
         [HttpPost("{id}/files")]
-        public async Task<Result<UploadState>> UploadFileAsync(int id, [FromForm(Name = "file")] IFormFile file)
+        public async Task<Result<UploadState>> UploadFileAsync(string id, [FromForm(Name = "file")] IFormFile file)
         {
             var task = _uploadManager.GetTask<BookUpload>(id);
 
@@ -75,7 +75,7 @@ namespace Nanoka.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<Result<Book>> DeleteUploadAsync(int id, [FromQuery] bool cancel)
+        public async Task<Result<Book>> DeleteUploadAsync(string id, [FromQuery] bool cancel)
         {
             using (var task = _uploadManager.RemoveTask<BookUpload>(id))
             {
@@ -90,7 +90,7 @@ namespace Nanoka.Controllers
                     (book, content) = await _bookManager.CreateAsync(task.Data.Book, task.Data.Content, task);
 
                 else if (task.Data.BookId != null)
-                    (book, content) = await _bookManager.AddContentAsync(task.Data.BookId.Value, task.Data.Content, task);
+                    (book, content) = await _bookManager.AddContentAsync(task.Data.BookId, task.Data.Content, task);
 
                 else
                     return null;

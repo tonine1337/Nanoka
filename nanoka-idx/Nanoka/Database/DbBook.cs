@@ -6,11 +6,11 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Database
 {
-    [ElasticsearchType(IdProperty = nameof(Id), RelationName = nameof(Book))]
-    public class DbBook
+    [ElasticsearchType(RelationName = nameof(Book))]
+    public class DbBook : IHasId
     {
         [Keyword(Name = "id", Index = false), JsonProperty("id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Text(Name = "n"), JsonProperty("n")]
         public string[] Name { get; set; }
