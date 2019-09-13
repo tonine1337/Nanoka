@@ -84,7 +84,10 @@ namespace Nanoka.Database
             var name = _indexNames[typeof(T)];
 
             if ((await _client.Indices.ExistsAsync(name, ct: cancellationToken)).Exists)
+            {
+                _logger.LogInformation("Skipped creating index '{0}'.", name);
                 return false;
+            }
 
             var response = await _client.Indices.CreateAsync(
                 name,
