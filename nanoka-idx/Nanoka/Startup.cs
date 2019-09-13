@@ -107,8 +107,8 @@ namespace Nanoka
                .UseStatusCodePagesWithReExecute("/error/{0}");
 
             // development page
-            if (env.IsDevelopment())
-                app.UseDeveloperExceptionPage();
+            /*if (env.IsDevelopment())
+                app.UseDeveloperExceptionPage();*/
 
             app.UseCors(o => o.AllowAnyHeader()
                               .AllowAnyMethod()
