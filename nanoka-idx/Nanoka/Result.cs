@@ -2,7 +2,6 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Nanoka.Models;
 using Newtonsoft.Json;
 
 namespace Nanoka
@@ -29,18 +28,6 @@ namespace Nanoka
 
         public static Result NotFound<T>(params object[] path)
             => NotFound($"{typeof(T).Name} '{string.Join('/', path)}' not found.");
-
-        public static Result Forbidden(params UserPermissions[] required)
-            => Forbidden($"Insufficient permissions. Required: {string.Join(", ", required)}");
-
-        public static Result InvalidRecaptchaToken(string token)
-            => BadRequest($"Failed reCAPTCHA verification. Token: {token ?? "<not specified>"}");
-
-        public static Result InvalidUpload<T>(params object[] path)
-            => BadRequest($"{typeof(T).Name} '{string.Join('/', path)}' is not awaiting upload.");
-
-        public static Result UploadDeleted<T>(params object[] path)
-            => Conflict($"{typeof(T).Name} '{string.Join('/', path)}' was deleted before this upload was finalized.");
 
 #endregion
     }

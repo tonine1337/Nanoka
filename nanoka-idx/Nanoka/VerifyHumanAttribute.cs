@@ -15,7 +15,10 @@ namespace Nanoka
             {
                 var validator = context.HttpContext.RequestServices.GetService<RecaptchaValidator>();
 
-                await validator.ValidateAsync(context.HttpContext.Request.Query["recaptcha"], context.HttpContext.RequestAborted);
+                if (await validator.TryValidateAsync(context.HttpContext.Request.Query["recaptcha"], context.HttpContext.RequestAborted))
+                    return;
+
+                context.Result = Result.BadRequest("Could not verify reCAPTCHA token.");
             }
         }
     }

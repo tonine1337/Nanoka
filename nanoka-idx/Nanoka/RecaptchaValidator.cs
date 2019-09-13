@@ -31,13 +31,13 @@ namespace Nanoka
                 logger.LogWarning("reCAPTCHA verification is disabled.");
         }
 
-        public async Task ValidateAsync(string token, CancellationToken cancellationToken = default)
+        public async Task<bool> TryValidateAsync(string token, CancellationToken cancellationToken = default)
         {
             if (!_enabled)
-                return;
+                return true;
 
             if (string.IsNullOrWhiteSpace(token))
-                throw Result.Forbidden("reCAPTCHA token is not specified.").Exception;
+                return false;
 
             var success = true;
 
@@ -58,9 +58,10 @@ namespace Nanoka
             if (!success)
             {
                 _logger.LogDebug($"reCAPTCHA verification for token '{token}' failed. {response.ReasonPhrase}");
-
-                throw Result.Forbidden("reCAPTCHA verification failed.").Exception;
+                return false;
             }
+
+            return true;
         }
     }
 }
