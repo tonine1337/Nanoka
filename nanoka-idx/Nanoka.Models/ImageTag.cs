@@ -4,7 +4,7 @@ namespace Nanoka.Models
 {
     public enum ImageTag
     {
-        [EnumMember(Value = "general")] General = 0,
+        [EnumMember(Value = "tag")] General = 0,
         [EnumMember(Value = "artist")] Artist = 1,
         [EnumMember(Value = "character")] Character = 2,
         [EnumMember(Value = "copyright")] Copyright = 3,
