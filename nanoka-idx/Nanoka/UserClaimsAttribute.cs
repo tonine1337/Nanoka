@@ -54,23 +54,24 @@ namespace Nanoka
                 var claims = context.HttpContext.RequestServices.GetService<UserClaimSet>();
 
                 // allow admin to bypass checks
-                if (claims.HasPermissions(UserPermissions.Administrator))
-                    return;
+                if (!claims.HasPermissions(UserPermissions.Administrator))
+                {
+                    // restriction check
+                    if (_unrestricted && claims.IsRestricted)
+                        context.Result = Result.Forbidden("May perform this action because you are restricted.");
 
-                // restriction check
-                if (_unrestricted && claims.IsRestricted)
-                    context.Result = Result.Forbidden("May perform this action because you are restricted.");
+                    // permission check
+                    if (_permissions.Any(f => !claims.HasPermissions(f)))
+                        context.Result = Result.Forbidden("Insufficient permissions to perform this action. " +
+                                                          $"Required: {string.Join(", ", _permissions)}");
 
-                // permission check
-                if (_permissions.Any(f => !claims.HasPermissions(f)))
-                    context.Result = Result.Forbidden("Insufficient permissions to perform this action. " +
-                                                      $"Required: {string.Join(", ", _permissions)}");
+                    // reputation check
+                    if (claims.Reputation < _reputation)
+                        context.Result = Result.Forbidden("Insufficient reputation to perform this action. " +
+                                                          $"Required: {_reputation:F}");
+                }
 
-                // reputation check
-                if (claims.Reputation < _reputation)
-                    context.Result = Result.Forbidden("Insufficient reputation to perform this action. " +
-                                                      $"Required: {_reputation:F}");
-
+                // reason check for potentially damaging actions
                 if (_reason && (string.IsNullOrEmpty(claims.Reason) || claims.Reason.Length <= 3))
                     context.Result = Result.BadRequest("Valid reason must be provided for this action.");
             }
