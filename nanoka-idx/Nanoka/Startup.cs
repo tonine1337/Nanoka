@@ -90,13 +90,13 @@ namespace Nanoka
                     .AddHostedDependencyService<SoftDeleteManager>();
 
             // other utilities
-            services.AddSingleton<JsonSerializer>()
-                    .AddSingleton<NamedLocker>()
-                    .AddHttpClient()
-                    .AddAutoMapper(typeof(ModelMapperProfile))
-                    .AddScoped<RecaptchaValidator>()
-                    .AddScoped<ImageProcessor>()
+            services.AddHttpClient()
                     .AddHttpContextAccessor()
+                    .AddAutoMapper(typeof(ModelMapperProfile))
+                    .AddSingleton<RecaptchaValidator>()
+                    .AddSingleton<JsonSerializer>()
+                    .AddSingleton<ImageProcessor>()
+                    .AddSingleton<NamedLocker>()
                     .AddSingleton<PasswordHashHelper>();
         }
 
