@@ -8,8 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Nanoka.Database;
+using Nanoka.Models;
 using Nanoka.Storage;
-using Newtonsoft.Json;
 
 namespace Nanoka
 {
@@ -37,7 +37,8 @@ namespace Nanoka
 
             // mvc
             services.AddMvc()
-                    .AddControllersAsServices();
+                    .AddControllersAsServices()
+                    .AddJsonOptions(j => NanokaJsonSerializer.Apply(j.SerializerSettings));
 
             services.AddAuthentication(a =>
                      {
@@ -90,11 +91,11 @@ namespace Nanoka
                     .AddHostedDependencyService<SoftDeleteManager>();
 
             // other utilities
-            services.AddHttpClient()
+            services.AddSingleton(NanokaJsonSerializer.Create())
+                    .AddHttpClient()
                     .AddHttpContextAccessor()
                     .AddAutoMapper(typeof(ModelMapperProfile))
                     .AddSingleton<RecaptchaValidator>()
-                    .AddSingleton<JsonSerializer>()
                     .AddSingleton<ImageProcessor>()
                     .AddSingleton<NamedLocker>()
                     .AddSingleton<PasswordHashHelper>();
