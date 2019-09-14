@@ -20,14 +20,16 @@ namespace Nanoka
             _logger = logger;
         }
 
-        public async Task<Snapshot<T>> CreatedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, string committer = null, string reason = null)
+        SnapshotType SuitableType => _claims.HasPermissions(UserPermissions.Moderator) ? SnapshotType.Moderator : SnapshotType.User;
+
+        public async Task<Snapshot<T>> CreatedAsync<T>(T value, CancellationToken cancellationToken = default, SnapshotType? type = null, string committer = null, string reason = null)
             where T : IHasId, IHasEntityType
         {
             var snapshot = new Snapshot<T>
             {
                 Time        = DateTime.UtcNow,
                 CommitterId = committer ?? _claims.Id,
-                Type        = type,
+                Type        = type ?? SuitableType,
                 EntityType  = value.Type,
                 EntityId    = value.Id,
                 Event       = SnapshotEvent.Creation,
@@ -42,14 +44,14 @@ namespace Nanoka
             return snapshot;
         }
 
-        public async Task<Snapshot<T>> ModifiedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, string committer = null, string reason = null)
+        public async Task<Snapshot<T>> ModifiedAsync<T>(T value, CancellationToken cancellationToken = default, SnapshotType? type = null, string committer = null, string reason = null)
             where T : IHasId, IHasEntityType
         {
             var snapshot = new Snapshot<T>
             {
                 Time        = DateTime.UtcNow,
                 CommitterId = committer ?? _claims.Id,
-                Type        = type,
+                Type        = type ?? SuitableType,
                 EntityType  = value.Type,
                 EntityId    = value.Id,
                 Event       = SnapshotEvent.Modification,
@@ -64,14 +66,14 @@ namespace Nanoka
             return snapshot;
         }
 
-        public async Task<Snapshot<T>> DeletedAsync<T>(SnapshotType type, T value, CancellationToken cancellationToken = default, string committer = null, string reason = null)
+        public async Task<Snapshot<T>> DeletedAsync<T>(T value, CancellationToken cancellationToken = default, SnapshotType? type = null, string committer = null, string reason = null)
             where T : IHasId, IHasEntityType
         {
             var snapshot = new Snapshot<T>
             {
                 Time        = DateTime.UtcNow,
                 CommitterId = committer ?? _claims.Id,
-                Type        = type,
+                Type        = type ?? SuitableType,
                 EntityType  = value.Type,
                 EntityId    = value.Id,
                 Event       = SnapshotEvent.Deletion,
@@ -85,7 +87,7 @@ namespace Nanoka
             return snapshot;
         }
 
-        public async Task<Snapshot<T>> RevertedAsync<T>(SnapshotType type, T value, Snapshot<T> previous, CancellationToken cancellationToken = default, string committer = null, string reason = null)
+        public async Task<Snapshot<T>> RevertedAsync<T>(T value, Snapshot<T> previous, CancellationToken cancellationToken = default, SnapshotType? type = null, string committer = null, string reason = null)
             where T : IHasId, IHasEntityType
         {
             var snapshot = new Snapshot<T>
@@ -93,7 +95,7 @@ namespace Nanoka
                 Time        = DateTime.UtcNow,
                 RollbackId  = previous.Id,
                 CommitterId = committer ?? _claims.Id,
-                Type        = type,
+                Type        = type ?? SuitableType,
                 EntityType  = value?.Type ?? previous.EntityType,
                 EntityId    = value?.Id ?? previous.EntityId,
                 Event       = SnapshotEvent.Rollback,

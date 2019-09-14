@@ -76,7 +76,7 @@ namespace Nanoka
                         await _softDeleter.RestoreAsync(EnumerateBookFiles(book, content), cancellationToken);
                 }
 
-                await _snapshot.RevertedAsync(SnapshotType.User, book, rollback, cancellationToken);
+                await _snapshot.RevertedAsync(book, rollback, cancellationToken);
 
                 return book;
             }
@@ -91,7 +91,7 @@ namespace Nanoka
                 _mapper.Map(model, book);
 
                 await _db.UpdateBookAsync(book, cancellationToken);
-                await _snapshot.ModifiedAsync(SnapshotType.User, book, cancellationToken);
+                await _snapshot.ModifiedAsync(book, cancellationToken);
 
                 return book;
             }
@@ -104,7 +104,7 @@ namespace Nanoka
                 var book = await GetAsync(id, cancellationToken);
 
                 await _db.DeleteBookAsync(book, cancellationToken);
-                await _snapshot.DeletedAsync(SnapshotType.User, book, cancellationToken);
+                await _snapshot.DeletedAsync(book, cancellationToken);
 
                 foreach (var content in book.Contents)
                     await _softDeleter.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
@@ -146,7 +146,7 @@ namespace Nanoka
             book.Contents = new[] { content };
 
             await _db.UpdateBookAsync(book, cancellationToken);
-            await _snapshot.CreatedAsync(SnapshotType.User, book, cancellationToken);
+            await _snapshot.CreatedAsync(book, cancellationToken);
 
             return (book, content);
         }
@@ -165,7 +165,7 @@ namespace Nanoka
                 book.Contents = book.Contents.Append(content).ToArray();
 
                 await _db.UpdateBookAsync(book, cancellationToken);
-                await _snapshot.ModifiedAsync(SnapshotType.User, book, cancellationToken);
+                await _snapshot.ModifiedAsync(book, cancellationToken);
 
                 return (book, content);
             }
@@ -180,7 +180,7 @@ namespace Nanoka
                 _mapper.Map(model, content);
 
                 await _db.UpdateBookAsync(book, cancellationToken);
-                await _snapshot.ModifiedAsync(SnapshotType.User, book, cancellationToken);
+                await _snapshot.ModifiedAsync(book, cancellationToken);
 
                 return content;
             }
@@ -196,7 +196,7 @@ namespace Nanoka
                 {
                     // delete the entire book
                     await _db.DeleteBookAsync(book, cancellationToken);
-                    await _snapshot.DeletedAsync(SnapshotType.User, book, cancellationToken);
+                    await _snapshot.DeletedAsync(book, cancellationToken);
                 }
                 else
                 {
@@ -204,7 +204,7 @@ namespace Nanoka
                     book.Contents = book.Contents.Where(c => c != content).ToArray();
 
                     await _db.UpdateBookAsync(book, cancellationToken);
-                    await _snapshot.ModifiedAsync(SnapshotType.User, book, cancellationToken);
+                    await _snapshot.ModifiedAsync(book, cancellationToken);
                 }
 
                 await _softDeleter.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
