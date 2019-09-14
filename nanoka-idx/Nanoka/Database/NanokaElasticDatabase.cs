@@ -108,6 +108,8 @@ namespace Nanoka.Database
             var response = await _client.Indices.DeleteAsync(Indices.All, ct: cancellationToken);
 
             ValidateResponse(response);
+
+            await MigrateAsync(cancellationToken);
         }
 
 #endregion
