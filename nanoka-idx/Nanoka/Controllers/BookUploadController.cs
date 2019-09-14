@@ -76,11 +76,11 @@ namespace Nanoka.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<Result<Book>> DeleteUploadAsync(string id, [FromQuery] bool cancel)
+        public async Task<Result<Book>> DeleteUploadAsync(string id, [FromQuery] bool commit)
         {
             using (var task = _uploadManager.RemoveTask<BookUpload>(id))
             {
-                if (cancel)
+                if (!commit)
                     return Result.Ok();
 
                 // add info to db
