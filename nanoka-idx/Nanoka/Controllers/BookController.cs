@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nanoka.Models;
 using Nanoka.Models.Requests;
+using Nanoka.Storage;
 
 namespace Nanoka.Controllers
 {
@@ -12,10 +13,12 @@ namespace Nanoka.Controllers
     public class BookController : ControllerBase
     {
         readonly BookManager _bookManager;
+        readonly IStorage _storage;
 
-        public BookController(BookManager bookManager)
+        public BookController(BookManager bookManager, IStorage storage)
         {
             _bookManager = bookManager;
+            _storage     = storage;
         }
 
         [HttpGet("{id}")]
@@ -71,6 +74,18 @@ namespace Nanoka.Controllers
         {
             await _bookManager.RemoveContentAsync(id, contentId);
             return Result.Ok();
+        }
+
+        [HttpGet("{id}/contents/{contentId}/images/{index}")]
+        [AllowAnonymous]
+        public async Task<ActionResult> GetImageAsync(string id, string contentId, int index)
+        {
+            var file = await _storage.ReadAsync($"{id}/{contentId}/{index}");
+
+            if (file == null)
+                return Result.NotFound<StorageFile>(id, contentId, index);
+
+            return new FileStreamResult(file.Stream, file.MediaType);
         }
     }
 }
