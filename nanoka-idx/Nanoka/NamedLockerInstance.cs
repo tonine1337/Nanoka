@@ -64,7 +64,7 @@ namespace Nanoka
                 await l.Semaphore.WaitAsync(cancellationToken);
 
                 if (measure.Seconds >= 1)
-                    Logger?.LogWarning($"Took {measure.Seconds:F}s to obtain lock for resource '{id}'.");
+                    Logger?.LogWarning($"Took {measure} to obtain lock for resource '{id}'.");
             }
 
             // we own this semaphore; assume caller calls Lock.Dispose
