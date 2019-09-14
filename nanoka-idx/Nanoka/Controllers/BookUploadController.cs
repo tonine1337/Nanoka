@@ -105,7 +105,7 @@ namespace Nanoka.Controllers
                     {
                         await _storage.WriteAsync(new StorageFile
                         {
-                            Name      = $"{book.Id}/{content.Id}/{index++}",
+                            Name      = $"{book.Id}/{content.Id}/{++index}",
                             Stream    = stream,
                             MediaType = mediaType
                         });
