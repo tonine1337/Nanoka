@@ -65,7 +65,7 @@ namespace Nanoka
                     // restriction check
                     if (_unrestricted && claims.IsRestricted)
                     {
-                        context.Result = Result.Forbidden("May perform this action because you are restricted.");
+                        context.Result = Result.Forbidden("May not perform this action because you are restricted.");
                         return;
                     }
 
