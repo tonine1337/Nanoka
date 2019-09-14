@@ -87,7 +87,7 @@ namespace Nanoka
             return snapshot;
         }
 
-        public async Task<Snapshot<T>> RevertedAsync<T>(T value, Snapshot<T> targetRollback, CancellationToken cancellationToken = default, SnapshotType? type = null, string committer = null, string reason = null)
+        public async Task<Snapshot<T>> RevertedAsync<T>(Snapshot<T> targetRollback, CancellationToken cancellationToken = default, SnapshotType? type = null, string committer = null, string reason = null)
             where T : IHasId, IHasEntityType
         {
             var snapshot = new Snapshot<T>
@@ -96,11 +96,11 @@ namespace Nanoka
                 RollbackId  = targetRollback.Id,
                 CommitterId = committer ?? _claims.Id,
                 Type        = type ?? SuitableType,
-                EntityType  = value?.Type ?? targetRollback.EntityType,
-                EntityId    = value?.Id ?? targetRollback.EntityId,
+                EntityType  = targetRollback.EntityType,
+                EntityId    = targetRollback.EntityId,
                 Event       = SnapshotEvent.Rollback,
                 Reason      = reason ?? _claims.Reason,
-                Value       = value
+                Value       = targetRollback.Value
             };
 
             await _db.UpdateSnapshotAsync(snapshot, cancellationToken);

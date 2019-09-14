@@ -130,10 +130,12 @@ namespace Nanoka
                 }
                 else if (snapshot.Value != null)
                 {
-                    await _db.UpdateUserAsync(user = snapshot.Value, cancellationToken);
+                    user = snapshot.Value;
+
+                    await _db.UpdateUserAsync(user, cancellationToken);
                 }
 
-                await _snapshot.RevertedAsync(user, snapshot, cancellationToken);
+                await _snapshot.RevertedAsync(snapshot, cancellationToken);
 
                 return EraseConfidential(user);
             }

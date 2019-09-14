@@ -70,13 +70,15 @@ namespace Nanoka
                 }
                 else if (snapshot.Value != null)
                 {
-                    await _db.UpdateBookAsync(book = snapshot.Value, cancellationToken);
+                    book = snapshot.Value;
+
+                    await _db.UpdateBookAsync(book, cancellationToken);
 
                     foreach (var content in book.Contents)
                         await _softDeleter.RestoreAsync(EnumerateBookFiles(book, content), cancellationToken);
                 }
 
-                await _snapshot.RevertedAsync(book, snapshot, cancellationToken);
+                await _snapshot.RevertedAsync(snapshot, cancellationToken);
 
                 return book;
             }
