@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 
 namespace Nanoka.Storage
 {
-    /// <inheritdoc />
     /// <summary>
     /// An abstract asynchronous storage interface.
     /// </summary>
