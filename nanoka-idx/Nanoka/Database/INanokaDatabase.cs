@@ -8,6 +8,7 @@ namespace Nanoka.Database
     public interface INanokaDatabase : IDisposable
     {
         Task MigrateAsync(CancellationToken cancellationToken = default);
+        Task ResetAsync(CancellationToken cancellationToken = default);
 
         Task<User> GetUserByIdAsync(string id, CancellationToken cancellationToken = default);
         Task<User> GetUserByNameAsync(string username, CancellationToken cancellationToken = default);

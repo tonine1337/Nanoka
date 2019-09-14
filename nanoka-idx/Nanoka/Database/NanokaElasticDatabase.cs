@@ -103,6 +103,13 @@ namespace Nanoka.Database
             return true;
         }
 
+        public async Task ResetAsync(CancellationToken cancellationToken = default)
+        {
+            var response = await _client.Indices.DeleteAsync(Indices.All, ct: cancellationToken);
+
+            ValidateResponse(response);
+        }
+
 #endregion
 
 #region User
