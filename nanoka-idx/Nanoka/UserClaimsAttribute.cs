@@ -53,27 +53,43 @@ namespace Nanoka
 
                 var claims = context.HttpContext.RequestServices.GetService<UserClaimSet>();
 
+                if (string.IsNullOrEmpty(claims.Id))
+                {
+                    context.Result = Result.InternalServerError("ID not provided in claims. You should be authorized.");
+                    return;
+                }
+
                 // allow admin to bypass checks
                 if (!claims.HasPermissions(UserPermissions.Administrator))
                 {
                     // restriction check
                     if (_unrestricted && claims.IsRestricted)
+                    {
                         context.Result = Result.Forbidden("May perform this action because you are restricted.");
+                        return;
+                    }
 
                     // permission check
                     if (_permissions.Any(f => !claims.HasPermissions(f)))
-                        context.Result = Result.Forbidden("Insufficient permissions to perform this action. " +
-                                                          $"Required: {string.Join(", ", _permissions)}");
+                    {
+                        context.Result = Result.Forbidden($"Insufficient permissions to perform this action. Required: {string.Join(", ", _permissions)}");
+                        return;
+                    }
 
                     // reputation check
                     if (claims.Reputation < _reputation)
-                        context.Result = Result.Forbidden("Insufficient reputation to perform this action. " +
-                                                          $"Required: {_reputation:F}");
+                    {
+                        context.Result = Result.Forbidden($"Insufficient reputation to perform this action. Required: {_reputation:F}");
+                        return;
+                    }
                 }
 
                 // reason check for potentially damaging actions
                 if (_reason && (string.IsNullOrEmpty(claims.Reason) || claims.Reason.Length <= 3))
+                {
                     context.Result = Result.BadRequest("Valid reason must be provided for this action.");
+                    return;
+                }
             }
         }
     }
