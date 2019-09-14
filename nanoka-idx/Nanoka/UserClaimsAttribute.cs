@@ -51,7 +51,7 @@ namespace Nanoka
                 if (context.Result != null)
                     return;
 
-                var claims = context.HttpContext.RequestServices.GetService<UserClaimSet>();
+                var claims = context.HttpContext.RequestServices.GetService<IUserClaims>();
 
                 if (string.IsNullOrEmpty(claims.Id))
                 {

@@ -10,10 +10,10 @@ namespace Nanoka
     public class VoteManager
     {
         readonly INanokaDatabase _db;
-        readonly UserClaimSet _claims;
+        readonly IUserClaims _claims;
         readonly ILogger<VoteManager> _logger;
 
-        public VoteManager(INanokaDatabase db, UserClaimSet claims, ILogger<VoteManager> logger)
+        public VoteManager(INanokaDatabase db, IUserClaims claims, ILogger<VoteManager> logger)
         {
             _db     = db;
             _claims = claims;

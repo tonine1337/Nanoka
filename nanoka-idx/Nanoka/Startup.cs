@@ -58,7 +58,7 @@ namespace Nanoka
                          };
                      });
 
-            services.AddScoped<UserClaimSet>();
+            services.AddScoped<IUserClaims, HttpUserClaimsProvider>();
 
             // database
             services.AddSingleton<INanokaDatabase, NanokaElasticDatabase>()

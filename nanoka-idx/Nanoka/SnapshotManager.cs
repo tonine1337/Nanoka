@@ -10,10 +10,10 @@ namespace Nanoka
     public class SnapshotManager
     {
         readonly INanokaDatabase _db;
-        readonly UserClaimSet _claims;
+        readonly IUserClaims _claims;
         readonly ILogger<SnapshotManager> _logger;
 
-        public SnapshotManager(INanokaDatabase db, UserClaimSet claims, ILogger<SnapshotManager> logger)
+        public SnapshotManager(INanokaDatabase db, IUserClaims claims, ILogger<SnapshotManager> logger)
         {
             _db     = db;
             _claims = claims;

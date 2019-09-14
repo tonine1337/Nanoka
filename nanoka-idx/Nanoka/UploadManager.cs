@@ -10,10 +10,10 @@ namespace Nanoka
     {
         readonly NanokaOptions _options;
         readonly UploadTaskCollection _tasks;
-        readonly UserClaimSet _claims;
+        readonly IUserClaims _claims;
         readonly ILoggerFactory _loggerFactory;
 
-        public UploadManager(IOptions<NanokaOptions> options, UploadTaskCollection tasks, UserClaimSet claims, ILoggerFactory loggerFactory)
+        public UploadManager(IOptions<NanokaOptions> options, UploadTaskCollection tasks, IUserClaims claims, ILoggerFactory loggerFactory)
         {
             _options       = options.Value;
             _tasks         = tasks;

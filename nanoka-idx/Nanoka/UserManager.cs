@@ -13,10 +13,10 @@ namespace Nanoka
         readonly ILocker _locker;
         readonly PasswordHashHelper _hash;
         readonly SnapshotManager _snapshot;
-        readonly UserClaimSet _claims;
+        readonly IUserClaims _claims;
 
         public UserManager(IOptions<NanokaOptions> options, INanokaDatabase db, NamedLocker locker,
-                           PasswordHashHelper hash, SnapshotManager snapshot, UserClaimSet claims)
+                           PasswordHashHelper hash, SnapshotManager snapshot, IUserClaims claims)
         {
             _options  = options.Value;
             _db       = db;
@@ -66,5 +66,8 @@ namespace Nanoka
 
             return user;
         }
+
+        public async Task GetAsync(string id, CancellationToken cancellationToken = default)
+            => await _db.GetUserByIdAsync(id, cancellationToken);
     }
 }
