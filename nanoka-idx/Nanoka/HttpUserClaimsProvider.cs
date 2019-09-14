@@ -24,8 +24,5 @@ namespace Nanoka
 
             Reason = ((string) context.Request.Query["reason"])?.Trim();
         }
-
-        public bool HasPermissions(UserPermissions required) => Permissions.HasFlag(required);
-        public bool HasAnyPermission(UserPermissions required) => (Permissions & required) != 0;
     }
 }

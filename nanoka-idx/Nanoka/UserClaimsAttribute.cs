@@ -60,7 +60,7 @@ namespace Nanoka
                 }
 
                 // allow admin to bypass checks
-                if (!claims.HasPermissions(UserPermissions.Administrator))
+                if (!claims.IsAdministrator())
                 {
                     // restriction check
                     if (_unrestricted && claims.IsRestricted)
@@ -84,7 +84,7 @@ namespace Nanoka
                     }
                 }
 
-                // reason check for potentially damaging actions
+                // require reason for potentially damaging actions
                 if (_reason && (string.IsNullOrEmpty(claims.Reason) || claims.Reason.Length <= 3))
                 {
                     context.Result = Result.BadRequest("Valid reason must be provided for this action.");
