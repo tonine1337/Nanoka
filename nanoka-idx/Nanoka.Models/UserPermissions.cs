@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Serialization;
 
 namespace Nanoka.Models
 {
@@ -8,18 +9,18 @@ namespace Nanoka.Models
         /// <summary>
         /// User has no special permission.
         /// </summary>
-        None = 0,
+        [EnumMember(Value = "none")] None = 0,
 
         /// <summary>
         /// User is an administrator.
         /// This flag effectively enables every other flag.
         /// </summary>
-        Administrator = 1 << 0,
+        [EnumMember(Value = "admin")] Administrator = 1 << 0,
 
         /// <summary>
         /// User is a moderator.
         /// It can manage other user accounts.
         /// </summary>
-        Moderator = 1 << 1
+        [EnumMember(Value = "mod")] Moderator = 1 << 1
     }
 }
