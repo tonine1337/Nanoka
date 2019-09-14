@@ -27,8 +27,8 @@ namespace Nanoka.Controllers
 
         [HttpPut("{id}")]
         [UserClaims(unrestricted: true)]
-        public async Task<Result<Book>> UpdateAsync(string id, BookBase model)
-            => await _bookManager.UpdateAsync(id, model);
+        public async Task<Result<Book>> UpdateAsync(string id, BookBase book)
+            => await _bookManager.UpdateAsync(id, book);
 
         [HttpDelete("{id}")]
         [UserClaims(unrestricted: true, reputation: 100, reason: true)]
@@ -49,8 +49,8 @@ namespace Nanoka.Controllers
             => await _bookManager.RevertAsync(id, request.SnapshotId);
 
         [HttpPut("{id}/vote")]
-        public async Task<Vote> SetVoteAsync(string id, VoteBase model)
-            => await _bookManager.VoteAsync(id, model.Type);
+        public async Task<Vote> SetVoteAsync(string id, VoteBase vote)
+            => await _bookManager.VoteAsync(id, vote.Type);
 
         [HttpDelete("{id}/vote")]
         public async Task<Result> UnsetVoteAsync(string id)
@@ -64,8 +64,8 @@ namespace Nanoka.Controllers
             => (await _bookManager.GetContentAsync(id, contentId)).content;
 
         [HttpPut("{id}/contents/{contentId}")]
-        public async Task<Result<BookContent>> UpdateContentAsync(string id, string contentId, BookContentBase model)
-            => await _bookManager.UpdateContentAsync(id, contentId, model);
+        public async Task<Result<BookContent>> UpdateContentAsync(string id, string contentId, BookContentBase content)
+            => await _bookManager.UpdateContentAsync(id, contentId, content);
 
         [HttpDelete("{id}/contents/{contentId}")]
         [UserClaims(unrestricted: true, reputation: 100, reason: true)]
