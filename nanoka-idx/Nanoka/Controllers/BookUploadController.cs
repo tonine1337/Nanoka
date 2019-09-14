@@ -83,6 +83,9 @@ namespace Nanoka.Controllers
                 if (!commit)
                     return Result.Ok();
 
+                if (task.FileCount == 0)
+                    return Result.BadRequest("No files were uploaded to be committed.");
+
                 // add info to db
                 Book        book;
                 BookContent content;
