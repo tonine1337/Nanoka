@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Nanoka.Models;
 using Nanoka.Models.Requests;
 
 namespace Nanoka.Controllers
@@ -70,5 +71,13 @@ namespace Nanoka.Controllers
 
             return new RegistrationResponse();
         }
+
+        [HttpGet("{id}")]
+        public async Task<Result<User>> GetAsync(string id)
+            => await _userManager.GetAsync(id);
+
+        [HttpPut("{id}")]
+        public async Task<Result<User>> UpdateAsync(string id, UserBase user)
+            => await _userManager.UpdateAsync(id, user);
     }
 }
