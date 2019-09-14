@@ -61,7 +61,6 @@ namespace Nanoka
 
                 if (book != null && rollback.Value == null)
                 {
-                    await _vote.DeleteAsync(book, cancellationToken);
                     await _db.DeleteBookAsync(book, cancellationToken);
 
                     foreach (var content in book.Contents)
@@ -104,7 +103,6 @@ namespace Nanoka
             {
                 var book = await GetAsync(id, cancellationToken);
 
-                await _vote.DeleteAsync(book, cancellationToken);
                 await _db.DeleteBookAsync(book, cancellationToken);
                 await _snapshot.DeletedAsync(SnapshotType.User, book, cancellationToken);
 
