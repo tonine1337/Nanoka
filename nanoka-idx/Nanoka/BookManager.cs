@@ -52,14 +52,14 @@ namespace Nanoka
         public Task<Snapshot<Book>[]> GetSnapshotsAsync(string id, CancellationToken cancellationToken = default)
             => _snapshot.GetAsync<Book>(id, cancellationToken);
 
-        public async Task<Book> RevertAsync(string id, string rollbackId, CancellationToken cancellationToken = default)
+        public async Task<Book> RevertAsync(string id, string snapshotId, CancellationToken cancellationToken = default)
         {
             using (await _locker.EnterAsync(id, cancellationToken))
             {
-                var rollback = await _snapshot.GetAsync<Book>(rollbackId, id, cancellationToken);
+                var snapshot = await _snapshot.GetAsync<Book>(snapshotId, id, cancellationToken);
                 var book     = await _db.GetBookAsync(id, cancellationToken);
 
-                if (book != null && rollback.Value == null)
+                if (book != null && snapshot.Value == null)
                 {
                     await _db.DeleteBookAsync(book, cancellationToken);
 
@@ -68,15 +68,15 @@ namespace Nanoka
 
                     book = null;
                 }
-                else if (rollback.Value != null)
+                else if (snapshot.Value != null)
                 {
-                    await _db.UpdateBookAsync(book = rollback.Value, cancellationToken);
+                    await _db.UpdateBookAsync(book = snapshot.Value, cancellationToken);
 
                     foreach (var content in book.Contents)
                         await _softDeleter.RestoreAsync(EnumerateBookFiles(book, content), cancellationToken);
                 }
 
-                await _snapshot.RevertedAsync(book, rollback, cancellationToken);
+                await _snapshot.RevertedAsync(book, snapshot, cancellationToken);
 
                 return book;
             }
