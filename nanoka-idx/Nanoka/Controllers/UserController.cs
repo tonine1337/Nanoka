@@ -27,7 +27,8 @@ namespace Nanoka.Controllers
             _userManager = userManager;
         }
 
-        [HttpPost("auth"), AllowAnonymous]
+        [HttpPost("auth")]
+        [AllowAnonymous]
         public async Task<Result<AuthenticationResponse>> AuthAsync(AuthenticationRequest request)
         {
             var user = await _userManager.TryAuthenticateAsync(request.Username, request.Password);
@@ -60,7 +61,9 @@ namespace Nanoka.Controllers
             };
         }
 
-        [HttpPost("register"), AllowAnonymous, VerifyHuman]
+        [HttpPost("register")]
+        [AllowAnonymous]
+        [VerifyHuman]
         public async Task<Result<RegistrationResponse>> RegisterAsync(RegistrationRequest request)
         {
             await _userManager.CreateAsync(request.Username, request.Password);
