@@ -77,7 +77,17 @@ namespace Nanoka.Controllers
             => await _userManager.GetAsync(id);
 
         [HttpPut("{id}")]
+        [UserClaims(unrestricted: true)]
         public async Task<Result<User>> UpdateAsync(string id, UserBase user)
             => await _userManager.UpdateAsync(id, user);
+
+        [HttpGet("{id}/snapshots")]
+        public async Task<Result<Snapshot<User>[]>> GetSnapshotsAsync(string id)
+            => await _userManager.GetSnapshotsAsync(id);
+
+        [HttpPost("{id}/snapshots/revert")]
+        [UserClaims(unrestricted: true, reason: true)]
+        public async Task<Result<User>> RevertAsync(string id, RevertEntityRequest request)
+            => await _userManager.RevertAsync(id, request.SnapshotId);
     }
 }

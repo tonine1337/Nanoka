@@ -82,18 +82,58 @@ namespace Nanoka
 
         public async Task<User> UpdateAsync(string id, UserBase model, CancellationToken cancellationToken = default)
         {
+            EnsureUserUpdatable(id);
+
             using (await _locker.EnterAsync(id, cancellationToken))
             {
                 var user = await GetAsync(id, cancellationToken);
-
-                // only allow users themselves or mods to update users
-                if (!(_claims.Id == user.Id || _claims.HasPermissions(UserPermissions.Moderator)))
-                    throw Result.Forbidden("Insufficient permissions to update this user.").Exception;
 
                 _mapper.Map(model, user);
 
                 await _db.UpdateUserAsync(user, cancellationToken);
                 await _snapshot.ModifiedAsync(user, cancellationToken);
+
+                return EraseConfidential(user);
+            }
+        }
+
+        void EnsureUserUpdatable(string id)
+        {
+            // only allow users themselves or mods to update this user
+            if (_claims.Id == id || _claims.HasPermissions(UserPermissions.Moderator))
+                return;
+
+            throw Result.Forbidden("Insufficient permissions to update this user.").Exception;
+        }
+
+        public async Task<Snapshot<User>[]> GetSnapshotsAsync(string id, CancellationToken cancellationToken = default)
+            => (await _snapshot.GetAsync<User>(id, cancellationToken)).ToArray(s =>
+            {
+                s.Value = EraseConfidential(s.Value);
+                return s;
+            });
+
+        public async Task<User> RevertAsync(string id, string snapshotId, CancellationToken cancellationToken = default)
+        {
+            EnsureUserUpdatable(id);
+
+            using (await _locker.EnterAsync(id, cancellationToken))
+            {
+                var snapshot = await _snapshot.GetAsync<User>(snapshotId, id, cancellationToken);
+                var user     = await _db.GetUserByIdAsync(id, cancellationToken);
+
+                if (user != null && snapshot.Value == null)
+                {
+                    await _db.DeleteUserAsync(user, cancellationToken);
+
+                    user = null;
+                }
+                else if (snapshot.Value != null)
+                {
+                    await _db.UpdateUserAsync(user = snapshot.Value, cancellationToken);
+                }
+
+                await _snapshot.RevertedAsync(user, snapshot, cancellationToken);
 
                 return EraseConfidential(user);
             }
