@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Nanoka.Database;
 using Nanoka.Models;
 using NUnit.Framework;
 
@@ -15,6 +16,8 @@ namespace Nanoka.Tests
             using (var services = TestUtils.Services(c => c.Replace(ServiceDescriptor.Scoped<IUserClaims>(_ => new DummyUserClaimsProvider()))))
             using (var scope = services.CreateScope())
             {
+                await services.GetService<INanokaDatabase>().MigrateAsync();
+
                 var users = scope.ServiceProvider.GetService<UserManager>();
 
                 await users.CreateAsync("testUser672", "securePassword1234");
