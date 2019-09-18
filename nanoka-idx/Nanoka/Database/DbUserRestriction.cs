@@ -15,7 +15,7 @@ namespace Nanoka.Database
         public DateTime End { get; set; }
 
         [Keyword(Name = "m", Index = false), JsonProperty("m")]
-        public int ModeratorId { get; set; }
+        public string ModeratorId { get; set; }
 
         [Text(Name = "r", Index = false), JsonProperty("r")]
         public string Reason { get; set; }

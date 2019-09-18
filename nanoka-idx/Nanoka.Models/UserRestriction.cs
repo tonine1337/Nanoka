@@ -13,7 +13,7 @@ namespace Nanoka.Models
         public DateTime End { get; set; }
 
         [JsonProperty("moderator")]
-        public int ModeratorId { get; set; }
+        public string ModeratorId { get; set; }
 
         [JsonProperty("reason"), Required, MinLength(5), MaxLength(2048)]
         public string Reason { get; set; }
