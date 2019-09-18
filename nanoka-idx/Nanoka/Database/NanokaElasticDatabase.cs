@@ -312,7 +312,8 @@ namespace Nanoka.Database
 
             var response = await _client.IndexAsync(
                 doc,
-                x => x.Index(_indexNames[typeof(TDocument)]),
+                x => x.Index(_indexNames[typeof(TDocument)])
+                      .Refresh(_options.WaitIndexUpdate ? Refresh.WaitFor : Refresh.False),
                 cancellationToken);
 
             ValidateResponse(response);
@@ -338,7 +339,8 @@ namespace Nanoka.Database
 
             var response = await _client.BulkAsync(
                 x => x.Index(_indexNames[typeof(TDocument)])
-                      .IndexMany(docs),
+                      .IndexMany(docs)
+                      .Refresh(_options.WaitIndexUpdate ? Refresh.WaitFor : Refresh.False),
                 cancellationToken);
 
             ValidateResponse(response);
@@ -353,7 +355,8 @@ namespace Nanoka.Database
         {
             var response = await _client.DeleteAsync<TDocument>(
                 id,
-                x => x.Index(_indexNames[typeof(TDocument)]),
+                x => x.Index(_indexNames[typeof(TDocument)])
+                      .Refresh(_options.WaitIndexUpdate ? Refresh.WaitFor : Refresh.False),
                 cancellationToken);
 
             ValidateResponse(response);
@@ -366,7 +369,8 @@ namespace Nanoka.Database
             where TDocument : class
         {
             var response = await _client.DeleteByQueryAsync<TDocument>(
-                x => query(x.Index(_indexNames[typeof(TDocument)])),
+                x => query(x.Index(_indexNames[typeof(TDocument)])
+                            .Refresh(_options.WaitIndexUpdate)),
                 cancellationToken);
 
             ValidateResponse(response);
@@ -385,7 +389,8 @@ namespace Nanoka.Database
 
             var response = await _client.BulkAsync(
                 x => x.Index(_indexNames[typeof(TDocument)])
-                      .DeleteMany<TDocument>(ids),
+                      .DeleteMany<TDocument>(ids)
+                      .Refresh(_options.WaitIndexUpdate ? Refresh.WaitFor : Refresh.False),
                 cancellationToken);
 
             ValidateResponse(response);

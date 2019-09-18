@@ -6,5 +6,6 @@ namespace Nanoka
         public string IndexPrefix { get; set; } = "nanoka-";
         public int ShardCount { get; set; } = 5;
         public int ReplicaCount { get; set; } = 2;
+        public bool WaitIndexUpdate { get; set; }
     }
 }
