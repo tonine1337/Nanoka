@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
-    public class UserRestriction : UserRestrictionBase
+    public class UserRestriction
     {
         [JsonProperty("start")]
         public DateTime Start { get; set; }
@@ -14,10 +14,7 @@ namespace Nanoka.Models
 
         [JsonProperty("moderator")]
         public int ModeratorId { get; set; }
-    }
 
-    public class UserRestrictionBase
-    {
         [JsonProperty("reason"), Required, MinLength(5), MaxLength(2048)]
         public string Reason { get; set; }
     }
