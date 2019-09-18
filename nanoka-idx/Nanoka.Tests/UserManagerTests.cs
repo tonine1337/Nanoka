@@ -33,7 +33,12 @@ namespace Nanoka.Tests
                 Assert.That(user.Reputation, Is.Zero);
 
                 Assert.That(user.Id, Is.EqualTo((await users.GetAsync(user.Id)).Id));
-                Assert.That(await users.GetSnapshotsAsync(user.Id), Has.One.Items);
+
+                var snapshots = await users.GetSnapshotsAsync(user.Id);
+                Assert.That(snapshots, Has.One.Items);
+                Assert.That(snapshots[0].Event, Is.EqualTo(SnapshotEvent.Creation));
+
+                //todo: user update test
             }
         }
     }
