@@ -14,6 +14,22 @@ namespace Nanoka
 {
     public static class Extensions
     {
+        /// <summary>
+        /// This is NOT cryptographically secure!!
+        /// </summary>
+        public static string RandomString(int len)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+            var buffer = new char[len];
+            var random = new Random();
+
+            for (var i = 0; i < buffer.Length; i++)
+                buffer[i] = chars[random.Next(chars.Length)];
+
+            return new string(buffer);
+        }
+
         public static Dictionary<T1, T2[]> RemoveNullValues<T1, T2>(this Dictionary<T1, T2[]> dict)
         {
             var keys = new List<T1>();
