@@ -9,6 +9,7 @@ using Nanoka.Models;
 
 namespace Nanoka
 {
+    //todo: permission affecting actions should invalidate tokens (blacklist)
     public class UserManager
     {
         readonly NanokaOptions _options;
