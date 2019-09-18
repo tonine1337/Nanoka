@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -136,6 +138,90 @@ namespace Nanoka
                 }
 
                 await _snapshot.RevertedAsync(snapshot, cancellationToken);
+
+                return EraseConfidential(user);
+            }
+        }
+
+        public async Task<UserRestriction> AddRestrictionAsync(string id, TimeSpan duration, CancellationToken cancellationToken = default)
+        {
+            if (duration <= TimeSpan.Zero)
+                throw Result.BadRequest($"Invalid restriction duration '{duration}'. Duration must be larger than zero.").Exception;
+
+            EnsureUserUpdatable(id);
+
+            using (await _locker.EnterAsync(id, cancellationToken))
+            {
+                var user = await GetAsync(id, cancellationToken);
+                var time = DateTime.UtcNow;
+
+                // if the user already has an active restriction, add to the duration
+                var last = user.Restrictions?.LastOrDefault();
+
+                if (last != null && time < last.End)
+                    time = user.Restrictions.Last().End;
+
+                // append to the list of restrictions
+                var restriction = new UserRestriction
+                {
+                    Start       = time,
+                    End         = time + duration,
+                    ModeratorId = id,
+                    Reason      = _claims.Reason
+                };
+
+                user.Restrictions = (user.Restrictions ?? new UserRestriction[0]).Append(restriction).ToArray();
+
+                await _db.UpdateUserAsync(user, cancellationToken);
+                await _snapshot.ModifiedAsync(user, cancellationToken);
+
+                return restriction;
+            }
+        }
+
+        public async Task<User> DerestrictAsync(string id, bool onlyActiveRestrictions = true, CancellationToken cancellationToken = default)
+        {
+            EnsureUserUpdatable(id);
+
+            using (await _locker.EnterAsync(id, cancellationToken))
+            {
+                var user = await GetAsync(id, cancellationToken);
+                var time = DateTime.UtcNow;
+
+                if (user.Restrictions != null)
+                {
+                    var changed = false;
+                    var list    = user.Restrictions.ToList();
+
+                    foreach (var restriction in list)
+                    {
+                        // currently active restriction
+                        if (restriction.Start <= time && time < restriction.End)
+                        {
+                            // move restriction end to current time, ending it immediately
+                            restriction.End = time;
+
+                            changed = true;
+                        }
+
+                        // future restriction
+                        else if (!onlyActiveRestrictions && time < restriction.Start)
+                        {
+                            // remove future restrictions
+                            list.Remove(restriction);
+
+                            changed = true;
+                        }
+                    }
+
+                    if (changed)
+                    {
+                        user.Restrictions = list.ToArray();
+
+                        await _db.UpdateUserAsync(user, cancellationToken);
+                        await _snapshot.ModifiedAsync(user, cancellationToken);
+                    }
+                }
 
                 return EraseConfidential(user);
             }

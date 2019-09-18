@@ -89,5 +89,15 @@ namespace Nanoka.Controllers
         [UserClaims(unrestricted: true, reason: true)]
         public async Task<Result<User>> RevertAsync(string id, RevertEntityRequest request)
             => await _userManager.RevertAsync(id, request.SnapshotId);
+
+        [HttpPost("{id}/restrictions")]
+        [UserClaims(unrestricted: true, permissions: UserPermissions.Moderator, reason: true)]
+        public async Task<Result<UserRestriction>> AddRestrictionAsync(string id, RestrictUserRequest request)
+            => await _userManager.AddRestrictionAsync(id, request.Duration);
+
+        [HttpDelete("{id}/restrictions")]
+        [UserClaims(unrestricted: true, permissions: UserPermissions.Moderator, reason: true)]
+        public async Task<Result<User>> DerestrictAsync(string id)
+            => await _userManager.DerestrictAsync(id);
     }
 }
