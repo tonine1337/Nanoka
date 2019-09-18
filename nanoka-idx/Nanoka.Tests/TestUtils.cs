@@ -1,9 +1,9 @@
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Nanoka.Database;
 
 namespace Nanoka.Tests
 {
@@ -13,17 +13,24 @@ namespace Nanoka.Tests
         {
             var services = new ServiceCollection();
 
-            new Startup(new ConfigurationBuilder().Build(), new HostingEnvironment()).ConfigureServices(services);
+            var configuration = new ConfigurationBuilder()
+                               .Add(CreateTestConfiguration())
+                               .Build();
+
+            new Startup(configuration, new HostingEnvironment()).ConfigureServices(services);
 
             configure?.Invoke(services);
 
             return services.BuildServiceProvider();
         }
 
-        public static async Task ResetDatabaseAsync()
+        static IConfigurationSource CreateTestConfiguration() => new MemoryConfigurationSource
         {
-            using (var services = Services())
-                await services.GetService<INanokaDatabase>().ResetAsync();
-        }
+            InitialData = new Dictionary<string, string>
+            {
+                // use a random prefix to avoid clashing between tests
+                { "Elastic:IndexPrefix", $"nanoka-test-{Extensions.RandomString(10)}-" }
+            }
+        };
     }
 }

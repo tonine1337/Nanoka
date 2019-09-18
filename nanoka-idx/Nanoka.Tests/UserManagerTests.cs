@@ -9,9 +9,6 @@ namespace Nanoka.Tests
     [TestFixture]
     public class UserManagerTests
     {
-        [SetUp]
-        public async Task SetUpAsync() => await TestUtils.ResetDatabaseAsync();
-
         [Test]
         public async Task CreateAsync()
         {
