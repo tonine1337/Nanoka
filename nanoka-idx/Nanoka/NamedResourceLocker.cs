@@ -7,41 +7,37 @@ using Microsoft.Extensions.Logging;
 
 namespace Nanoka
 {
-    public class NamedLockerInstance : ILocker
+    public interface ILocker : IDisposable
     {
-        readonly object _lock;
+        Task<IDisposable> EnterAsync(object id, CancellationToken cancellationToken = default);
+    }
+
+    public class NamedResourceLocker : ILocker
+    {
+        readonly object _lock = new object();
+        readonly ILogger<NamedResourceLocker> _logger;
 
         // use plain Dictionary, not ConcurrentDictionary
         readonly Dictionary<object, Lock> _locks = new Dictionary<object, Lock>();
 
-        // contains reusable semaphores to avoid recreating unnecessarily
-        readonly Stack<SemaphoreSlim> _pool;
+        // contains reusable semaphores to avoid recreating every request
+        readonly Stack<SemaphoreSlim> _pool = new Stack<SemaphoreSlim>();
 
         // the maximum capacity of the semaphore pool
         readonly int _poolCapacity;
 
         volatile bool _isDisposed;
 
-        public ILogger Logger;
-
-        public NamedLockerInstance()
+        public NamedResourceLocker(ILogger<NamedResourceLocker> logger)
         {
-            _lock = new object();
-            _pool = new Stack<SemaphoreSlim>();
+            _logger = logger;
 
             // preallocate semaphores
             /*for (var i = 0; i < _poolCapacity; i++)
                 _pool.Push(new SemaphoreSlim(1));*/
 
             // default pool capacity
-            _poolCapacity = 20;
-        }
-
-        public NamedLockerInstance(object sharedLock, Stack<SemaphoreSlim> sharedPool, int poolCapacity)
-        {
-            _lock         = sharedLock;
-            _pool         = sharedPool;
-            _poolCapacity = poolCapacity;
+            _poolCapacity = 100;
         }
 
         public async Task<IDisposable> EnterAsync(object id, CancellationToken cancellationToken = default)
@@ -64,7 +60,7 @@ namespace Nanoka
                 await l.Semaphore.WaitAsync(cancellationToken);
 
                 if (measure.Seconds >= 1)
-                    Logger?.LogWarning($"Took {measure} to obtain lock for resource '{id}'.");
+                    _logger.LogWarning($"Took {measure} to obtain lock for resource '{id}'.");
             }
 
             // we own this semaphore; assume caller calls Lock.Dispose
@@ -73,12 +69,12 @@ namespace Nanoka
 
         sealed class Lock : IDisposable
         {
-            readonly NamedLockerInstance _manager;
+            readonly NamedResourceLocker _manager;
             readonly object _id;
 
             public readonly SemaphoreSlim Semaphore;
 
-            public Lock(NamedLockerInstance manager, object id)
+            public Lock(NamedResourceLocker manager, object id)
             {
                 _manager = manager;
                 _id      = id;
@@ -100,7 +96,7 @@ namespace Nanoka
                     if (--References == 0)
                     {
                         // we are the last reference to this lock
-                        // return this semaphore to the pool if capacity not reached (to be reused later)
+                        // return this semaphore to the pool if capacity not reached (to be reused later),
                         // if the manager is not disposed yet
                         if (_manager._pool.Count != _manager._poolCapacity && !_manager._isDisposed)
                         {

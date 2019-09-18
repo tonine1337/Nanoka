@@ -17,11 +17,11 @@ namespace Nanoka
         readonly VoteManager _vote;
         readonly SoftDeleteManager _softDeleter;
 
-        public BookManager(INanokaDatabase db, NamedLocker locker, IMapper mapper, SnapshotManager snapshot, VoteManager vote,
+        public BookManager(INanokaDatabase db, ILocker locker, IMapper mapper, SnapshotManager snapshot, VoteManager vote,
                            SoftDeleteManager softDeleter)
         {
             _db          = db;
-            _locker      = locker.Get<BookManager>();
+            _locker      = locker;
             _mapper      = mapper;
             _snapshot    = snapshot;
             _vote        = vote;

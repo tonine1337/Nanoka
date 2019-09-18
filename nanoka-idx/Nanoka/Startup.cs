@@ -97,7 +97,7 @@ namespace Nanoka
                     .AddAutoMapper(typeof(ModelMapperProfile))
                     .AddSingleton<RecaptchaValidator>()
                     .AddSingleton<ImageProcessor>()
-                    .AddSingleton<NamedLocker>()
+                    .AddSingleton<ILocker, NamedResourceLocker>()
                     .AddSingleton<PasswordHashHelper>();
         }
 
