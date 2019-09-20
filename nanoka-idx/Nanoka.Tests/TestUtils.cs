@@ -15,6 +15,7 @@ namespace Nanoka.Tests
 
             var configuration = new ConfigurationBuilder()
                                .Add(CreateTestConfiguration())
+                               .AddEnvironmentVariables()
                                .Build();
 
             new Startup(configuration, new HostingEnvironment()).ConfigureServices(services);
