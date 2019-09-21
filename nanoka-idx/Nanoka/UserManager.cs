@@ -44,7 +44,7 @@ namespace Nanoka
             return user;
         }
 
-        public async Task CreateAsync(string username, string password, CancellationToken cancellationToken = default)
+        public async Task<User> CreateAsync(string username, string password, CancellationToken cancellationToken = default)
         {
             using (await _locker.EnterAsync(username, cancellationToken))
             {
@@ -61,6 +61,8 @@ namespace Nanoka
 
                 await _db.UpdateUserAsync(user, cancellationToken);
                 await _snapshot.CreatedAsync(user, cancellationToken, SnapshotType.System, user.Id);
+
+                return EraseConfidential(user);
             }
         }
 

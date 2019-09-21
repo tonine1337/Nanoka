@@ -20,9 +20,7 @@ namespace Nanoka.Tests
 
                 var users = scope.ServiceProvider.GetService<UserManager>();
 
-                await users.CreateAsync("testUser672", "securePassword1234");
-
-                var user = await users.TryAuthenticateAsync("testUser672", "securePassword1234");
+                var user = await users.CreateAsync("testUser672", "securePassword1234");
 
                 Assert.That(user, Is.Not.Null);
                 Assert.That(user.Username, Is.EqualTo("testUser672"));
@@ -32,6 +30,7 @@ namespace Nanoka.Tests
                 Assert.That(user.Restrictions, Is.Null.Or.Empty);
                 Assert.That(user.Reputation, Is.Zero);
 
+                Assert.That(user.Id, Is.EqualTo((await users.TryAuthenticateAsync("testUser672", "securePassword1234")).Id));
                 Assert.That(user.Id, Is.EqualTo((await users.GetAsync(user.Id)).Id));
 
                 var snapshots = await users.GetSnapshotsAsync(user.Id);
