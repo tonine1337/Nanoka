@@ -22,22 +22,19 @@ namespace Nanoka.Database
         }
 
         public static SearchDescriptor<T> MultiQuery<T>(this SearchDescriptor<T> searchDesc,
-                                                        Func<QueryWrapper<T>, QueryWrapper<T>> query)
-            where T : class
+                                                        Func<QueryWrapper<T>, QueryWrapper<T>> query) where T : class
             => searchDesc.Query(q => q.MultiQueryInternal(query));
 
         public static SearchDescriptor<T> NestedMultiQuery<T, TNested>(this SearchDescriptor<T> searchDesc,
                                                                        Expression<Func<T, TNested>> nestedPath,
-                                                                       Func<QueryWrapper<T>, QueryWrapper<T>> query)
-            where T : class where TNested : class
+                                                                       Func<QueryWrapper<T>, QueryWrapper<T>> query) where T : class where TNested : class
             => searchDesc.Query(
                 searchQuery => searchQuery.Nested(
                     x => x.Path(nestedPath)
                           .Query(nestedQuery => nestedQuery.MultiQueryInternal(query))));
 
         static QueryContainer MultiQueryInternal<T>(this QueryContainerDescriptor<T> searchQuery,
-                                                    Func<QueryWrapper<T>, QueryWrapper<T>> query)
-            where T : class
+                                                    Func<QueryWrapper<T>, QueryWrapper<T>> query) where T : class
             => searchQuery.Bool(boolQuery =>
             {
                 boolQuery.Must(q => query(new QueryWrapper<T>(q)).Container);
@@ -49,8 +46,7 @@ namespace Nanoka.Database
 
         static QueryWrapper<T> QueryInternal<T>(this QueryWrapper<T> wrapper,
                                                 ISearchQuery query,
-                                                Func<QueryContainerDescriptor<T>, QueryContainer> createContainer)
-            where T : class
+                                                Func<QueryContainerDescriptor<T>, QueryContainer> createContainer) where T : class
         {
             if (!query.IsSpecified)
                 return wrapper;
@@ -62,8 +58,7 @@ namespace Nanoka.Database
 
         public static QueryWrapper<T> Text<T>(this QueryWrapper<T> wrapper,
                                               TextQuery query,
-                                              Expression<Func<T, object>> path = null)
-            where T : class
+                                              Expression<Func<T, object>> path = null) where T : class
             => wrapper.QueryInternal(
                 query,
                 descriptor =>
@@ -129,9 +124,7 @@ namespace Nanoka.Database
 
         public static QueryWrapper<T> Filter<T, TField>(this QueryWrapper<T> wrapper,
                                                         FilterQuery<TField> query,
-                                                        Expression<Func<T, object>> path)
-            where T : class
-            where TField : struct
+                                                        Expression<Func<T, object>> path) where T : class
             => wrapper.QueryInternal(
                 query,
                 descriptor =>
@@ -163,9 +156,7 @@ namespace Nanoka.Database
 
         public static QueryWrapper<T> Range<T, TField>(this QueryWrapper<T> wrapper,
                                                        RangeQuery<TField> query,
-                                                       Expression<Func<T, object>> path)
-            where T : class
-            where TField : struct
+                                                       Expression<Func<T, object>> path) where T : class where TField : struct
             => wrapper.QueryInternal(
                 query,
                 descriptor =>
@@ -245,9 +236,7 @@ namespace Nanoka.Database
 
         public static SearchDescriptor<T> MultiSort<T, TAttribute>(this SearchDescriptor<T> searchDesc,
                                                                    IReadOnlyList<TAttribute> attributes,
-                                                                   AttributePathDelegate<T, TAttribute> path)
-            where T : class
-            where TAttribute : struct
+                                                                   AttributePathDelegate<T, TAttribute> path) where T : class where TAttribute : struct
         {
             if (attributes == null || attributes.Count == 0)
                 return searchDesc;
