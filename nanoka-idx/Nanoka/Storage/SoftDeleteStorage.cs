@@ -74,7 +74,7 @@ namespace Nanoka.Storage
                         _s._logger.LogInformation($"Hard deleted files: {string.Join(", ", filenames)}");
                     }
 
-                    await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
+                    await Task.Delay(TimeSpan.FromMinutes(_s._options.CheckIntervalMin), stoppingToken);
                 }
             }
         }
