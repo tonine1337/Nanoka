@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
-    public sealed class SearchResult<TEntity>
+    public sealed class SearchResult<T>
     {
         [JsonProperty("took")]
         public long Took { get; set; }
@@ -15,6 +15,6 @@ namespace Nanoka.Models
         public long Total { get; set; }
 
         [JsonProperty("items")]
-        public IReadOnlyList<TEntity> Items { get; set; }
+        public IReadOnlyList<T> Items { get; set; }
     }
 }
