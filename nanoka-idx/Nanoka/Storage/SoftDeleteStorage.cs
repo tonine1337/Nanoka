@@ -36,8 +36,11 @@ namespace Nanoka.Storage
 
         public override async Task UndeleteAsync(string[] names, CancellationToken cancellationToken = default)
         {
-            // this won't do much if the file was already hard-deleted
+            // this won't do anything if the file was already hard-deleted
             await _db.RemoveDeleteFileAsync(names, cancellationToken);
+
+            // implementation might also support undelete
+            await base.UndeleteAsync(names, cancellationToken);
 
             _logger.LogInformation($"Restored soft deleted files: {string.Join(", ", names)}");
         }
