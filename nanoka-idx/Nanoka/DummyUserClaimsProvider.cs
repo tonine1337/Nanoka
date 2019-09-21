@@ -11,7 +11,7 @@ namespace Nanoka
         public double Reputation { get; set; }
         public bool IsRestricted { get; set; }
 
-        IReadOnlyDictionary<string, string> _queryParams;
+        IReadOnlyDictionary<string, string> _queryParams = new Dictionary<string, string>();
 
         public IReadOnlyDictionary<string, string> QueryParams
         {
