@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Nanoka.Models
@@ -15,6 +14,6 @@ namespace Nanoka.Models
         public long Total { get; set; }
 
         [JsonProperty("items")]
-        public IReadOnlyList<T> Items { get; set; }
+        public T[] Items { get; set; }
     }
 }
