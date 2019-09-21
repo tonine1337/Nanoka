@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
-    public struct FilterQuery<T> : ISearchQuery where T : struct
+    public struct FilterQuery<T> : ISearchQuery
     {
         [JsonProperty("value")]
         public T[] Values { get; set; }
