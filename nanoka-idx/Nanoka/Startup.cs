@@ -65,8 +65,7 @@ namespace Nanoka
                     .AddScoped<VoteManager>();
 
             // storage
-            services.AddSingleton<IStorage>(s => new StorageWrapper(s, _configuration.GetSection("Storage")))
-                    .AddHostedService<SoftDeleteManager>();
+            services.AddSingleton<IStorage>(s => new StorageWrapper(s, _configuration.GetSection("Storage")));
 
             // uploader
             services.AddScoped<UploadManager>()

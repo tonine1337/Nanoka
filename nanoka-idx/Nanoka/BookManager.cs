@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Nanoka.Database;
 using Nanoka.Models;
+using Nanoka.Storage;
 
 namespace Nanoka
 {
@@ -15,17 +16,17 @@ namespace Nanoka
         readonly IMapper _mapper;
         readonly SnapshotManager _snapshot;
         readonly VoteManager _vote;
-        readonly SoftDeleteManager _softDeleter;
+        readonly IStorage _storage;
 
         public BookManager(INanokaDatabase db, ILocker locker, IMapper mapper, SnapshotManager snapshot, VoteManager vote,
-                           SoftDeleteManager softDeleter)
+                           IStorage storage)
         {
-            _db          = db;
-            _locker      = locker;
-            _mapper      = mapper;
-            _snapshot    = snapshot;
-            _vote        = vote;
-            _softDeleter = softDeleter;
+            _db       = db;
+            _locker   = locker;
+            _mapper   = mapper;
+            _snapshot = snapshot;
+            _vote     = vote;
+            _storage  = storage;
         }
 
         public async Task<Book> GetAsync(string id, CancellationToken cancellationToken = default)
@@ -64,7 +65,7 @@ namespace Nanoka
                     await _db.DeleteBookAsync(book, cancellationToken);
 
                     foreach (var content in book.Contents)
-                        await _softDeleter.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
+                        await _storage.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
 
                     book = null;
                 }
@@ -75,7 +76,7 @@ namespace Nanoka
                     await _db.UpdateBookAsync(book, cancellationToken);
 
                     foreach (var content in book.Contents)
-                        await _softDeleter.RestoreAsync(EnumerateBookFiles(book, content), cancellationToken);
+                        await _storage.RestoreAsync(EnumerateBookFiles(book, content), cancellationToken);
                 }
 
                 await _snapshot.RevertedAsync(snapshot, cancellationToken);
@@ -109,7 +110,7 @@ namespace Nanoka
                 await _snapshot.DeletedAsync(book, cancellationToken);
 
                 foreach (var content in book.Contents)
-                    await _softDeleter.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
+                    await _storage.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
             }
         }
 
@@ -209,7 +210,7 @@ namespace Nanoka
                     await _snapshot.ModifiedAsync(book, cancellationToken);
                 }
 
-                await _softDeleter.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
+                await _storage.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
             }
         }
     }
