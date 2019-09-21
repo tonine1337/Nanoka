@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Nanoka.Models;
 
 namespace Nanoka
@@ -10,6 +11,12 @@ namespace Nanoka
         public double Reputation { get; set; }
         public bool IsRestricted { get; set; }
 
-        public IReadOnlyDictionary<string, string> QueryParams { get; set; }
+        IReadOnlyDictionary<string, string> _queryParams;
+
+        public IReadOnlyDictionary<string, string> QueryParams
+        {
+            get => _queryParams;
+            set => _queryParams = value.ToDictionary(x => x.Key.ToLowerInvariant(), x => x.Value);
+        }
     }
 }
