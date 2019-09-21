@@ -5,8 +5,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using B2Net;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Nanoka.Storage
 {
@@ -17,9 +17,9 @@ namespace Nanoka.Storage
 
         readonly B2Client _client;
 
-        public B2Storage(IOptions<B2Options> options, ILogger<B2Storage> logger)
+        public B2Storage(IConfiguration configuration, ILogger<B2Storage> logger)
         {
-            _options = options.Value;
+            _options = configuration.Get<B2Options>();
             _logger  = logger;
 
             if (_options.AccountId == null || _options.ApplicationKey == null)

@@ -1,4 +1,4 @@
-namespace Nanoka
+namespace Nanoka.Storage
 {
     public class LocalStorageOptions
     {
