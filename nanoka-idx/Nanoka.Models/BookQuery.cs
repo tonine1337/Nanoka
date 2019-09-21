@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
-    public class BookQuery : QueryBase<BookQuery>
+    public class BookQuery : QueryBase<BookQuery, BookSort>
     {
         [JsonProperty("name")]
         public TextQuery Name { get; set; }

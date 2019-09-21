@@ -21,4 +21,10 @@ namespace Nanoka.Models
             return @this;
         }
     }
+
+    public abstract class QueryBase<TThis, TSort> : QueryBase<TThis> where TThis : QueryBase<TThis, TSort>
+    {
+        [JsonProperty("_sort")]
+        public TSort[] Sorting { get; set; }
+    }
 }
