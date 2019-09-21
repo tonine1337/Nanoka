@@ -18,6 +18,7 @@ namespace Nanoka.Database
         Task<Book> GetBookAsync(string id, CancellationToken cancellationToken = default);
         Task UpdateBookAsync(Book book, CancellationToken cancellationToken = default);
         Task DeleteBookAsync(Book book, CancellationToken cancellationToken = default);
+        Task<SearchResult<Book>> SearchBooksAsync(BookQuery query, CancellationToken cancellationToken = default);
 
         Task<Image> GetImageAsync(string id, CancellationToken cancellationToken = default);
         Task UpdateImageAsync(Image image, CancellationToken cancellationToken = default);

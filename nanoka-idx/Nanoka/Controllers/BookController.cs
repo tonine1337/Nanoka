@@ -87,5 +87,9 @@ namespace Nanoka.Controllers
 
             return new FileStreamResult(file.Stream, file.MediaType);
         }
+
+        [HttpPost("search")]
+        public async Task<Result<SearchResult<Book>>> SearchAsync(BookQuery query)
+            => await _bookManager.SearchAsync(query);
     }
 }

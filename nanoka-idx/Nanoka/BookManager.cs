@@ -228,5 +228,8 @@ namespace Nanoka
                 await _storage.DeleteAsync(GetBookFiles(book, content), cancellationToken);
             }
         }
+
+        public Task<SearchResult<Book>> SearchAsync(BookQuery query, CancellationToken cancellationToken = default)
+            => _db.SearchBooksAsync(query, cancellationToken);
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -124,16 +125,17 @@ namespace Nanoka.Database
 
         public async Task<User> GetUserByNameAsync(string username, CancellationToken cancellationToken = default)
         {
-            var result = await SearchAsync<DbUser>(
+            var result = await SearchAsync<DbUser, User>(
                 (0, 1),
                 q => q.Query(qq => qq.Term(t => t.Field(u => u.Username)
                                                  .Value(username))),
+                u => u.ToUser(),
                 cancellationToken);
 
             if (result.Total > 1)
                 _logger.LogWarning($"{result.Total} users with an identical username exist: {username}");
 
-            return result.Items.FirstOrDefault()?.ToUser();
+            return result.Items.FirstOrDefault();
         }
 
         public async Task UpdateUserAsync(User user, CancellationToken cancellationToken = default)
@@ -154,6 +156,57 @@ namespace Nanoka.Database
 
         public Task DeleteBookAsync(Book book, CancellationToken cancellationToken = default)
             => DeleteAsync<DbBook>(book.Id, cancellationToken);
+
+        public async Task<SearchResult<Book>> SearchBooksAsync(BookQuery query, CancellationToken cancellationToken = default)
+        {
+            var results = await SearchAsync<DbBook, Book>(
+                (query.Offset, query.Limit),
+                _ => _.MultiQuery(q =>
+                       {
+                           q.Text(query.Name, b => b.Name)
+                            .Range(query.Score, b => b.Score);
+
+                           foreach (var (k, v)in query.Tags)
+                               q.Text(v, GetBookTagsPath(k));
+
+                           q.Filter(query.Category, b => b.Category)
+                            .Filter(query.Rating, b => b.Rating)
+                            .Range(query.PageCount, b => b.PageCounts)
+                            .Filter(query.Language, b => b.Languages)
+                            .Filter(query.IsColor, b => b.IsColor)
+                            .Filter(query.Source.Project(s => s.ToString()), b => b.Sources);
+
+                           return q;
+                       })
+                      .MultiSort(query.Sorting, GetBookSortPath),
+                b => b.ToBook(),
+                cancellationToken);
+
+            return results;
+        }
+
+        static Expression<Func<DbBook, object>> GetBookTagsPath(BookTag tag)
+        {
+            switch (tag)
+            {
+                default:                 return b => b.TagsGeneral;
+                case BookTag.Artist:     return b => b.TagsArtist;
+                case BookTag.Parody:     return b => b.TagsParody;
+                case BookTag.Character:  return b => b.TagsCharacter;
+                case BookTag.Convention: return b => b.TagsConvention;
+                case BookTag.Series:     return b => b.TagsSeries;
+            }
+        }
+
+        static Expression<Func<DbBook, object>> GetBookSortPath(BookSort sort)
+        {
+            switch (sort)
+            {
+                default:                 return null;
+                case BookSort.Score:     return b => b.Score;
+                case BookSort.PageCount: return b => b.PageCounts;
+            }
+        }
 
 #endregion
 
@@ -183,20 +236,19 @@ namespace Nanoka.Database
 
         public async Task<Snapshot<T>[]> GetSnapshotsAsync<T>(string entityId, int start, int count, bool chronological, CancellationToken cancellationToken = default)
         {
-            var result = await SearchAsync<DbSnapshot>(
-                (0, 256),
+            var result = await SearchAsync<DbSnapshot, Snapshot<T>>(
+                (start, count),
                 q => q.Query(qq => qq.Bool(b => b.Filter(f => f.Term(t => t.Field(s => s.EntityType)
                                                                            .Value(Enum.Parse<NanokaEntity>(typeof(T).Name))),
                                                          f => f.Term(t => t.Field(s => s.EntityId)
                                                                            .Value(entityId)))))
                       .Sort(ss => chronological
                                 ? ss.Ascending(s => s.Time)
-                                : ss.Descending(s => s.Time))
-                      .Skip(Math.Max(start, 0))
-                      .Take(Math.Max(count, 0)),
+                                : ss.Descending(s => s.Time)),
+                s => s.ToSnapshot<T>(_serializer),
                 cancellationToken);
 
-            return result.Items.ToArray(s => s.ToSnapshot<T>(_serializer));
+            return result.Items;
         }
 
         public async Task UpdateSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default)
@@ -247,17 +299,18 @@ namespace Nanoka.Database
 
         public async Task<string[]> GetAndRemoveDeleteFilesAsync(DateTime maxSoftDeleteTime, CancellationToken cancellationToken = default)
         {
-            var result = await SearchAsync<DbDeleteFile>(
+            var result = await SearchAsync<DbDeleteFile, string>(
                 (0, 100),
                 q => q.Query(qq => qq.Bool(b => b.Filter(ff => ff.DateRange(r => r.Field(f => f.SoftDeleteTime)
                                                                                   .LessThan(maxSoftDeleteTime)))))
                       .Sort(s => s.Ascending(f => f.SoftDeleteTime)),
+                f => f.Id,
                 cancellationToken);
 
-            if (result.Items.Count != 0)
-                await DeleteAsync<DbDeleteFile>(result.Items.ToArray(x => x.Id), cancellationToken);
+            if (result.Items.Length != 0)
+                await DeleteAsync<DbDeleteFile>(result.Items, cancellationToken);
 
-            return result.Items.ToArray(f => f.Id);
+            return result.Items;
         }
 
 #endregion
@@ -277,27 +330,28 @@ namespace Nanoka.Database
             return response.Source;
         }
 
-        async Task<SearchResult<TDocument>> SearchAsync<TDocument>(Range<int> range,
-                                                                   Func<SearchDescriptor<TDocument>, SearchDescriptor<TDocument>> query,
-                                                                   CancellationToken cancellationToken)
+        async Task<SearchResult<T>> SearchAsync<TDocument, T>((int start, int count) range,
+                                                              Func<SearchDescriptor<TDocument>, SearchDescriptor<TDocument>> query,
+                                                              Func<TDocument, T> project,
+                                                              CancellationToken cancellationToken)
             where TDocument : class
         {
             using (var measure = new MeasureContext())
             {
                 var response = await _client.SearchAsync<TDocument>(
                     x => query(x.Index(_indexNames[typeof(TDocument)])
-                                .Skip(range.Min)
-                                .Take(range.Max - range.Min)),
+                                .Skip(range.start)
+                                .Take(range.count)),
                     cancellationToken);
 
                 ValidateResponse(response);
 
-                return new SearchResult<TDocument>
+                return new SearchResult<T>
                 {
                     Took         = response.Took,
                     TookAccurate = measure.Milliseconds,
                     Total        = response.Total,
-                    Items        = response.Documents.ToList()
+                    Items        = response.Documents.ToArray(project)
                 };
             }
         }
