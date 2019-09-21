@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nanoka.Models;
 using Nanoka.Models.Requests;
-using Nanoka.Storage;
 
 namespace Nanoka.Controllers
 {
@@ -16,15 +15,12 @@ namespace Nanoka.Controllers
         readonly BookManager _bookManager;
         readonly UploadManager _uploadManager;
         readonly ImageProcessor _imageProcessor;
-        readonly IStorage _storage;
 
-        public BookUploadController(BookManager bookManager, UploadManager uploadManager, ImageProcessor imageProcessor,
-                                    IStorage storage)
+        public BookUploadController(BookManager bookManager, UploadManager uploadManager, ImageProcessor imageProcessor)
         {
             _bookManager    = bookManager;
             _uploadManager  = uploadManager;
             _imageProcessor = imageProcessor;
-            _storage        = storage;
         }
 
         sealed class BookUpload
@@ -86,34 +82,13 @@ namespace Nanoka.Controllers
                 if (task.FileCount == 0)
                     return Result.BadRequest("No files were uploaded to be committed.");
 
-                // add info to db
-                Book        book;
-                BookContent content;
+                var book = null as Book;
 
                 if (task.Data.Book != null)
-                    (book, content) = await _bookManager.CreateAsync(task.Data.Book, task.Data.Content, task);
+                    book = await _bookManager.CreateAsync(task.Data.Book, task.Data.Content, task);
 
                 else if (task.Data.BookId != null)
-                    (book, content) = await _bookManager.AddContentAsync(task.Data.BookId, task.Data.Content, task);
-
-                else
-                    return null;
-
-                // add files to storage
-                var index = 0;
-
-                foreach (var (_, stream, mediaType) in task.EnumerateFiles())
-                {
-                    using (stream)
-                    {
-                        await _storage.WriteAsync(new StorageFile
-                        {
-                            Name      = $"{book.Id}/{content.Id}/{++index}",
-                            Stream    = stream,
-                            MediaType = mediaType
-                        });
-                    }
-                }
+                    (book, _) = await _bookManager.AddContentAsync(task.Data.BookId, task.Data.Content, task);
 
                 return book;
             }

@@ -4,8 +4,8 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace Nanoka.Storage
@@ -23,18 +23,20 @@ namespace Nanoka.Storage
         readonly DirectoryInfo _contentDir;
         readonly DirectoryInfo _indexDir;
 
-        public LocalStorage(IHostingEnvironment environment, IOptions<LocalStorageOptions> options, JsonSerializer serializer, ILogger<LocalStorage> logger)
+        public LocalStorage(IHostingEnvironment environment, IConfiguration configuration, JsonSerializer serializer, ILogger<LocalStorage> logger)
         {
             _serializer = serializer;
             _logger     = logger;
 
-            _contentDir = Directory.CreateDirectory(options.Value.ContentPath == null
-                                                        ? Path.Combine(environment.ContentRootPath, "data_storage", "content")
-                                                        : Path.GetFullPath(options.Value.ContentPath));
+            var options = configuration.Get<LocalStorageOptions>();
 
-            _indexDir = Directory.CreateDirectory(options.Value.IndexPath == null
+            _contentDir = Directory.CreateDirectory(options.ContentPath == null
+                                                        ? Path.Combine(environment.ContentRootPath, "data_storage", "content")
+                                                        : Path.GetFullPath(options.ContentPath));
+
+            _indexDir = Directory.CreateDirectory(options.IndexPath == null
                                                       ? Path.Combine(environment.ContentRootPath, "data_storage", "index")
-                                                      : Path.GetFullPath(options.Value.IndexPath));
+                                                      : Path.GetFullPath(options.IndexPath));
         }
 
         Task IStorage.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
@@ -170,9 +172,22 @@ namespace Nanoka.Storage
             }
         }
 
-        public async Task<bool> DeleteAsync(string name, CancellationToken cancellationToken = default)
+        public async Task DeleteAsync(string[] names, CancellationToken cancellationToken = default)
         {
             await _semaphore.WaitAsync(cancellationToken);
+            try
+            {
+                foreach (var name in names)
+                    DeleteInternal(name);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        bool DeleteInternal(string name)
+        {
             try
             {
                 var entryPath = GetEntryPath(name);
@@ -192,10 +207,6 @@ namespace Nanoka.Storage
             {
                 _logger.LogWarning($"Failed to delete file '{name}'.", e);
                 return false;
-            }
-            finally
-            {
-                _semaphore.Release();
             }
         }
 

@@ -1,10 +1,10 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Nanoka.Database;
 using Nanoka.Models;
+using Nanoka.Storage;
 
 namespace Nanoka
 {
@@ -15,17 +15,17 @@ namespace Nanoka
         readonly IMapper _mapper;
         readonly SnapshotManager _snapshot;
         readonly VoteManager _vote;
-        readonly SoftDeleteManager _softDeleter;
+        readonly IStorage _storage;
 
         public BookManager(INanokaDatabase db, ILocker locker, IMapper mapper, SnapshotManager snapshot, VoteManager vote,
-                           SoftDeleteManager softDeleter)
+                           IStorage storage)
         {
-            _db          = db;
-            _locker      = locker;
-            _mapper      = mapper;
-            _snapshot    = snapshot;
-            _vote        = vote;
-            _softDeleter = softDeleter;
+            _db       = db;
+            _locker   = locker;
+            _mapper   = mapper;
+            _snapshot = snapshot;
+            _vote     = vote;
+            _storage  = storage;
         }
 
         public async Task<Book> GetAsync(string id, CancellationToken cancellationToken = default)
@@ -62,9 +62,7 @@ namespace Nanoka
                 if (book != null && snapshot.Value == null)
                 {
                     await _db.DeleteBookAsync(book, cancellationToken);
-
-                    foreach (var content in book.Contents)
-                        await _softDeleter.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
+                    await _storage.DeleteAsync(GetBookFiles(book), cancellationToken);
 
                     book = null;
                 }
@@ -74,8 +72,8 @@ namespace Nanoka
 
                     await _db.UpdateBookAsync(book, cancellationToken);
 
-                    foreach (var content in book.Contents)
-                        await _softDeleter.RestoreAsync(EnumerateBookFiles(book, content), cancellationToken);
+                    if (_storage is ISupportsUndelete supportsUndelete)
+                        await supportsUndelete.UndeleteAsync(GetBookFiles(book), cancellationToken);
                 }
 
                 await _snapshot.RevertedAsync(snapshot, cancellationToken);
@@ -107,17 +105,20 @@ namespace Nanoka
 
                 await _db.DeleteBookAsync(book, cancellationToken);
                 await _snapshot.DeletedAsync(book, cancellationToken);
-
-                foreach (var content in book.Contents)
-                    await _softDeleter.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
+                await _storage.DeleteAsync(GetBookFiles(book), cancellationToken);
             }
         }
 
-        // ReSharper disable once SuggestBaseTypeForParameter
-        static IEnumerable<string> EnumerateBookFiles(Book book, BookContent content)
+        static string[] GetBookFiles(Book book) => book.Contents?.ToArrayMany(c => GetBookFiles(book, c)) ?? new string[0];
+
+        static string[] GetBookFiles(Book book, BookContent content)
         {
-            for (var i = 0; i < content.PageCount; i++)
-                yield return $"{book.Id}/{content.Id}/{i}";
+            var names = new string[content.PageCount];
+
+            for (var i = 0; i < names.Length; i++)
+                names[i] = $"{book.Id}/{content.Id}/{i + 1}";
+
+            return names;
         }
 
         public async Task<Vote> VoteAsync(string id, VoteType? type, CancellationToken cancellationToken = default)
@@ -137,7 +138,7 @@ namespace Nanoka
             }
         }
 
-        public async Task<(Book, BookContent)> CreateAsync(BookBase bookModel, BookContentBase contentModel, UploadTask uploadTask, CancellationToken cancellationToken = default)
+        public async Task<Book> CreateAsync(BookBase bookModel, BookContentBase contentModel, UploadTask uploadTask, CancellationToken cancellationToken = default)
         {
             var book    = _mapper.Map<Book>(bookModel);
             var content = _mapper.Map<BookContent>(contentModel);
@@ -150,7 +151,9 @@ namespace Nanoka
             await _db.UpdateBookAsync(book, cancellationToken);
             await _snapshot.CreatedAsync(book, cancellationToken);
 
-            return (book, content);
+            await UploadContentAsync(book, content, uploadTask, cancellationToken);
+
+            return book;
         }
 
         public async Task<(Book, BookContent)> AddContentAsync(string id, BookContentBase model, UploadTask uploadTask, CancellationToken cancellationToken = default)
@@ -169,7 +172,20 @@ namespace Nanoka
                 await _db.UpdateBookAsync(book, cancellationToken);
                 await _snapshot.ModifiedAsync(book, cancellationToken);
 
+                await UploadContentAsync(book, content, uploadTask, cancellationToken);
+
                 return (book, content);
+            }
+        }
+
+        async Task UploadContentAsync(Book book, BookContent content, UploadTask uploadTask, CancellationToken cancellationToken = default)
+        {
+            var files = GetBookFiles(book, content).Zip(uploadTask.EnumerateFiles(), (n, f) => new StorageFile(n, f.stream, f.mediaType));
+
+            foreach (var file in files)
+            {
+                using (file)
+                    await _storage.WriteAsync(file, cancellationToken);
             }
         }
 
@@ -209,7 +225,7 @@ namespace Nanoka
                     await _snapshot.ModifiedAsync(book, cancellationToken);
                 }
 
-                await _softDeleter.DeleteAsync(EnumerateBookFiles(book, content), cancellationToken);
+                await _storage.DeleteAsync(GetBookFiles(book, content), cancellationToken);
             }
         }
     }

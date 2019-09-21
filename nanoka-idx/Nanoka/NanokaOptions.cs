@@ -28,6 +28,5 @@ namespace Nanoka
         public int UploadTaskLimitPerUser { get; set; } = 3;
         public double UploadTaskExpiryMs { get; set; } = 1000 * 60 * 10; // 10 minutes
         public bool EnableSoftDelete { get; set; } = true;
-        public double SoftDeleteDelayMs { get; set; } = 1000 * 60 * 60 * 24 * 14; // 14 days
     }
 }

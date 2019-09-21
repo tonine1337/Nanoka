@@ -54,27 +54,32 @@ namespace Nanoka.Database
         {
             _logger.LogDebug("Migrating indexes...");
 
-            await CreateIndexAsync<DbBook>(cancellationToken);
-            await CreateIndexAsync<DbImage>(cancellationToken);
-            await CreateIndexAsync<DbSnapshot>(cancellationToken);
+            // migrate indexes parallel
+            await Task.WhenAll(
+                CreateIndexAsync<DbBook>(cancellationToken),
+                CreateIndexAsync<DbImage>(cancellationToken),
+                CreateIndexAsync<DbSnapshot>(cancellationToken),
+                CreateIndexAsync<DbVote>(cancellationToken),
+                CreateIndexAsync<DbDeleteFile>(cancellationToken),
+                createUserIndexAsync());
 
-            if (await CreateIndexAsync<DbUser>(cancellationToken))
+            async Task createUserIndexAsync()
             {
-                // create admin user
-                var user = new User
+                if (await CreateIndexAsync<DbUser>(cancellationToken))
                 {
-                    Username    = _defaultAdminUsername,
-                    Secret      = _hash.Hash(_defaultAdminPassword),
-                    Permissions = UserPermissions.Administrator
-                };
+                    // create admin user
+                    var user = new User
+                    {
+                        Username    = _defaultAdminUsername,
+                        Secret      = _hash.Hash(_defaultAdminPassword),
+                        Permissions = UserPermissions.Administrator
+                    };
 
-                await UpdateUserAsync(user, cancellationToken);
+                    await UpdateUserAsync(user, cancellationToken);
 
-                _logger.LogWarning($"Administrator user created. USERNAME:{_defaultAdminUsername} --- PASSWORD:{_defaultAdminPassword}");
+                    _logger.LogWarning($"Administrator user created. USERNAME:{_defaultAdminUsername} --- PASSWORD:{_defaultAdminPassword}");
+                }
             }
-
-            await CreateIndexAsync<DbVote>(cancellationToken);
-            await CreateIndexAsync<DbDeleteFile>(cancellationToken);
         }
 
         readonly Dictionary<Type, string> _indexNames;
@@ -176,7 +181,7 @@ namespace Nanoka.Database
                 : null;
         }
 
-        public async Task<Snapshot<T>[]> GetSnapshotsAsync<T>(string entityId, CancellationToken cancellationToken = default)
+        public async Task<Snapshot<T>[]> GetSnapshotsAsync<T>(string entityId, int start, int count, bool chronological, CancellationToken cancellationToken = default)
         {
             var result = await SearchAsync<DbSnapshot>(
                 (0, 256),
@@ -184,7 +189,11 @@ namespace Nanoka.Database
                                                                            .Value(Enum.Parse<NanokaEntity>(typeof(T).Name))),
                                                          f => f.Term(t => t.Field(s => s.EntityId)
                                                                            .Value(entityId)))))
-                      .Sort(ss => ss.Descending(s => s.Time)),
+                      .Sort(ss => chronological
+                                ? ss.Ascending(s => s.Time)
+                                : ss.Descending(s => s.Time))
+                      .Skip(Math.Max(start, 0))
+                      .Take(Math.Max(count, 0)),
                 cancellationToken);
 
             return result.Items.ToArray(s => s.ToSnapshot<T>(_serializer));

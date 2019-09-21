@@ -24,7 +24,7 @@ namespace Nanoka.Database
         Task DeleteImageAsync(Image image, CancellationToken cancellationToken = default);
 
         Task<Snapshot<T>> GetSnapshotAsync<T>(string id, string entityId, CancellationToken cancellationToken = default);
-        Task<Snapshot<T>[]> GetSnapshotsAsync<T>(string entityId, CancellationToken cancellationToken = default);
+        Task<Snapshot<T>[]> GetSnapshotsAsync<T>(string entityId, int start, int count, bool chronological, CancellationToken cancellationToken = default);
         Task UpdateSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default);
 
         Task<Vote> GetVoteAsync(string userId, NanokaEntity entity, string entityId, CancellationToken cancellationToken = default);

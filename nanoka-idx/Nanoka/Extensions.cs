@@ -220,8 +220,14 @@ namespace Nanoka
         public static T2[] ToArray<T1, T2>(this IEnumerable<T1> enumerable, Func<T1, T2> selector)
             => enumerable.Select(selector).ToArray();
 
+        public static T2[] ToArrayMany<T1, T2>(this IEnumerable<T1> enumerable, Func<T1, IEnumerable<T2>> selector)
+            => enumerable.SelectMany(selector).ToArray();
+
         public static List<T2> ToList<T1, T2>(this IEnumerable<T1> enumerable, Func<T1, T2> selector)
             => enumerable.Select(selector).ToList();
+
+        public static List<T2> ToListMany<T1, T2>(this IEnumerable<T1> enumerable, Func<T1, IEnumerable<T2>> selector)
+            => enumerable.SelectMany(selector).ToList();
 
         public static T Deserialize<T>(this JsonSerializer serializer, TextReader reader)
         {

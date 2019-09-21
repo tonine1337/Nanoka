@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -31,8 +30,6 @@ namespace Nanoka
             // options
             services.Configure<NanokaOptions>(_configuration)
                     .Configure<ElasticOptions>(_configuration.GetSection("Elastic"))
-                    .Configure<LocalStorageOptions>(_configuration.GetSection("Storage"))
-                    .Configure<B2Options>(_configuration.GetSection("Storage"))
                     .Configure<RecaptchaOptions>(_configuration.GetSection("reCAPTCHA"));
 
             // mvc
@@ -68,27 +65,12 @@ namespace Nanoka
                     .AddScoped<VoteManager>();
 
             // storage
-            var storage = _configuration.GetSection("Storage")["Type"];
+            services.AddSingleton<IStorage>(s => new StorageWrapper(s, _configuration.GetSection("Storage")));
 
-            switch (storage?.ToLowerInvariant())
-            {
-                case null:
-                case "":
-                case "local":
-                    services.AddSingleton<IStorage, LocalStorage>();
-                    break;
-
-                case "b2":
-                    services.AddSingleton<IStorage, B2Storage>();
-                    break;
-
-                default: throw new NotSupportedException($"Unsupported storage type '{storage}'.");
-            }
-
+            // uploader
             services.AddScoped<UploadManager>()
                     .AddSingleton<UploadTaskCollection>()
-                    .AddHostedService<UploadAutoExpiryJob>()
-                    .AddHostedDependencyService<SoftDeleteManager>();
+                    .AddHostedService<UploadAutoExpiryJob>();
 
             // other utilities
             services.AddSingleton(NanokaJsonSerializer.Create())

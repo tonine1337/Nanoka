@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Nanoka.Database;
 using NUnit.Framework;
 
+// all tests are parallelizable
+[assembly: Parallelizable(ParallelScope.Children)]
+
 namespace Nanoka.Tests
 {
     [SetUpFixture]

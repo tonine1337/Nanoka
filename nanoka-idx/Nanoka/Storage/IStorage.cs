@@ -15,6 +15,6 @@ namespace Nanoka.Storage
 
         Task<bool> WriteAsync(StorageFile file, CancellationToken cancellationToken = default);
 
-        Task<bool> DeleteAsync(string name, CancellationToken cancellationToken = default);
+        Task DeleteAsync(string[] names, CancellationToken cancellationToken = default);
     }
 }
