@@ -1,4 +1,4 @@
-namespace Nanoka
+namespace Nanoka.Database
 {
     public class ElasticOptions
     {
