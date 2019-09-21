@@ -103,7 +103,11 @@ namespace Nanoka.Tests
             using (var services = TestUtils.Services(
                 c => c.Replace(ServiceDescriptor.Scoped<IUserClaims>(_ => new DummyUserClaimsProvider
                 {
-                    Id = "userId"
+                    Id = "userId",
+                    QueryParams = new Dictionary<string, string>
+                    {
+                        { "reverse", "true" }
+                    }
                 }))))
 
             using (var scope = services.CreateScope())
@@ -157,7 +161,7 @@ namespace Nanoka.Tests
 
                 await books.DeleteAsync(book.Id);
 
-                Assert.That(Assert.ThrowsAsync<ResultException>(() => books.GetAsync(book.Id)).Result.Status, Is.EqualTo(400));
+                Assert.That(Assert.ThrowsAsync<ResultException>(() => books.GetAsync(book.Id)).Result.Status, Is.EqualTo(404));
 
                 snapshots = await books.GetSnapshotsAsync(book.Id);
 
@@ -178,7 +182,7 @@ namespace Nanoka.Tests
                 revertedBook = await books.RevertAsync(book.Id, snapshots[3].Id);
 
                 Assert.That(revertedBook, Is.Null);
-                Assert.That(Assert.ThrowsAsync<ResultException>(() => books.GetAsync(book.Id)).Result.Status, Is.EqualTo(400));
+                Assert.That(Assert.ThrowsAsync<ResultException>(() => books.GetAsync(book.Id)).Result.Status, Is.EqualTo(404));
             }
         }
     }
