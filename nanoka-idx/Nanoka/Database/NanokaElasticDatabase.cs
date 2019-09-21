@@ -337,6 +337,10 @@ namespace Nanoka.Database
                                                               CancellationToken cancellationToken)
             where TDocument : class
         {
+            // count=0 optimization
+            if (range.count <= 0)
+                return new SearchResult<T> { Items = new T[0] };
+
             using (var measure = new MeasureContext())
             {
                 var response = await _client.SearchAsync<TDocument>(
