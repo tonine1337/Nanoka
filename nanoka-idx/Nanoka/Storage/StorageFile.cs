@@ -9,6 +9,15 @@ namespace Nanoka.Storage
         public Stream Stream { get; set; }
         public string MediaType { get; set; }
 
+        public StorageFile() { }
+
+        public StorageFile(string name, Stream stream, string mediaType)
+        {
+            Name      = name;
+            Stream    = stream;
+            MediaType = mediaType;
+        }
+
         public void Dispose() => Stream?.Dispose();
     }
 }
