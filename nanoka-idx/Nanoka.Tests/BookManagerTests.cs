@@ -36,7 +36,7 @@ namespace Nanoka.Tests
                     },
                     Tags = new Dictionary<BookTag, string[]>
                     {
-                        { BookTag.Artist, new[] { "artist", "artist2" } },
+                        { BookTag.Artist, new[] { "artist", "artist 2" } },
                         { BookTag.General, new[] { "tag" } }
                     }
                 };
@@ -63,14 +63,15 @@ namespace Nanoka.Tests
                     using (var memory = new MemoryStream())
                         await task.AddFileAsync("1.jpg", memory, "image/jpeg");
 
-                    (book, content) = await books.CreateAsync(bookModel, contentModel, task);
+                    book = await books.CreateAsync(bookModel, contentModel, task);
                 }
 
                 Assert.That(book, Is.Not.Null);
-                Assert.That(content, Is.Not.Null);
+                Assert.That(book.Contents, Is.Not.Null.Or.Empty);
+                Assert.That(book.Contents, Has.Exactly(1).Items);
 
                 var bookId    = book.Id;
-                var contentId = content.Id;
+                var contentId = book.Contents[0].Id;
 
                 (book, content) = await books.GetContentAsync(bookId, contentId);
 
@@ -85,6 +86,7 @@ namespace Nanoka.Tests
                 Assert.That(book.Tags, Contains.Key(BookTag.Artist));
                 Assert.That(book.Tags[BookTag.Artist], Has.Exactly(2).Items);
                 Assert.That(book.Tags[BookTag.Artist][1], Is.EqualTo("artist 2"));
+                Assert.That(book.Contents, Has.Exactly(1).Items);
 
                 Assert.That(content.PageCount, Is.EqualTo(1));
                 Assert.That(content.Language, Is.EqualTo(LanguageType.English));

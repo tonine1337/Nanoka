@@ -88,10 +88,7 @@ namespace Nanoka
         public IEnumerable<(string name, Stream stream, string mediaType)> EnumerateFiles()
         {
             lock (Lock)
-            {
-                foreach (var file in Files)
-                    yield return (file.Name, file.Handle.Open(FileMode.Open, FileAccess.Read), file.MediaType);
-            }
+                return Files.ToArray(f => (f.Name, f.Handle.Open(FileMode.Open, FileAccess.Read), f.MediaType));
         }
 
         public int FileCount

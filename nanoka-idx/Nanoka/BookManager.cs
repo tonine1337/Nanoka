@@ -180,11 +180,11 @@ namespace Nanoka
 
         async Task UploadContentAsync(Book book, BookContent content, UploadTask uploadTask, CancellationToken cancellationToken = default)
         {
-            var files = GetBookFiles(book, content).Zip(uploadTask.EnumerateFiles(), (n, f) => (n, f.stream, f.mediaType));
+            var files = GetBookFiles(book, content).Zip(uploadTask.EnumerateFiles(), (n, f) => new StorageFile(n, f.stream, f.mediaType));
 
-            foreach (var (n, s, m) in files)
+            foreach (var file in files)
             {
-                using (var file = new StorageFile { Name = n, Stream = s, MediaType = m })
+                using (file)
                     await _storage.WriteAsync(file, cancellationToken);
             }
         }

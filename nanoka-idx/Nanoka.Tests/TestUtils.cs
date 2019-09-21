@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -18,7 +19,11 @@ namespace Nanoka.Tests
                                .AddEnvironmentVariables()
                                .Build();
 
-            new Startup(configuration, new HostingEnvironment()).ConfigureServices(services);
+            var environment = new HostingEnvironment();
+
+            services.AddSingleton<IHostingEnvironment>(environment);
+
+            new Startup(configuration, environment).ConfigureServices(services);
 
             configure?.Invoke(services);
 
@@ -29,6 +34,9 @@ namespace Nanoka.Tests
         {
             InitialData = new Dictionary<string, string>
             {
+                // use in-memory storage
+                { "Storage:Type", "Memory" },
+
                 // use a random prefix to avoid clashing between tests
                 { "Elastic:IndexPrefix", $"nanoka-test-{Extensions.RandomString(10)}-" }
             }
