@@ -17,7 +17,6 @@ namespace Nanoka.Database
             public QueryWrapper(QueryContainerDescriptor<T> descriptor)
             {
                 Descriptor = descriptor;
-                Container  = descriptor;
             }
         }
 
@@ -37,9 +36,9 @@ namespace Nanoka.Database
                                                     Func<QueryWrapper<T>, QueryWrapper<T>> query) where T : class
             => searchQuery.Bool(boolQuery =>
             {
-                boolQuery.Must(q => query(new QueryWrapper<T>(q)).Container);
-                /*boolQuery.Should(q => query(new QueryWrapper<T>(q, QueryStrictness.Should)).Container);
-                boolQuery.Filter(q => query(new QueryWrapper<T>(q, QueryStrictness.Filter)).Container);*/
+                boolQuery.Must(q => query(new QueryWrapper<T>(q)).Container ?? q);
+                /*boolQuery.Should(q => query(new QueryWrapper<T>(q, QueryStrictness.Should)).Container ?? q);
+                boolQuery.Filter(q => query(new QueryWrapper<T>(q, QueryStrictness.Filter)).Container ?? q);*/
 
                 return boolQuery;
             });
@@ -51,7 +50,10 @@ namespace Nanoka.Database
             if (!query.IsSpecified)
                 return wrapper;
 
-            wrapper.Container &= createContainer(wrapper.Descriptor);
+            if (wrapper.Container == null)
+                wrapper.Container = createContainer(wrapper.Descriptor);
+            else
+                wrapper.Container &= createContainer(wrapper.Descriptor);
 
             return wrapper;
         }
