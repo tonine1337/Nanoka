@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Nanoka.Models
@@ -13,6 +15,12 @@ namespace Nanoka.Models
 
         [JsonIgnore]
         public bool IsSpecified => Values != null && Values.Length != 0;
+
+        public FilterQuery<T2> Project<T2>(Func<T, T2> projection) => new FilterQuery<T2>
+        {
+            Values = Values.Select(projection).ToArray(),
+            Mode   = Mode
+        };
 
         public static implicit operator FilterQuery<T>(T value)
             => new FilterQuery<T> { Values = new[] { value } };
