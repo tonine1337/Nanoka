@@ -237,7 +237,7 @@ namespace Nanoka.Database
 
             return searchDesc.Sort(s =>
             {
-                var set = new HashSet<int>();
+                var set = new HashSet<TAttribute>();
 
                 foreach (var attr1 in attributes)
                 {
@@ -254,12 +254,12 @@ namespace Nanoka.Database
                     }
 
                     // ensure not sorting by one field multiple times
-                    if (!set.Add(attrValue))
+                    if (!set.Add(attr))
                         continue;
 
                     var expr = path(attr);
 
-                    if (expr == null)
+                    if (attrValue != 0 && expr == null)
                         continue;
 
                     s = s.Field(f =>
