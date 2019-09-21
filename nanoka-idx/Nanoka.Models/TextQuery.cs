@@ -4,10 +4,13 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
-    public struct TextQuery
+    public struct TextQuery : ISearchQuery
     {
         [JsonProperty("value")]
         public string[] Values { get; set; }
+
+        [JsonProperty("mode")]
+        public QueryMatchMode Mode { get; set; }
 
         [JsonIgnore]
         public bool IsSpecified => Values != null && Values.Any(v => !string.IsNullOrEmpty(v));

@@ -5,8 +5,7 @@ namespace Nanoka.Models
     /// <remarks>
     /// Ranges are inclusive by default.
     /// </remarks>
-    public struct RangeQuery<T>
-        where T : struct
+    public struct RangeQuery<T> : ISearchQuery where T : struct
     {
         [JsonProperty("min")]
         public T? Minimum { get; set; }
