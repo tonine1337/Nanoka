@@ -8,6 +8,9 @@ using Nanoka.Models;
 
 namespace Nanoka
 {
+    /// <summary>
+    /// Use <see cref="UploadTask{T}"/> instead.
+    /// </summary>
     public abstract class UploadTask : IDisposable
     {
         public readonly string Id = Snowflake.New;
