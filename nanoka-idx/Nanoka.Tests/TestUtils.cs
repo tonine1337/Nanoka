@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Nanoka.Tests
 {
@@ -21,7 +22,8 @@ namespace Nanoka.Tests
 
             var environment = new HostingEnvironment();
 
-            services.AddSingleton<IHostingEnvironment>(environment);
+            services.AddSingleton<IHostingEnvironment>(environment)
+                    .AddLogging(logging => logging.AddConsole());
 
             new Startup(configuration, environment).ConfigureServices(services);
 
