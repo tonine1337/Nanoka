@@ -9,16 +9,16 @@ namespace Nanoka.Models
         /// <summary>
         /// image/jpeg
         /// </summary>
-        [EnumMember(Value = "jpeg")] Jpeg,
+        [EnumMember(Value = "jpeg")] Jpeg = 1,
 
         /// <summary>
         /// image/png
         /// </summary>
-        [EnumMember(Value = "png")] Png,
+        [EnumMember(Value = "png")] Png = 2,
 
         /// <summary>
         /// image/gif
         /// </summary>
-        [EnumMember(Value = "gif")] Gif
+        [EnumMember(Value = "gif")] Gif = 3
     }
 }
