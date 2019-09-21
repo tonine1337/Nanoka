@@ -54,27 +54,32 @@ namespace Nanoka.Database
         {
             _logger.LogDebug("Migrating indexes...");
 
-            await CreateIndexAsync<DbBook>(cancellationToken);
-            await CreateIndexAsync<DbImage>(cancellationToken);
-            await CreateIndexAsync<DbSnapshot>(cancellationToken);
+            // migrate indexes parallel
+            await Task.WhenAll(
+                CreateIndexAsync<DbBook>(cancellationToken),
+                CreateIndexAsync<DbImage>(cancellationToken),
+                CreateIndexAsync<DbSnapshot>(cancellationToken),
+                CreateIndexAsync<DbVote>(cancellationToken),
+                CreateIndexAsync<DbDeleteFile>(cancellationToken),
+                createUserIndexAsync());
 
-            if (await CreateIndexAsync<DbUser>(cancellationToken))
+            async Task createUserIndexAsync()
             {
-                // create admin user
-                var user = new User
+                if (await CreateIndexAsync<DbUser>(cancellationToken))
                 {
-                    Username    = _defaultAdminUsername,
-                    Secret      = _hash.Hash(_defaultAdminPassword),
-                    Permissions = UserPermissions.Administrator
-                };
+                    // create admin user
+                    var user = new User
+                    {
+                        Username    = _defaultAdminUsername,
+                        Secret      = _hash.Hash(_defaultAdminPassword),
+                        Permissions = UserPermissions.Administrator
+                    };
 
-                await UpdateUserAsync(user, cancellationToken);
+                    await UpdateUserAsync(user, cancellationToken);
 
-                _logger.LogWarning($"Administrator user created. USERNAME:{_defaultAdminUsername} --- PASSWORD:{_defaultAdminPassword}");
+                    _logger.LogWarning($"Administrator user created. USERNAME:{_defaultAdminUsername} --- PASSWORD:{_defaultAdminPassword}");
+                }
             }
-
-            await CreateIndexAsync<DbVote>(cancellationToken);
-            await CreateIndexAsync<DbDeleteFile>(cancellationToken);
         }
 
         readonly Dictionary<Type, string> _indexNames;
