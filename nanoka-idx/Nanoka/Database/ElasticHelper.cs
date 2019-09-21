@@ -69,7 +69,7 @@ namespace Nanoka.Database
                     {
                         /*switch (query.Mode)
                         {
-                            case TextQueryMode.Simple:*/
+                            default:*/
 
                         var c = descriptor.SimpleQueryString(q =>
                         {
@@ -99,8 +99,6 @@ namespace Nanoka.Database
                                                                  .Query(value));
 
                                 break;
-
-                            default: throw new NotSupportedException();
                         }*/
 
                         if (container == null)
@@ -108,14 +106,12 @@ namespace Nanoka.Database
                         else
                             switch (query.Mode)
                             {
-                                case QueryMatchMode.All:
+                                default:
                                     container &= c;
                                     break;
                                 case QueryMatchMode.Any:
                                     container |= c;
                                     break;
-
-                                default: throw new NotSupportedException();
                             }
                     }
 
@@ -140,14 +136,12 @@ namespace Nanoka.Database
                         else
                             switch (query.Mode)
                             {
-                                case QueryMatchMode.All:
+                                default:
                                     container &= c;
                                     break;
                                 case QueryMatchMode.Any:
                                     container |= c;
                                     break;
-
-                                default: throw new NotSupportedException();
                             }
                     }
 
@@ -226,7 +220,7 @@ namespace Nanoka.Database
 
                             break;
 
-                        default: throw new NotSupportedException();
+                        default: throw new NotSupportedException($"Unsupported range query type: {query.GetType()}");
                     }
 
                     return container;
