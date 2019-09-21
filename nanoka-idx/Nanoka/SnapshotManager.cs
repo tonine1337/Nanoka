@@ -33,7 +33,7 @@ namespace Nanoka
                 EntityType  = value.Type,
                 EntityId    = value.Id,
                 Event       = SnapshotEvent.Creation,
-                Reason      = reason ?? _claims.Reason,
+                Reason      = reason ?? _claims.GetReason(),
                 Value       = value
             };
 
@@ -55,7 +55,7 @@ namespace Nanoka
                 EntityType  = value.Type,
                 EntityId    = value.Id,
                 Event       = SnapshotEvent.Modification,
-                Reason      = reason ?? _claims.Reason,
+                Reason      = reason ?? _claims.GetReason(),
                 Value       = value
             };
 
@@ -77,7 +77,7 @@ namespace Nanoka
                 EntityType  = value.Type,
                 EntityId    = value.Id,
                 Event       = SnapshotEvent.Deletion,
-                Reason      = reason ?? _claims.Reason
+                Reason      = reason ?? _claims.GetReason()
             };
 
             await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
@@ -99,7 +99,7 @@ namespace Nanoka
                 EntityType  = targetRollback.EntityType,
                 EntityId    = targetRollback.EntityId,
                 Event       = SnapshotEvent.Rollback,
-                Reason      = reason ?? _claims.Reason,
+                Reason      = reason ?? _claims.GetReason(),
                 Value       = targetRollback.Value
             };
 

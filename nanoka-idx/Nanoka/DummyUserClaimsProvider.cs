@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Nanoka.Models;
 
 namespace Nanoka
@@ -8,6 +9,7 @@ namespace Nanoka
         public UserPermissions Permissions { get; set; }
         public double Reputation { get; set; }
         public bool IsRestricted { get; set; }
-        public string Reason { get; set; }
+
+        public IReadOnlyDictionary<string, string> QueryParams { get; set; }
     }
 }

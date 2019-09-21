@@ -170,7 +170,7 @@ namespace Nanoka
                     Start       = time,
                     End         = time + duration,
                     ModeratorId = id,
-                    Reason      = _claims.Reason
+                    Reason      = _claims.GetReason()
                 };
 
                 user.Restrictions = (user.Restrictions ?? new UserRestriction[0]).Append(restriction).ToArray();

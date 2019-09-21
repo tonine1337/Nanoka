@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Nanoka.Models;
 
 namespace Nanoka
@@ -9,7 +10,7 @@ namespace Nanoka
         double Reputation { get; }
         bool IsRestricted { get; }
 
-        string Reason { get; }
+        IReadOnlyDictionary<string, string> QueryParams { get; }
     }
 
     public static class UserClaimsExtensions
@@ -22,5 +23,7 @@ namespace Nanoka
 
         public static bool HasAnyPermission(this IUserClaims claims, UserPermissions requiredAny)
             => claims.IsAdministrator() || (claims.Permissions & requiredAny) != 0;
+
+        public static string GetReason(this IUserClaims claims) => claims.QueryParams.GetValueOrDefault("reason");
     }
 }

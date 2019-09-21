@@ -85,7 +85,9 @@ namespace Nanoka
                 }
 
                 // require reason for potentially damaging actions
-                if (_reason && (string.IsNullOrEmpty(claims.Reason) || claims.Reason.Length <= 3))
+                var reason = claims.GetReason();
+
+                if (_reason && (string.IsNullOrEmpty(reason) || reason.Length <= 3))
                 {
                     context.Result = Result.BadRequest("Valid reason must be provided for this action.");
                     return;
