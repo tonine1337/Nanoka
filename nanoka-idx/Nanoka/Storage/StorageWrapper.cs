@@ -37,8 +37,8 @@ namespace Nanoka.Storage
         public virtual Task InitializeAsync(CancellationToken cancellationToken = default) => Implementation.InitializeAsync(cancellationToken);
         public virtual Task<StorageFile> ReadAsync(string name, CancellationToken cancellationToken = default) => Implementation.ReadAsync(name, cancellationToken);
         public virtual Task<bool> WriteAsync(StorageFile file, CancellationToken cancellationToken = default) => Implementation.WriteAsync(file, cancellationToken);
-        public virtual Task<bool> DeleteAsync(string name, CancellationToken cancellationToken = default) => Implementation.DeleteAsync(name, cancellationToken);
-        public virtual Task UndeleteAsync(string name, CancellationToken cancellationToken = default) => (Implementation as ISupportsUndelete)?.UndeleteAsync(name, cancellationToken) ?? Task.CompletedTask;
+        public virtual Task DeleteAsync(string[] names, CancellationToken cancellationToken = default) => Implementation.DeleteAsync(names, cancellationToken);
+        public virtual Task UndeleteAsync(string[] names, CancellationToken cancellationToken = default) => (Implementation as ISupportsUndelete)?.UndeleteAsync(names, cancellationToken) ?? Task.CompletedTask;
 
         public virtual void Dispose() => Implementation.Dispose();
     }

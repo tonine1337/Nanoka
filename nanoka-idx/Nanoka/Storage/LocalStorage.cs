@@ -172,9 +172,22 @@ namespace Nanoka.Storage
             }
         }
 
-        public async Task<bool> DeleteAsync(string name, CancellationToken cancellationToken = default)
+        public async Task DeleteAsync(string[] names, CancellationToken cancellationToken = default)
         {
             await _semaphore.WaitAsync(cancellationToken);
+            try
+            {
+                foreach (var name in names)
+                    DeleteInternal(name);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        bool DeleteInternal(string name)
+        {
             try
             {
                 var entryPath = GetEntryPath(name);
@@ -194,10 +207,6 @@ namespace Nanoka.Storage
             {
                 _logger.LogWarning($"Failed to delete file '{name}'.", e);
                 return false;
-            }
-            finally
-            {
-                _semaphore.Release();
             }
         }
 

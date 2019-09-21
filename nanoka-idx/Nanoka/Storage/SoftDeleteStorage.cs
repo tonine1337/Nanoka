@@ -27,21 +27,19 @@ namespace Nanoka.Storage
             Task.Run(() => _deleter.StartAsync(default));
         }
 
-        public override async Task<bool> DeleteAsync(string name, CancellationToken cancellationToken = default)
+        public override async Task DeleteAsync(string[] names, CancellationToken cancellationToken = default)
         {
-            await _db.AddDeleteFilesAsync(new[] { name }, DateTime.UtcNow, cancellationToken);
+            await _db.AddDeleteFilesAsync(names, DateTime.UtcNow, cancellationToken);
 
-            _logger.LogInformation($"Soft deleted files: {string.Join(", ", name)}");
-
-            return true;
+            _logger.LogInformation($"Soft deleted files: {string.Join(", ", names)}");
         }
 
-        public override async Task UndeleteAsync(string name, CancellationToken cancellationToken = default)
+        public override async Task UndeleteAsync(string[] names, CancellationToken cancellationToken = default)
         {
             // this won't do much if the file was already hard-deleted
-            await _db.RemoveDeleteFileAsync(new[] { name }, cancellationToken);
+            await _db.RemoveDeleteFileAsync(names, cancellationToken);
 
-            _logger.LogInformation($"Restored soft deleted files: {string.Join(", ", name)}");
+            _logger.LogInformation($"Restored soft deleted files: {string.Join(", ", names)}");
         }
 
         public override void Dispose()
@@ -68,8 +66,7 @@ namespace Nanoka.Storage
 
                     if (filenames.Length != 0)
                     {
-                        foreach (var filename in filenames)
-                            await _s.Implementation.DeleteAsync(filename, stoppingToken);
+                        await _s.Implementation.DeleteAsync(filenames, stoppingToken);
 
                         _s._logger.LogInformation($"Hard deleted files: {string.Join(", ", filenames)}");
                     }

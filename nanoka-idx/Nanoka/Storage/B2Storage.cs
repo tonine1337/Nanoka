@@ -100,7 +100,10 @@ namespace Nanoka.Storage
             }
         }
 
-        public async Task<bool> DeleteAsync(string name, CancellationToken cancellationToken = default)
+        public Task DeleteAsync(string[] names, CancellationToken cancellationToken = default)
+            => Task.WhenAll(names.Select(n => DeleteAsyncInternal(n, cancellationToken)));
+
+        async Task<bool> DeleteAsyncInternal(string name, CancellationToken cancellationToken = default)
         {
             try
             {
