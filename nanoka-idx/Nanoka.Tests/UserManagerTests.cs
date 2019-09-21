@@ -25,6 +25,17 @@ namespace Nanoka.Tests
                 var user = await users.CreateAsync("testUser672", "securePassword1234");
 
                 Assert.That(user, Is.Not.Null);
+
+                var id = user.Id;
+
+                user = await users.TryAuthenticateAsync("testUser672", "securePassword1234");
+
+                Assert.That(id, Is.EqualTo(user.Id));
+
+                user = await users.GetAsync(id);
+
+                Assert.That(id, Is.EqualTo(user.Id));
+
                 Assert.That(user.Username, Is.EqualTo("testUser672"));
                 Assert.That(user.Secret, Is.Null);
                 Assert.That(user.Permissions, Is.EqualTo(UserPermissions.None));
@@ -32,12 +43,14 @@ namespace Nanoka.Tests
                 Assert.That(user.Restrictions, Is.Null.Or.Empty);
                 Assert.That(user.Reputation, Is.Zero);
 
-                Assert.That(user.Id, Is.EqualTo((await users.TryAuthenticateAsync("testUser672", "securePassword1234")).Id));
-                Assert.That(user.Id, Is.EqualTo((await users.GetAsync(user.Id)).Id));
-
                 var snapshots = await users.GetSnapshotsAsync(user.Id);
+
                 Assert.That(snapshots, Has.One.Items);
                 Assert.That(snapshots[0].Event, Is.EqualTo(SnapshotEvent.Creation));
+                Assert.That(snapshots[0].EntityType, Is.EqualTo(NanokaEntity.User));
+                Assert.That(snapshots[0].EntityId, Is.EqualTo(user.Id));
+                Assert.That(snapshots[0].Value, Is.Not.Null);
+                Assert.That(snapshots[0].Value.Id, Is.EqualTo(user.Id));
 
                 //todo: user update test
             }
