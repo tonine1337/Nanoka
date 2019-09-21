@@ -87,6 +87,7 @@ namespace Nanoka.Tests
                 Assert.That(book.Tags[BookTag.Artist], Has.Exactly(2).Items);
                 Assert.That(book.Tags[BookTag.Artist][1], Is.EqualTo("artist 2"));
                 Assert.That(book.Contents, Has.Exactly(1).Items);
+                Assert.That(book.Contents, Contains.Item(content));
 
                 Assert.That(content.PageCount, Is.EqualTo(1));
                 Assert.That(content.Language, Is.EqualTo(LanguageType.English));
@@ -94,6 +95,37 @@ namespace Nanoka.Tests
                 Assert.That(content.Sources, Is.Not.Null.Or.Empty);
                 Assert.That(content.Sources, Has.Exactly(1).Items);
                 Assert.That(content.Sources[0].Website, Is.EqualTo("google.com"));
+
+                Book        book2;
+                BookContent content2;
+
+                var contentModel2 = new BookContentBase
+                {
+                    Language = LanguageType.ChineseSimplified,
+                    IsColor  = true
+                };
+
+                using (var task = new UploadTask<object>(null))
+                {
+                    using (var memory = new MemoryStream())
+                    {
+                        await task.AddFileAsync("1.jpg", memory, "image/jpeg");
+                        await task.AddFileAsync("2.jpg", memory, "image/jpeg");
+                        await task.AddFileAsync("3.png", memory, "image/png");
+                    }
+
+                    (book2, content2) = await books.AddContentAsync(book.Id, contentModel2, task);
+                }
+
+                Assert.That(book2, Is.Not.Null);
+                Assert.That(book2.Id, Is.EqualTo(book.Id));
+                Assert.That(book2.Name, Is.EqualTo(book.Name));
+                Assert.That(book2.Contents.Length, Is.Not.EqualTo(book.Contents.Length));
+                Assert.That(book2.Contents, Contains.Item(content2));
+
+                Assert.That(book2.Contents[0].PageCount, Is.EqualTo(1));
+                Assert.That(book2.Contents[1].PageCount, Is.EqualTo(3));
+                Assert.That(book2.Contents[1].IsColor, Is.True);
             }
         }
 
