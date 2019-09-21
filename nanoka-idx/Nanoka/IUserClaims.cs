@@ -25,5 +25,14 @@ namespace Nanoka
             => claims.IsAdministrator() || (claims.Permissions & requiredAny) != 0;
 
         public static string GetReason(this IUserClaims claims) => claims.QueryParams.GetValueOrDefault("reason");
+
+        public static (int start, int end)? GetRange(this IUserClaims claims)
+        {
+            if (int.TryParse(claims.QueryParams.GetValueOrDefault("start"), out var start) &&
+                int.TryParse(claims.QueryParams.GetValueOrDefault("end"), out var end))
+                return (start, end);
+
+            return null;
+        }
     }
 }

@@ -176,7 +176,7 @@ namespace Nanoka.Database
                 : null;
         }
 
-        public async Task<Snapshot<T>[]> GetSnapshotsAsync<T>(string entityId, CancellationToken cancellationToken = default)
+        public async Task<Snapshot<T>[]> GetSnapshotsAsync<T>(string entityId, int start, int count, bool chronological, CancellationToken cancellationToken = default)
         {
             var result = await SearchAsync<DbSnapshot>(
                 (0, 256),
@@ -184,7 +184,11 @@ namespace Nanoka.Database
                                                                            .Value(Enum.Parse<NanokaEntity>(typeof(T).Name))),
                                                          f => f.Term(t => t.Field(s => s.EntityId)
                                                                            .Value(entityId)))))
-                      .Sort(ss => ss.Descending(s => s.Time)),
+                      .Sort(ss => chronological
+                                ? ss.Ascending(s => s.Time)
+                                : ss.Descending(s => s.Time))
+                      .Skip(Math.Max(start, 0))
+                      .Take(Math.Max(count, 0)),
                 cancellationToken);
 
             return result.Items.ToArray(s => s.ToSnapshot<T>(_serializer));

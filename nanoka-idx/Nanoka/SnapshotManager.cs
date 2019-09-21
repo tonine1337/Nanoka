@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -110,9 +111,15 @@ namespace Nanoka
             return snapshot;
         }
 
+        const int _snapshotMaxReturn = 20;
+
         public async Task<Snapshot<T>[]> GetAsync<T>(string entityId, CancellationToken cancellationToken = default)
         {
-            var snapshots = await _db.GetSnapshotsAsync<T>(entityId, cancellationToken);
+            var (start, end) = _claims.GetRange() ?? (0, _snapshotMaxReturn);
+            var count   = Math.Clamp(end - start, 0, _snapshotMaxReturn);
+            var reverse = bool.TryParse(_claims.QueryParams.GetValueOrDefault("reverse"), out var r) && r;
+
+            var snapshots = await _db.GetSnapshotsAsync<T>(entityId, start, count, reverse, cancellationToken);
 
             if (snapshots.Length == 0)
                 throw Result.NotFound<T>(entityId).Exception;
