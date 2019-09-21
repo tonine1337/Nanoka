@@ -166,8 +166,9 @@ namespace Nanoka.Database
                            q.Text(query.Name, b => b.Name)
                             .Range(query.Score, b => b.Score);
 
-                           foreach (var (k, v)in query.Tags)
-                               q.Text(v, GetBookTagsPath(k));
+                           if (query.Tags != null)
+                               foreach (var (k, v) in query.Tags)
+                                   q.Text(v, GetBookTagsPath(k));
 
                            q.Filter(query.Category, b => b.Category)
                             .Filter(query.Rating, b => b.Rating)
