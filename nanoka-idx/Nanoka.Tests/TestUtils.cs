@@ -38,7 +38,7 @@ namespace Nanoka.Tests
                 { "Storage:Type", "Memory" },
 
                 // use a random prefix to avoid clashing between tests
-                { "Elastic:IndexPrefix", $"nanoka-test-{Extensions.RandomString(10)}-" }
+                { "Elastic:IndexPrefix", $"nanoka-test-{Snowflake.New}-" }
             }
         };
     }
