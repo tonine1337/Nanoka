@@ -16,10 +16,7 @@ namespace Nanoka.Tests
         public async Task CreateAsync()
         {
             using (var services = TestUtils.Services(
-                c => c.Replace(ServiceDescriptor.Scoped<IUserClaims>(_ => new DummyUserClaimsProvider
-                {
-                    Id = ""
-                }))))
+                c => c.Replace(ServiceDescriptor.Scoped<IUserClaims>(_ => new DummyUserClaimsProvider()))))
 
             using (var scope = services.CreateScope())
             {
@@ -58,7 +55,7 @@ namespace Nanoka.Tests
                 Book        book;
                 BookContent content;
 
-                using (var task = new UploadTask<object>(null))
+                using (var task = new UploadTask())
                 {
                     using (var memory = new MemoryStream())
                         await task.AddFileAsync("1.jpg", memory, "image/jpeg");
@@ -105,7 +102,7 @@ namespace Nanoka.Tests
                     IsColor  = true
                 };
 
-                using (var task = new UploadTask<object>(null))
+                using (var task = new UploadTask())
                 {
                     using (var memory = new MemoryStream())
                     {
@@ -150,7 +147,7 @@ namespace Nanoka.Tests
 
                 Book book;
 
-                using (var task = new UploadTask<object>(null))
+                using (var task = new UploadTask())
                     book = await books.CreateAsync(new BookBase { Name = new[] { "name" } }, new BookContentBase(), task);
 
                 var snapshots = await books.GetSnapshotsAsync(book.Id);
@@ -215,6 +212,105 @@ namespace Nanoka.Tests
 
                 Assert.That(revertedBook, Is.Null);
                 Assert.That(Assert.ThrowsAsync<ResultException>(() => books.GetAsync(book.Id)).Result.Status, Is.EqualTo(404));
+            }
+        }
+
+        [Test]
+        public async Task SearchAsync()
+        {
+            using (var services = TestUtils.Services(
+                c => c.Replace(ServiceDescriptor.Scoped<IUserClaims>(_ => new DummyUserClaimsProvider()))))
+
+            using (var scope = services.CreateScope())
+            {
+                await services.GetService<INanokaDatabase>().MigrateAsync();
+
+                var books = scope.ServiceProvider.GetService<BookManager>();
+
+                // sample data
+                using (var task = new UploadTask())
+                    await books.CreateAsync(new BookBase { Name = new[] { "name 1" }, Category = BookCategory.Doujinshi, Rating = MaterialRating.Safe }, new BookContentBase { Language = LanguageType.English, IsColor = true }, task);
+
+                using (var task = new UploadTask())
+                {
+                    using (var memory = new MemoryStream())
+                    {
+                        await task.AddFileAsync("1.jpg", memory, "image/jpeg");
+                        await task.AddFileAsync("2.jpg", memory, "image/jpeg");
+                    }
+
+                    await books.CreateAsync(new BookBase { Name = new[] { "name 2" }, Category = BookCategory.Manga, Rating = MaterialRating.Questionable }, new BookContentBase { Language = LanguageType.Japanese, IsColor = false }, task);
+                }
+
+                using (var task = new UploadTask())
+                {
+                    using (var memory = new MemoryStream())
+                        await task.AddFileAsync("1.jpg", memory, "image/jpeg");
+
+                    await books.CreateAsync(new BookBase { Name = new[] { "name 3" }, Category = BookCategory.Manga, Rating = MaterialRating.Explicit }, new BookContentBase { Language = LanguageType.French, IsColor = false }, task);
+                }
+
+                //1
+                var results = await books.SearchAsync(new BookQuery().WithName("name")
+                                                                     .WithRange(0, 3));
+
+                Assert.That(results.Items, Has.Exactly(3).Items);
+
+                //2
+                results = await books.SearchAsync(new BookQuery().WithSorting(s => s.Ascending(BookSort.PageCount))
+                                                                 .WithRange(0, 3));
+
+                Assert.That(results.Items, Has.Exactly(3).Items);
+                Assert.That(results.Items[0].Name[0], Is.EqualTo("name 1"));
+                Assert.That(results.Items[1].Name[0], Is.EqualTo("name 3"));
+                Assert.That(results.Items[2].Name[0], Is.EqualTo("name 2"));
+
+                //3
+                results = await books.SearchAsync(new BookQuery().WithSorting(s => s.Descending(BookSort.PageCount))
+                                                                 .WithRange(0, 3));
+
+                Assert.That(results.Items, Has.Exactly(3).Items);
+                Assert.That(results.Items[0].Name[0], Is.EqualTo("name 2"));
+                Assert.That(results.Items[1].Name[0], Is.EqualTo("name 3"));
+                Assert.That(results.Items[2].Name[0], Is.EqualTo("name 1"));
+
+                //4
+                results = await books.SearchAsync(new BookQuery().WithSorting(s => s.Ascending(BookSort.PageCount))
+                                                                 .WithCategory(BookCategory.Manga)
+                                                                 .WithRange(0, 3));
+
+                Assert.That(results.Items, Has.Exactly(2).Items);
+                Assert.That(results.Items[0].Name[0], Is.EqualTo("name 3"));
+                Assert.That(results.Items[1].Name[0], Is.EqualTo("name 2"));
+
+                //5
+                results = await books.SearchAsync(new BookQuery().WithSorting(s => s.Ascending(BookSort.PageCount))
+                                                                 .WithRating((MaterialRating.Explicit, MaterialRating.Safe))
+                                                                 .WithRange(0, 3));
+
+                Assert.That(results.Items, Has.Exactly(2).Items);
+                Assert.That(results.Items[0].Name[0], Is.EqualTo("name 1"));
+                Assert.That(results.Items[1].Name[0], Is.EqualTo("name 3"));
+
+                //6
+                results = await books.SearchAsync(new BookQuery().WithLanguage(LanguageType.Japanese)
+                                                                 .WithRange(0, 3));
+
+                Assert.That(results.Items, Has.Exactly(1).Items);
+                Assert.That(results.Items[0].Name[0], Is.EqualTo("name 2"));
+
+                //7
+                results = await books.SearchAsync(new BookQuery().WithLanguage(LanguageType.Japanese)
+                                                                 .WithRange(0, 0));
+
+                Assert.That(results.Items, Has.Exactly(0).Items);
+
+                //8
+                results = await books.SearchAsync(new BookQuery().WithIsColor(true)
+                                                                 .WithRange(0, 3));
+
+                Assert.That(results.Items, Has.Exactly(1).Items);
+                Assert.That(results.Items[0].Name[0], Is.EqualTo("name 1"));
             }
         }
     }
