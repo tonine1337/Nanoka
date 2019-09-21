@@ -13,7 +13,9 @@ namespace Nanoka.Tests
         [Test]
         public async Task CreateAsync()
         {
-            using (var services = TestUtils.Services(c => c.Replace(ServiceDescriptor.Scoped<IUserClaims>(_ => new DummyUserClaimsProvider()))))
+            using (var services = TestUtils.Services(
+                c => c.Replace(ServiceDescriptor.Scoped<IUserClaims>(_ => new DummyUserClaimsProvider()))))
+
             using (var scope = services.CreateScope())
             {
                 await services.GetService<INanokaDatabase>().MigrateAsync();
