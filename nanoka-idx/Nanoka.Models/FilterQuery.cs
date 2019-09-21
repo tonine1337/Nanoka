@@ -18,7 +18,7 @@ namespace Nanoka.Models
 
         public FilterQuery<T2> Project<T2>(Func<T, T2> projection) => new FilterQuery<T2>
         {
-            Values = Values.Select(projection).ToArray(),
+            Values = Values?.Select(projection).ToArray(),
             Mode   = Mode
         };
 
