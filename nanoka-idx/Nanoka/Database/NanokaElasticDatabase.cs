@@ -297,17 +297,9 @@ namespace Nanoka.Database
                     Took         = response.Took,
                     TookAccurate = measure.Milliseconds,
                     Total        = response.Total,
-                    Items        = response.Documents
+                    Items        = response.Documents.ToList()
                 };
             }
-        }
-
-        sealed class SearchResult<TDocument>
-        {
-            public long Took;
-            public double TookAccurate;
-            public long Total;
-            public IReadOnlyCollection<TDocument> Items;
         }
 
         async Task<string> IndexAsync<TDocument>(TDocument doc, CancellationToken cancellationToken)
