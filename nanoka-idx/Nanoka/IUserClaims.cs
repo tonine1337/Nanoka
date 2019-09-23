@@ -7,6 +7,7 @@ namespace Nanoka
     {
         string Id { get; }
         UserPermissions Permissions { get; }
+        int Version { get; }
         double Reputation { get; }
         bool IsRestricted { get; }
 

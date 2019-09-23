@@ -8,6 +8,7 @@ namespace Nanoka
     {
         public string Id { get; set; }
         public UserPermissions Permissions { get; set; }
+        public int Version { get; set; }
         public double Reputation { get; set; }
         public bool IsRestricted { get; set; }
 
