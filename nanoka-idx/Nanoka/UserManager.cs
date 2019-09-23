@@ -18,10 +18,11 @@ namespace Nanoka
         readonly ILocker _locker;
         readonly PasswordHashHelper _hash;
         readonly SnapshotManager _snapshot;
+        readonly TokenManager _token;
         readonly IUserClaims _claims;
 
         public UserManager(IOptions<NanokaOptions> options, INanokaDatabase db, ILocker locker, IMapper mapper,
-                           PasswordHashHelper hash, SnapshotManager snapshot, IUserClaims claims)
+                           PasswordHashHelper hash, SnapshotManager snapshot, TokenManager token, IUserClaims claims)
         {
             _options  = options.Value;
             _db       = db;
@@ -29,11 +30,15 @@ namespace Nanoka
             _locker   = locker;
             _hash     = hash;
             _snapshot = snapshot;
+            _token    = token;
             _claims   = claims;
         }
 
         User EraseConfidential(User user)
         {
+            if (user == null)
+                return null;
+
             // never return secret
             user.Secret = null;
 
@@ -141,6 +146,7 @@ namespace Nanoka
                 }
 
                 await _snapshot.RevertedAsync(snapshot, cancellationToken);
+                await _token.InvalidateAsync(id, cancellationToken);
 
                 return EraseConfidential(user);
             }
@@ -148,8 +154,8 @@ namespace Nanoka
 
         public async Task<UserRestriction> AddRestrictionAsync(string id, TimeSpan duration, CancellationToken cancellationToken = default)
         {
-            if (duration <= TimeSpan.Zero)
-                throw Result.BadRequest($"Invalid restriction duration '{duration}'. Duration must be larger than zero.").Exception;
+            if (duration < TimeSpan.FromMinutes(10))
+                throw Result.BadRequest($"Invalid restriction duration '{duration}'. Duration must be at least 10 minutes.").Exception;
 
             EnsureUserUpdatable(id);
 
@@ -169,7 +175,7 @@ namespace Nanoka
                 {
                     Start       = time,
                     End         = time + duration,
-                    ModeratorId = id,
+                    ModeratorId = _claims.Id,
                     Reason      = _claims.GetReason()
                 };
 
@@ -177,6 +183,7 @@ namespace Nanoka
 
                 await _db.UpdateUserAsync(user, cancellationToken);
                 await _snapshot.ModifiedAsync(user, cancellationToken);
+                await _token.InvalidateAsync(user.Id, cancellationToken);
 
                 return restriction;
             }
@@ -223,6 +230,7 @@ namespace Nanoka
 
                         await _db.UpdateUserAsync(user, cancellationToken);
                         await _snapshot.ModifiedAsync(user, cancellationToken);
+                        await _token.InvalidateAsync(user.Id, cancellationToken);
                     }
                 }
 

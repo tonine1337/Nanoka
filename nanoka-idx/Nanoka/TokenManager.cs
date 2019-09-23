@@ -30,7 +30,7 @@ namespace Nanoka
         /// </summary>
         async Task<int> GetUserVersionAsync(string userId, CancellationToken cancellationToken = default)
         {
-            var buffer = await _cache.GetAsync($"user:{userId}:version", cancellationToken);
+            var buffer = await _cache.GetAsync(GetVersionKey(userId), cancellationToken);
 
             return buffer == null
                 ? 0
@@ -66,5 +66,18 @@ namespace Nanoka
 
             return _claims.Version == await GetUserVersionAsync(_claims.Id, cancellationToken);
         }
+
+        public async Task InvalidateAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            if (_claims.Id == null)
+                return;
+
+            // increment version to invalidate all tokens generated using the previous version
+            var buffer = BitConverter.GetBytes(_claims.Version + 1);
+
+            await _cache.SetAsync(GetVersionKey(userId), buffer, cancellationToken);
+        }
+
+        static string GetVersionKey(string userId) => $"user:{userId}:version";
     }
 }
