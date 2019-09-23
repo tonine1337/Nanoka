@@ -20,7 +20,7 @@ namespace Nanoka
 
             Id           = context.User.FindFirst("sub")?.Value;
             Permissions  = int.TryParse(context.User.FindFirst("role")?.Value, out var b) ? (UserPermissions) b : UserPermissions.None;
-            Version      = int.TryParse(context.User.FindFirst("ver")?.Value, out var c) ? c : 0;
+            Version      = int.TryParse(context.User.FindFirst("jti")?.Value, out var c) ? c : 0;
             Reputation   = double.TryParse(context.User.FindFirst("rep")?.Value, out var d) ? d : 0;
             IsRestricted = bool.TryParse(context.User.FindFirst("rest")?.Value, out var e) && e;
 
