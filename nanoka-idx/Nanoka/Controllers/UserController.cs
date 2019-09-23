@@ -37,7 +37,8 @@ namespace Nanoka.Controllers
             if (user == null)
                 return Result.StatusCode(HttpStatusCode.Unauthorized, $"Invalid login for user {request.Username}.");
 
-            var expiry  = DateTime.UtcNow.AddMinutes(30);
+            // access token can live extremely long since we have a blacklist
+            var expiry  = DateTime.UtcNow.AddMonths(1);
             var handler = new JwtSecurityTokenHandler();
 
             return new AuthenticationResponse
