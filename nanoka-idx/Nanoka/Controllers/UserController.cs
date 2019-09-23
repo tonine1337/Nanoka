@@ -31,12 +31,12 @@ namespace Nanoka.Controllers
             if (user == null)
                 return Result.StatusCode(HttpStatusCode.Unauthorized, $"Invalid login for user {request.Username}.");
 
-            // access token can live extremely long since we have a blacklist
+            // access token can live extremely long since we have an on-demand invalidation mechanism
             var expiry = DateTime.UtcNow.AddMonths(1);
 
             return new AuthenticationResponse
             {
-                AccessToken = _tokenManager.GenerateAccessToken(user, expiry),
+                AccessToken = await _tokenManager.GenerateTokenAsync(user, expiry),
                 User        = user,
                 Expiry      = expiry
             };

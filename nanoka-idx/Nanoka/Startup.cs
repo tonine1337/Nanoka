@@ -61,11 +61,13 @@ namespace Nanoka
             services.AddSingleton<INanokaDatabase, NanokaElasticDatabase>()
                     .AddScoped<SnapshotManager>()
                     .AddScoped<UserManager>()
+                    .AddScoped<TokenManager>()
                     .AddScoped<BookManager>()
                     .AddScoped<VoteManager>();
 
             // storage
-            services.AddSingleton<IStorage>(s => new StorageWrapper(s, _configuration.GetSection("Storage")));
+            services.AddSingleton<IStorage>(s => new StorageWrapper(s, _configuration.GetSection("Storage")))
+                    .AddDistributedMemoryCache();
 
             // uploader
             services.AddScoped<UploadManager>()
@@ -98,6 +100,7 @@ namespace Nanoka
                               .AllowAnyOrigin());
 
             app.UseAuthentication();
+            app.UseMiddleware<TokenValidatingMiddleware>();
             app.UseMvc();
         }
     }

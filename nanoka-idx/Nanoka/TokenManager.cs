@@ -3,10 +3,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Caching.Memory;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Nanoka.Database;
 using Nanoka.Models;
 
 namespace Nanoka
@@ -14,28 +15,39 @@ namespace Nanoka
     public class TokenManager
     {
         readonly NanokaOptions _options;
-        readonly INanokaDatabase _db;
-        readonly UserManager _users;
-        readonly IMemoryCache _cache;
+        readonly IDistributedCache _cache;
+        readonly IUserClaims _claims;
 
-        public TokenManager(IOptions<NanokaOptions> options, INanokaDatabase db, UserManager users, IMemoryCache cache)
+        public TokenManager(IOptions<NanokaOptions> options, IDistributedCache cache, IUserClaims claims)
         {
             _options = options.Value;
-            _db      = db;
-            _users   = users;
             _cache   = cache;
+            _claims  = claims;
         }
 
-        public string GenerateAccessToken(User user, DateTime expiry)
+        /// <summary>
+        /// Versioning is used to invalidate all tokens on demand.
+        /// </summary>
+        async Task<int> GetUserVersionAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            var buffer = await _cache.GetAsync($"user:{userId}:version", cancellationToken);
+
+            return buffer == null
+                ? 0
+                : BitConverter.ToInt32(buffer);
+        }
+
+        public async Task<string> GenerateTokenAsync(User user, DateTime expiry, CancellationToken cancellationToken = default)
         {
             var handler = new JwtSecurityTokenHandler();
 
-            return handler.WriteToken(handler.CreateToken(new SecurityTokenDescriptor
+            return handler.WriteToken(handler.CreateJwtSecurityToken(new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    new Claim(ClaimTypes.Role, ((int) user.Permissions).ToString()),
+                    new Claim("sub", user.Id),
+                    new Claim("role", ((int) user.Permissions).ToString()),
+                    new Claim("jti", (await GetUserVersionAsync(user.Id, cancellationToken)).ToString()),
                     new Claim("rep", user.Reputation.ToString("F")),
                     new Claim("rest", user.Restrictions != null && user.Restrictions.Any(r => DateTime.UtcNow < r.End) ? "1" : "0")
                 }),
@@ -44,6 +56,15 @@ namespace Nanoka
                     new SymmetricSecurityKey(Encoding.Default.GetBytes(_options.Secret)),
                     SecurityAlgorithms.HmacSha256Signature)
             }));
+        }
+
+        public async Task<bool> IsValidAsync(CancellationToken cancellationToken = default)
+        {
+            // anonymous endpoint
+            if (_claims.Id == null)
+                return true;
+
+            return _claims.Version == await GetUserVersionAsync(_claims.Id, cancellationToken);
         }
     }
 }
