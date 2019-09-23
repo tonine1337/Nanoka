@@ -27,6 +27,5 @@ namespace Nanoka
         public int MaxImageUploadCount { get; set; } = 250;
         public int UploadTaskLimitPerUser { get; set; } = 3;
         public double UploadTaskExpiryMs { get; set; } = 1000 * 60 * 10; // 10 minutes
-        public bool EnableSoftDelete { get; set; } = true;
     }
 }
