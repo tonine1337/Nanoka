@@ -1,14 +1,8 @@
 using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Net;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Nanoka.Models;
 using Nanoka.Models.Requests;
 
@@ -19,13 +13,13 @@ namespace Nanoka.Controllers
     [Authorize]
     public class UserController : ControllerBase
     {
-        readonly NanokaOptions _options;
         readonly UserManager _userManager;
+        readonly TokenManager _tokenManager;
 
-        public UserController(IOptions<NanokaOptions> options, UserManager userManager)
+        public UserController(UserManager userManager, TokenManager tokenManager)
         {
-            _options     = options.Value;
-            _userManager = userManager;
+            _userManager  = userManager;
+            _tokenManager = tokenManager;
         }
 
         [HttpPost("auth")]
@@ -37,28 +31,14 @@ namespace Nanoka.Controllers
             if (user == null)
                 return Result.StatusCode(HttpStatusCode.Unauthorized, $"Invalid login for user {request.Username}.");
 
-            var expiry  = DateTime.UtcNow.AddMinutes(30);
-            var handler = new JwtSecurityTokenHandler();
+            // access token can live extremely long since we have an on-demand invalidation mechanism
+            var expiry = DateTime.UtcNow.AddMonths(1);
 
             return new AuthenticationResponse
             {
-                AccessToken = handler.WriteToken(handler.CreateToken(new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(new[]
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, user.Id),
-                        new Claim(ClaimTypes.Role, ((int) user.Permissions).ToString()),
-                        new Claim("rep", user.Reputation.ToString("F")),
-                        new Claim("rest", user.Restrictions != null && user.Restrictions.Any(r => DateTime.UtcNow < r.End) ? "1" : "0")
-                    }),
-                    Expires = expiry,
-                    SigningCredentials = new SigningCredentials(
-                        new SymmetricSecurityKey(Encoding.Default.GetBytes(_options.Secret)),
-                        SecurityAlgorithms.HmacSha256Signature)
-                })),
-
-                User   = user,
-                Expiry = expiry
+                AccessToken = await _tokenManager.GenerateTokenAsync(user, expiry),
+                User        = user,
+                Expiry      = expiry
             };
         }
 
