@@ -4,21 +4,21 @@ using Microsoft.AspNetCore.Http;
 
 namespace Nanoka
 {
-    public class TokenValidatingMiddleware : IMiddleware
+    public class TokenValidatingMiddleware
     {
-        readonly TokenManager _tokens;
+        readonly RequestDelegate _next;
 
-        public TokenValidatingMiddleware(TokenManager tokens)
+        public TokenValidatingMiddleware(RequestDelegate next)
         {
-            _tokens = tokens;
+            _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        public async Task InvokeAsync(HttpContext context, TokenManager token)
         {
-            if (!await _tokens.IsValidAsync(context.RequestAborted))
+            if (!await token.IsValidAsync(context.RequestAborted))
                 throw Result.StatusCode(HttpStatusCode.Unauthorized, "Token was invalidated.").Exception;
 
-            await next(context);
+            await _next(context);
         }
     }
 }
