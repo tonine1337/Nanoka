@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Nanoka.Models;
 
@@ -18,8 +19,8 @@ namespace Nanoka
         {
             var context = httpContextAccessor.HttpContext;
 
-            Id           = context.User.FindFirst("sub")?.Value;
-            Permissions  = int.TryParse(context.User.FindFirst("role")?.Value, out var b) ? (UserPermissions) b : UserPermissions.None;
+            Id           = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            Permissions  = int.TryParse(context.User.FindFirst(ClaimTypes.Role)?.Value, out var b) ? (UserPermissions) b : UserPermissions.None;
             Version      = int.TryParse(context.User.FindFirst("jti")?.Value, out var c) ? c : 0;
             Reputation   = double.TryParse(context.User.FindFirst("rep")?.Value, out var d) ? d : 0;
             IsRestricted = bool.TryParse(context.User.FindFirst("rest")?.Value, out var e) && e;
