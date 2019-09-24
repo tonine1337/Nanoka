@@ -22,10 +22,10 @@ namespace Nanoka.Storage
             _options = configuration.Get<B2Options>();
             _logger  = logger;
 
-            if (_options.AccountId == null || _options.ApplicationKey == null)
+            if (_options.MasterKeyId == null || _options.ApplicationKey == null)
                 throw new ArgumentException("Backblaze B2 credentials not specified in configuration.");
 
-            _client = new B2Client(_options.AccountId, _options.ApplicationKey);
+            _client = new B2Client(_options.MasterKeyId, _options.ApplicationKey, _options.ApplicationKeyId);
         }
 
         string _bucketName;
