@@ -87,6 +87,11 @@ namespace Nanoka
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            // cors
+            app.UseCors(o => o.AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .AllowAnyOrigin());
+
             // global exception handling
             app.UseExceptionHandler("/error")
                .UseStatusCodePagesWithReExecute("/error/{0}");
@@ -95,12 +100,11 @@ namespace Nanoka
             /*if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();*/
 
-            app.UseCors(o => o.AllowAnyHeader()
-                              .AllowAnyMethod()
-                              .AllowAnyOrigin());
+            // authentication
+            app.UseAuthentication()
+               .UseMiddleware<TokenValidatingMiddleware>();
 
-            app.UseAuthentication();
-            app.UseMiddleware<TokenValidatingMiddleware>();
+            // mvc
             app.UseMvc();
         }
     }
