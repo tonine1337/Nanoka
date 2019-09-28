@@ -67,6 +67,7 @@ namespace Nanoka
 
             // storage
             services.AddSingleton<IStorage>(s => new StorageWrapper(s, _configuration.GetSection("Storage")))
+                    .AddMemoryCache()
                     .AddDistributedMemoryCache();
 
             // uploader

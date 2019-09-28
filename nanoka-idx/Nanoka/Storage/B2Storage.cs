@@ -1,12 +1,16 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using B2Net;
+using Bytewizer.Backblaze.Agent;
+using Bytewizer.Backblaze.Client;
+using Bytewizer.Backblaze.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using BackblazeAgent = Bytewizer.Backblaze.Cloud.Storage;
 
 namespace Nanoka.Storage
 {
@@ -15,17 +19,29 @@ namespace Nanoka.Storage
         readonly B2Options _options;
         readonly ILogger<B2Storage> _logger;
 
-        readonly B2Client _client;
+        readonly BackblazeAgent _client;
 
-        public B2Storage(IConfiguration configuration, ILogger<B2Storage> logger)
+        public B2Storage(IConfiguration configuration, IMemoryCache cache, IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory)
         {
             _options = configuration.Get<B2Options>();
-            _logger  = logger;
+            _logger  = loggerFactory.CreateLogger<B2Storage>();
 
             if (_options.MasterKeyId == null || _options.ApplicationKey == null)
                 throw new ArgumentException("Backblaze B2 credentials not specified in configuration.");
 
-            _client = new B2Client(_options.MasterKeyId, _options.ApplicationKey, _options.ApplicationKeyId);
+            var options = new AgentOptions
+            {
+                KeyId          = _options.ApplicationKeyId,
+                ApplicationKey = _options.ApplicationKey
+            };
+
+            _client = new BackblazeAgent(
+                options,
+                new ApiClient(httpClientFactory.CreateClient(nameof(B2Storage)),
+                              loggerFactory.CreateLogger<ApiRest>(),
+                              new CacheManager(loggerFactory.CreateLogger<CacheManager>(), cache),
+                              new PolicyManager(options, loggerFactory.CreateLogger<PolicyManager>())),
+                loggerFactory.CreateLogger<BackblazeAgent>());
         }
 
         string _bucketName;
@@ -33,7 +49,7 @@ namespace Nanoka.Storage
 
         public async Task InitializeAsync(CancellationToken cancellationToken = default)
         {
-            var buckets = await _client.Buckets.GetList(cancellationToken);
+            var buckets = await _client.Buckets.GetAsync(new ListBucketsRequest(_options.MasterKeyId));
             var bucket  = buckets.FirstOrDefault(b => b.BucketName.Equals(_options.BucketName, StringComparison.Ordinal));
 
             if (bucket == null)
@@ -49,13 +65,27 @@ namespace Nanoka.Storage
         {
             try
             {
-                var file = await _client.Files.DownloadByName(name, _bucketName, cancellationToken);
+                var memory = new MemoryStream();
+
+                var response = await _client.DownloadAsync(
+                    new DownloadFileByNameRequest(_bucketName, name),
+                    memory,
+                    null,
+                    cancellationToken);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning($"Failed to retrieve file '{name}': {response.Error.Message}");
+                    return null;
+                }
+
+                memory.Position = 0;
 
                 return new StorageFile
                 {
-                    Name      = file.FileName,
-                    Stream    = new MemoryStream(file.FileData),
-                    MediaType = file.FileInfo.GetValueOrDefault("type")
+                    Name      = name,
+                    Stream    = memory,
+                    MediaType = response.Response.ContentType
                 };
             }
             catch (Exception e)
@@ -69,25 +99,20 @@ namespace Nanoka.Storage
         {
             try
             {
-                byte[] buffer;
-
-                if (file.Stream is MemoryStream memory)
-                    buffer = memory.ToArray();
-                else
-                    using (var memory2 = new MemoryStream())
+                var response = await _client.UploadAsync(
+                    new UploadFileByBucketIdRequest(_bucketId, file.Name)
                     {
-                        await file.Stream.CopyToAsync(memory2, cancellationToken);
-                        buffer = memory2.ToArray();
-                    }
+                        ContentType = file.MediaType ?? "application/octet-stream"
+                    },
+                    file.Stream,
+                    null,
+                    cancellationToken);
 
-                var fileInfo = new Dictionary<string, string>
+                if (!response.IsSuccessStatusCode)
                 {
-                    { "type", file.MediaType ?? "application/octet-stream" }
-                };
-
-                var upload = await _client.Files.GetUploadUrl(_bucketId, cancellationToken);
-
-                await _client.Files.Upload(buffer, file.Name, upload, _bucketId, fileInfo, cancellationToken);
+                    _logger.LogWarning($"Failed to write file '{file.Name}': {response.Error.Message}");
+                    return false;
+                }
 
                 _logger.LogInformation($"Wrote file '{file.Name}' ({file.MediaType}).");
 
@@ -101,19 +126,31 @@ namespace Nanoka.Storage
         }
 
         public Task DeleteAsync(string[] names, CancellationToken cancellationToken = default)
-            => Task.WhenAll(names.Select(n => DeleteAsyncInternal(n, cancellationToken)));
+            => Task.WhenAll(names.Select(DeleteAsyncInternal));
 
-        async Task<bool> DeleteAsyncInternal(string name, CancellationToken cancellationToken = default)
+        async Task<bool> DeleteAsyncInternal(string name)
         {
             try
             {
-                var versions = await _client.Files.GetVersionsWithPrefixOrDelimiter(name, null, name, null, 1, _bucketId, cancellationToken);
+                var versions = await _client.Files.ListVersionsAsync(
+                    new ListFileVersionRequest(_bucketId)
+                    {
+                        Prefix        = name,
+                        StartFileName = name,
+                        MaxFileCount  = 1
+                    });
 
-                if (versions.Files.Count == 0)
+                if (!versions.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning($"Failed to list versions of file '{name}': {versions.Error.Message}");
+                    return false;
+                }
+
+                if (versions.Response.Files.Count == 0)
                     return false;
 
-                foreach (var file in versions.Files)
-                    await _client.Files.Delete(file.FileId, name, cancellationToken);
+                foreach (var file in versions.Response.Files)
+                    await _client.Files.DeleteAsync(file.FileId, file.FileName);
 
                 _logger.LogInformation($"Deleted file '{name}'.");
 
