@@ -10,6 +10,7 @@ using Bytewizer.Backblaze.Models;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using BackblazeAgent = Bytewizer.Backblaze.Cloud.Storage;
 
 namespace Nanoka.Storage
 {
@@ -18,7 +19,7 @@ namespace Nanoka.Storage
         readonly B2Options _options;
         readonly ILogger<B2Storage> _logger;
 
-        readonly IBackblazeAgent _client;
+        readonly BackblazeAgent _client;
 
         public B2Storage(IConfiguration configuration, IMemoryCache cache, IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory)
         {
@@ -28,15 +29,18 @@ namespace Nanoka.Storage
             if (_options.MasterKeyId == null || _options.ApplicationKey == null)
                 throw new ArgumentException("Backblaze B2 credentials not specified in configuration.");
 
+            var options = new AgentOptions
+            {
+                KeyId          = _options.ApplicationKeyId,
+                ApplicationKey = _options.ApplicationKey
+            };
+
             _client = new BackblazeAgent(
-                new AgentOptions
-                {
-                    KeyId          = _options.ApplicationKeyId,
-                    ApplicationKey = _options.ApplicationKey
-                },
+                options,
                 new ApiClient(httpClientFactory.CreateClient(nameof(B2Storage)),
-                              loggerFactory.CreateLogger<Bytewizer.Backblaze.Client.Storage>(),
-                              cache),
+                              loggerFactory.CreateLogger<ApiRest>(),
+                              new CacheManager(loggerFactory.CreateLogger<CacheManager>(), cache),
+                              new PolicyManager(options, loggerFactory.CreateLogger<PolicyManager>())),
                 loggerFactory.CreateLogger<BackblazeAgent>());
         }
 
@@ -45,8 +49,8 @@ namespace Nanoka.Storage
 
         public async Task InitializeAsync(CancellationToken cancellationToken = default)
         {
-            var buckets = await _client.Buckets.GetAsync(_options.MasterKeyId);
-            var bucket  = buckets.Response.Buckets.FirstOrDefault(b => b.BucketName.Equals(_options.BucketName, StringComparison.Ordinal));
+            var buckets = await _client.Buckets.GetAsync(new ListBucketsRequest(_options.MasterKeyId));
+            var bucket  = buckets.FirstOrDefault(b => b.BucketName.Equals(_options.BucketName, StringComparison.Ordinal));
 
             if (bucket == null)
                 throw new B2StorageException($"Bucket '{_options.BucketName}' not found.");
@@ -61,19 +65,28 @@ namespace Nanoka.Storage
         {
             try
             {
-                using (var memory = new MemoryStream())
+                var memory = new MemoryStream();
+
+                var response = await _client.DownloadAsync(
+                    new DownloadFileByNameRequest(_bucketName, name),
+                    memory,
+                    null,
+                    cancellationToken);
+
+                if (!response.IsSuccessStatusCode)
                 {
-                    var response = await _client.DownloadAsync(_bucketName, name, memory, cancellationToken);
-
-                    memory.Position = 0;
-
-                    return new StorageFile
-                    {
-                        Name      = name,
-                        Stream    = memory,
-                        MediaType = response.Response.ContentType
-                    };
+                    _logger.LogWarning($"Failed to retrieve file '{name}': {response.Error.Message}");
+                    return null;
                 }
+
+                memory.Position = 0;
+
+                return new StorageFile
+                {
+                    Name      = name,
+                    Stream    = memory,
+                    MediaType = response.Response.ContentType
+                };
             }
             catch (Exception e)
             {
@@ -86,13 +99,20 @@ namespace Nanoka.Storage
         {
             try
             {
-                await _client.UploadAsync(
-                    new UploadFileByBucketIdRequest(_bucketId, $"http://google.com/{file.Name}")
+                var response = await _client.UploadAsync(
+                    new UploadFileByBucketIdRequest(_bucketId, file.Name)
                     {
                         ContentType = file.MediaType ?? "application/octet-stream"
                     },
                     file.Stream,
+                    null,
                     cancellationToken);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning($"Failed to write file '{file.Name}': {response.Error.Message}");
+                    return false;
+                }
 
                 _logger.LogInformation($"Wrote file '{file.Name}' ({file.MediaType}).");
 
@@ -112,7 +132,19 @@ namespace Nanoka.Storage
         {
             try
             {
-                var versions = await _client.Files.GetVersionsAsync(_bucketId, name, null, name, 1);
+                var versions = await _client.Files.ListVersionsAsync(
+                    new ListFileVersionRequest(_bucketId)
+                    {
+                        Prefix        = name,
+                        StartFileName = name,
+                        MaxFileCount  = 1
+                    });
+
+                if (!versions.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning($"Failed to list versions of file '{name}': {versions.Error.Message}");
+                    return false;
+                }
 
                 if (versions.Response.Files.Count == 0)
                     return false;
