@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace Nanoka
 {
@@ -39,8 +38,8 @@ namespace Nanoka
                 memory.Position = 0;
 
                 // ensure file is valid image
-                Image<Rgba32> image;
-                IImageFormat  format;
+                Image        image;
+                IImageFormat format;
 
                 try
                 {
