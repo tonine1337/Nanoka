@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nanoka.Models;
 using Nanoka.Models.Requests;
@@ -14,11 +15,15 @@ namespace Nanoka.Controllers
     {
         readonly BookManager _bookManager;
         readonly IStorage _storage;
+        readonly UploadManager _uploadManager;
+        readonly ImageProcessor _imageProcessor;
 
-        public BookController(BookManager bookManager, IStorage storage)
+        public BookController(BookManager bookManager, IStorage storage, UploadManager uploadManager, ImageProcessor imageProcessor)
         {
-            _bookManager = bookManager;
-            _storage     = storage;
+            _bookManager    = bookManager;
+            _storage        = storage;
+            _uploadManager  = uploadManager;
+            _imageProcessor = imageProcessor;
         }
 
         [HttpGet("{id}")]
@@ -91,5 +96,76 @@ namespace Nanoka.Controllers
         [HttpPost("search")]
         public async Task<SearchResult<Book>> SearchAsync(BookQuery query)
             => await _bookManager.SearchAsync(query);
+
+        sealed class BookUpload
+        {
+            public string BookId;
+
+            public BookBase Book;
+            public BookContentBase Content;
+        }
+
+        [HttpPost("uploads")]
+        [UserClaims(unrestricted: true)]
+        public async Task<UploadState> CreateUploadAsync(CreateNewBookRequest request)
+        {
+            // creating an entirely new book
+            if (request.Book != null)
+                return _uploadManager.CreateTask(new BookUpload
+                {
+                    Book    = request.Book,
+                    Content = request.Content
+                });
+
+            // adding contents to an existing book
+            if (request.BookId != null)
+                return _uploadManager.CreateTask(new BookUpload
+                {
+                    BookId  = (await _bookManager.GetAsync(request.BookId)).Id,
+                    Content = request.Content
+                });
+
+            return null;
+        }
+
+        [HttpGet("uploads/{id}")]
+        public UploadState GetUpload(string id)
+            => _uploadManager.GetTask<BookUpload>(id);
+
+        [HttpPost("uploads/{id}/files")]
+        public async Task<UploadState> UploadFileAsync(string id, [FromForm(Name = "file")] IFormFile file)
+        {
+            var task = _uploadManager.GetTask<BookUpload>(id);
+
+            var (stream, mediaType) = await _imageProcessor.LoadAsync(file);
+
+            using (stream)
+                await task.AddFileAsync(null, stream, mediaType);
+
+            return task;
+        }
+
+        [HttpDelete("uploads/{id}")]
+        public async Task<ActionResult<Book>> DeleteUploadAsync(string id, [FromQuery] bool commit)
+        {
+            using (var task = _uploadManager.RemoveTask<BookUpload>(id))
+            {
+                if (!commit)
+                    return Ok();
+
+                if (task.FileCount == 0)
+                    return BadRequest("No files were uploaded to be committed.");
+
+                var book = null as Book;
+
+                if (task.Data.Book != null)
+                    book = await _bookManager.CreateAsync(task.Data.Book, task.Data.Content, task);
+
+                else if (task.Data.BookId != null)
+                    (book, _) = await _bookManager.AddContentAsync(task.Data.BookId, task.Data.Content, task);
+
+                return book;
+            }
+        }
     }
 }
