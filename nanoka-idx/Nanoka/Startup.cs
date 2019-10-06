@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System;
+using System.IO;
+using System.Reflection;
+using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -9,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Nanoka.Database;
 using Nanoka.Models;
 using Nanoka.Storage;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Nanoka
 {
@@ -75,6 +79,28 @@ namespace Nanoka
                     .AddSingleton<UploadTaskCollection>()
                     .AddHostedService<UploadAutoExpiryJob>();
 
+            // swagger docs
+            services.AddSwaggerGen(s =>
+            {
+                s.SwaggerDoc(
+                    "v1",
+                    new Info
+                    {
+                        Title   = "Nanoka API",
+                        Version = "v1",
+                        License = new License
+                        {
+                            Name = "MIT",
+                            Url  = "https://opensource.org/licenses/MIT"
+                        }
+                    });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+                s.IncludeXmlComments(xmlPath);
+            });
+
             // other utilities
             services.AddSingleton(NanokaJsonSerializer.Create())
                     .AddHttpClient()
@@ -104,6 +130,9 @@ namespace Nanoka
             // authentication
             app.UseAuthentication()
                .UseMiddleware<TokenValidatingMiddleware>();
+
+            // swagger docs
+            app.UseSwagger(s => s.RouteTemplate = "/docs/{documentName}.json");
 
             // mvc
             app.UseMvc();
