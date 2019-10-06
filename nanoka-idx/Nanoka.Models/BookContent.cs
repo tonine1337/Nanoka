@@ -10,7 +10,7 @@ namespace Nanoka.Models
         [JsonProperty("id")]
         public string Id { get; set; }
 
-        [JsonProperty("page_count")]
+        [JsonProperty("pageCount")]
         public int PageCount { get; set; }
     }
 

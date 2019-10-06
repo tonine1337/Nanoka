@@ -7,7 +7,7 @@ namespace Nanoka.Models
         [JsonProperty("took")]
         public long Took { get; set; }
 
-        [JsonProperty("took_accurate")]
+        [JsonProperty("tookAccurate")]
         public double TookAccurate { get; set; }
 
         [JsonProperty("total")]

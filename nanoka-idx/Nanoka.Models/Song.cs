@@ -15,7 +15,7 @@ namespace Nanoka.Models
         [JsonProperty("score")]
         public double Score { get; set; }
 
-        [JsonProperty("length_ms")]
+        [JsonProperty("lengthMs")]
         public double Length { get; set; }
 
         [JsonProperty("bitrate")]
@@ -30,7 +30,7 @@ namespace Nanoka.Models
         [JsonProperty("names"), Required, MinLength(1)]
         public string[] Name { get; set; }
 
-        [JsonProperty("preview_ms"), Range(0, double.MaxValue)]
+        [JsonProperty("previewMs"), Range(0, double.MaxValue)]
         public double PreviewTime { get; set; }
 
         [JsonProperty("lyrics")]

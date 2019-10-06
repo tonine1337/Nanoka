@@ -17,7 +17,7 @@ namespace Nanoka.Models.Requests
         /// Existing book identifier to merge <see cref="Content"/> into.
         /// If this is specified, <see cref="Book"/> must be null.
         /// </summary>
-        [JsonProperty("book_id")]
+        [JsonProperty("bookId")]
         public string BookId { get; set; }
 
         /// <summary>

@@ -4,7 +4,7 @@ namespace Nanoka.Models.Requests
 {
     public class RevertEntityRequest
     {
-        [JsonProperty("snapshot_id")]
+        [JsonProperty("snapshotId")]
         public string SnapshotId { get; set; }
     }
 }

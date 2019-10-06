@@ -8,13 +8,13 @@ namespace Nanoka.Models
         [JsonProperty("time")]
         public DateTime Time { get; set; }
 
-        [JsonProperty("user_id")]
+        [JsonProperty("userId")]
         public string UserId { get; set; }
 
-        [JsonProperty("entity_type")]
+        [JsonProperty("entityType")]
         public NanokaEntity EntityType { get; set; }
 
-        [JsonProperty("entity_id")]
+        [JsonProperty("entityId")]
         public string EntityId { get; set; }
 
         [JsonProperty("weight")]
