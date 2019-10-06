@@ -38,7 +38,7 @@ namespace Nanoka
                 Value       = value
             };
 
-            await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
+            await _db.UpdateAsync(snapshot, cancellationToken);
 
             _logger.LogInformation("Created {0}", snapshot);
 
@@ -60,7 +60,7 @@ namespace Nanoka
                 Value       = value
             };
 
-            await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
+            await _db.UpdateAsync(snapshot, cancellationToken);
 
             _logger.LogInformation("Modified {0}", snapshot);
 
@@ -81,7 +81,7 @@ namespace Nanoka
                 Reason      = reason ?? _claims.GetReason()
             };
 
-            await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
+            await _db.UpdateAsync(snapshot, cancellationToken);
 
             _logger.LogInformation("Deleted {0}", snapshot);
 
@@ -104,7 +104,7 @@ namespace Nanoka
                 Value       = targetRollback.Value
             };
 
-            await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
+            await _db.UpdateAsync(snapshot, cancellationToken);
 
             _logger.LogInformation("Reverted {0}", snapshot);
 
@@ -119,7 +119,7 @@ namespace Nanoka
             var count   = Math.Clamp(end - start, 0, _snapshotMaxReturn);
             var reverse = bool.TryParse(_claims.QueryParams.GetValueOrDefault("reverse"), out var r) && r;
 
-            var snapshots = await _db.GetSnapshotsAsync<T>(entityId, start, count, reverse, cancellationToken);
+            var snapshots = await _db.GetAsync<T>(entityId, start, count, reverse, cancellationToken);
 
             if (snapshots.Length == 0)
                 throw Result.NotFound<T>(entityId).Exception;
@@ -129,7 +129,7 @@ namespace Nanoka
 
         public async Task<Snapshot<T>> GetAsync<T>(string id, string entityId, CancellationToken cancellationToken = default)
         {
-            var snapshot = await _db.GetSnapshotAsync<T>(id, entityId, cancellationToken);
+            var snapshot = await _db.GetAsync<T>(id, entityId, cancellationToken);
 
             if (snapshot == null)
                 throw Result.NotFound<Snapshot<T>>(entityId, id).Exception;

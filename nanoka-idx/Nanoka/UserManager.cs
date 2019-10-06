@@ -54,7 +54,7 @@ namespace Nanoka
             using (await _locker.EnterAsync(username, cancellationToken))
             {
                 // ensure username is unique
-                if (await _db.GetUserByNameAsync(username, cancellationToken) != null)
+                if (await _db.GetByNameAsync(username, cancellationToken) != null)
                     throw Result.BadRequest($"Cannot use the username '{username}'.").Exception;
 
                 var user = new User
@@ -64,7 +64,7 @@ namespace Nanoka
                     Permissions = _options.DefaultUserPermissions
                 };
 
-                await _db.UpdateUserAsync(user, cancellationToken);
+                await _db.UpdateAsync(user, cancellationToken);
                 await _snapshot.CreatedAsync(user, cancellationToken, SnapshotType.System, user.Id);
 
                 return EraseConfidential(user);
@@ -73,7 +73,7 @@ namespace Nanoka
 
         public async Task<User> TryAuthenticateAsync(string username, string password, CancellationToken cancellationToken = default)
         {
-            var user = await _db.GetUserByNameAsync(username, cancellationToken);
+            var user = await _db.GetByNameAsync(username, cancellationToken);
 
             return _hash.Test(password, user?.Secret)
                 ? EraseConfidential(user)
@@ -82,7 +82,7 @@ namespace Nanoka
 
         public async Task<User> GetAsync(string id, CancellationToken cancellationToken = default)
         {
-            var user = await _db.GetUserByIdAsync(id, cancellationToken);
+            var user = await _db.GetByIdAsync(id, cancellationToken);
 
             if (user == null)
                 throw Result.NotFound<User>(id).Exception;
@@ -100,7 +100,7 @@ namespace Nanoka
 
                 _mapper.Map(model, user);
 
-                await _db.UpdateUserAsync(user, cancellationToken);
+                await _db.UpdateAsync(user, cancellationToken);
                 await _snapshot.ModifiedAsync(user, cancellationToken);
 
                 return EraseConfidential(user);
@@ -130,11 +130,11 @@ namespace Nanoka
             using (await _locker.EnterAsync(id, cancellationToken))
             {
                 var snapshot = await _snapshot.GetAsync<User>(snapshotId, id, cancellationToken);
-                var user     = await _db.GetUserByIdAsync(id, cancellationToken);
+                var user     = await _db.GetByIdAsync(id, cancellationToken);
 
                 if (user != null && snapshot.Value == null)
                 {
-                    await _db.DeleteUserAsync(user, cancellationToken);
+                    await _db.DeleteAsync(user, cancellationToken);
 
                     user = null;
                 }
@@ -142,7 +142,7 @@ namespace Nanoka
                 {
                     user = snapshot.Value;
 
-                    await _db.UpdateUserAsync(user, cancellationToken);
+                    await _db.UpdateAsync(user, cancellationToken);
                 }
 
                 await _snapshot.RevertedAsync(snapshot, cancellationToken);
@@ -181,7 +181,7 @@ namespace Nanoka
 
                 user.Restrictions = (user.Restrictions ?? new UserRestriction[0]).Append(restriction).ToArray();
 
-                await _db.UpdateUserAsync(user, cancellationToken);
+                await _db.UpdateAsync(user, cancellationToken);
                 await _snapshot.ModifiedAsync(user, cancellationToken);
                 await _token.InvalidateAsync(user.Id, cancellationToken);
 
@@ -228,7 +228,7 @@ namespace Nanoka
                     {
                         user.Restrictions = list.ToArray();
 
-                        await _db.UpdateUserAsync(user, cancellationToken);
+                        await _db.UpdateAsync(user, cancellationToken);
                         await _snapshot.ModifiedAsync(user, cancellationToken);
                         await _token.InvalidateAsync(user.Id, cancellationToken);
                     }

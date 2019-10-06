@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace Nanoka.Database
 {
+    // ReSharper disable once PossibleInterfaceMemberAmbiguity
     public interface INanokaDatabase
         : IUserRepository,
           IBookRepository,

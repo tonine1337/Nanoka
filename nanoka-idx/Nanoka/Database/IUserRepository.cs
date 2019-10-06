@@ -6,12 +6,12 @@ namespace Nanoka.Database
 {
     public interface IUserRepository
     {
-        Task<User> GetUserByIdAsync(string id, CancellationToken cancellationToken = default);
+        Task<User> GetByIdAsync(string id, CancellationToken cancellationToken = default);
 
-        Task<User> GetUserByNameAsync(string username, CancellationToken cancellationToken = default);
+        Task<User> GetByNameAsync(string username, CancellationToken cancellationToken = default);
 
-        Task UpdateUserAsync(User user, CancellationToken cancellationToken = default);
+        Task UpdateAsync(User user, CancellationToken cancellationToken = default);
 
-        Task DeleteUserAsync(User user, CancellationToken cancellationToken = default);
+        Task DeleteAsync(User user, CancellationToken cancellationToken = default);
     }
 }

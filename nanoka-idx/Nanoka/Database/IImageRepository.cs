@@ -6,10 +6,10 @@ namespace Nanoka.Database
 {
     public interface IImageRepository
     {
-        Task<Image> GetImageAsync(string id, CancellationToken cancellationToken = default);
+        Task<Image> GetAsync(string id, CancellationToken cancellationToken = default);
 
-        Task UpdateImageAsync(Image image, CancellationToken cancellationToken = default);
+        Task UpdateAsync(Image image, CancellationToken cancellationToken = default);
 
-        Task DeleteImageAsync(Image image, CancellationToken cancellationToken = default);
+        Task DeleteAsync(Image image, CancellationToken cancellationToken = default);
     }
 }

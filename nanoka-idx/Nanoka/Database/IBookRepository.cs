@@ -6,12 +6,12 @@ namespace Nanoka.Database
 {
     public interface IBookRepository
     {
-        Task<Book> GetBookAsync(string id, CancellationToken cancellationToken = default);
+        Task<Book> GetAsync(string id, CancellationToken cancellationToken = default);
 
-        Task UpdateBookAsync(Book book, CancellationToken cancellationToken = default);
+        Task UpdateAsync(Book book, CancellationToken cancellationToken = default);
 
-        Task DeleteBookAsync(Book book, CancellationToken cancellationToken = default);
+        Task DeleteAsync(Book book, CancellationToken cancellationToken = default);
 
-        Task<SearchResult<Book>> SearchBooksAsync(BookQuery query, CancellationToken cancellationToken = default);
+        Task<SearchResult<Book>> SearchAsync(BookQuery query, CancellationToken cancellationToken = default);
     }
 }
