@@ -63,7 +63,14 @@ namespace Nanoka
 
             // database
             services.AddSingleton<INanokaDatabase, NanokaElasticDatabase>()
-                    .AddScoped<SnapshotManager>()
+                    .AddScoped<IUserRepository>(s => s.GetService<INanokaDatabase>())
+                    .AddScoped<IBookRepository>(s => s.GetService<INanokaDatabase>())
+                    .AddScoped<IImageRepository>(s => s.GetService<INanokaDatabase>())
+                    .AddScoped<ISnapshotRepository>(s => s.GetService<INanokaDatabase>())
+                    .AddScoped<IVoteRepository>(s => s.GetService<INanokaDatabase>())
+                    .AddScoped<IDeleteFileRepository>(s => s.GetService<INanokaDatabase>());
+
+            services.AddScoped<SnapshotManager>()
                     .AddScoped<UserManager>()
                     .AddScoped<TokenManager>()
                     .AddScoped<BookManager>()
