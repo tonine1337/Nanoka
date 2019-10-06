@@ -24,12 +24,12 @@ namespace Nanoka.Controllers
 
         [HttpPost("auth")]
         [AllowAnonymous]
-        public async Task<Result<AuthenticationResponse>> AuthAsync(AuthenticationRequest request)
+        public async Task<ActionResult<AuthenticationResponse>> AuthAsync(AuthenticationRequest request)
         {
             var user = await _userManager.TryAuthenticateAsync(request.Username, request.Password);
 
             if (user == null)
-                return Result.StatusCode(HttpStatusCode.Unauthorized, $"Invalid login for user {request.Username}.");
+                return StatusCode((int) HttpStatusCode.Unauthorized, $"Invalid login for user {request.Username}.");
 
             // access token can live extremely long since we have an on-demand invalidation mechanism
             var expiry = DateTime.UtcNow.AddMonths(1);
@@ -45,7 +45,7 @@ namespace Nanoka.Controllers
         [HttpPost("register")]
         [AllowAnonymous]
         [VerifyHuman]
-        public async Task<Result<RegistrationResponse>> RegisterAsync(RegistrationRequest request)
+        public async Task<RegistrationResponse> RegisterAsync(RegistrationRequest request)
         {
             await _userManager.CreateAsync(request.Username, request.Password);
 
@@ -53,31 +53,31 @@ namespace Nanoka.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<Result<User>> GetAsync(string id)
+        public async Task<User> GetAsync(string id)
             => await _userManager.GetAsync(id);
 
         [HttpPut("{id}")]
         [UserClaims(unrestricted: true)]
-        public async Task<Result<User>> UpdateAsync(string id, UserBase user)
+        public async Task<User> UpdateAsync(string id, UserBase user)
             => await _userManager.UpdateAsync(id, user);
 
         [HttpGet("{id}/snapshots")]
-        public async Task<Result<Snapshot<User>[]>> GetSnapshotsAsync(string id)
+        public async Task<Snapshot<User>[]> GetSnapshotsAsync(string id)
             => await _userManager.GetSnapshotsAsync(id);
 
         [HttpPost("{id}/snapshots/revert")]
         [UserClaims(unrestricted: true, reason: true)]
-        public async Task<Result<User>> RevertAsync(string id, RevertEntityRequest request)
+        public async Task<User> RevertAsync(string id, RevertEntityRequest request)
             => await _userManager.RevertAsync(id, request.SnapshotId);
 
         [HttpPost("{id}/restrictions")]
         [UserClaims(unrestricted: true, permissions: UserPermissions.Moderator, reason: true)]
-        public async Task<Result<UserRestriction>> AddRestrictionAsync(string id, RestrictUserRequest request)
+        public async Task<UserRestriction> AddRestrictionAsync(string id, RestrictUserRequest request)
             => await _userManager.AddRestrictionAsync(id, request.Duration);
 
         [HttpDelete("{id}/restrictions")]
         [UserClaims(unrestricted: true, permissions: UserPermissions.Moderator, reason: true)]
-        public async Task<Result<User>> DerestrictAsync(string id)
+        public async Task<User> DerestrictAsync(string id)
             => await _userManager.DerestrictAsync(id);
     }
 }

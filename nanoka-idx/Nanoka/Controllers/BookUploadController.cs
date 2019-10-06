@@ -55,11 +55,11 @@ namespace Nanoka.Controllers
         }
 
         [HttpGet("{id}")]
-        public Result<UploadState> GetUpload(string id)
+        public UploadState GetUpload(string id)
             => _uploadManager.GetTask<BookUpload>(id);
 
         [HttpPost("{id}/files")]
-        public async Task<Result<UploadState>> UploadFileAsync(string id, [FromForm(Name = "file")] IFormFile file)
+        public async Task<UploadState> UploadFileAsync(string id, [FromForm(Name = "file")] IFormFile file)
         {
             var task = _uploadManager.GetTask<BookUpload>(id);
 
@@ -72,15 +72,15 @@ namespace Nanoka.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<Result<Book>> DeleteUploadAsync(string id, [FromQuery] bool commit)
+        public async Task<ActionResult<Book>> DeleteUploadAsync(string id, [FromQuery] bool commit)
         {
             using (var task = _uploadManager.RemoveTask<BookUpload>(id))
             {
                 if (!commit)
-                    return Result.Ok();
+                    return Ok();
 
                 if (task.FileCount == 0)
-                    return Result.BadRequest("No files were uploaded to be committed.");
+                    return BadRequest("No files were uploaded to be committed.");
 
                 var book = null as Book;
 
