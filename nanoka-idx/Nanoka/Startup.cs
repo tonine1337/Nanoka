@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Nanoka.Database;
 using Nanoka.Models;
 using Nanoka.Storage;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace Nanoka
 {
@@ -95,16 +95,19 @@ namespace Nanoka
             {
                 s.SwaggerDoc(
                     "v1",
-                    new Info
+                    new OpenApiInfo
                     {
                         Title   = "Nanoka API",
                         Version = "v1",
-                        License = new License
+                        License = new OpenApiLicense
                         {
                             Name = "MIT",
-                            Url  = "https://opensource.org/licenses/MIT"
+                            Url  = new Uri("https://opensource.org/licenses/MIT")
                         }
                     });
+
+                s.OperationFilter<UserClaimsOperationFilter>();
+                s.OperationFilter<VerifyHumanOperationFilter>();
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);

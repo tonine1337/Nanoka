@@ -12,19 +12,21 @@ namespace Nanoka
     {
         static readonly UserPermissions[] _permFlags = Enum.GetValues(typeof(UserPermissions))
                                                            .Cast<UserPermissions>()
+                                                           .Where(p => p != UserPermissions.None)
                                                            .ToArray();
 
-        UserPermissions[] _permissions = new UserPermissions[0];
+        public UserPermissions[] PermissionFlags { get; private set; } = new UserPermissions[0];
+
         double _reputation;
         bool _unrestricted;
         bool _reason;
 
         public UserPermissions Permissions
         {
-            get => _permissions.Aggregate(UserPermissions.None, (x, y) => x | y);
+            get => PermissionFlags.Aggregate(UserPermissions.None, (x, y) => x | y);
             set
             {
-                _permissions = _permFlags.Where(f => value.HasFlag(f)).ToArray();
+                PermissionFlags = _permFlags.Where(f => value.HasFlag(f)).ToArray();
                 SetArguments();
             }
         }
@@ -63,7 +65,7 @@ namespace Nanoka
 
         void SetArguments() => Arguments = new object[]
         {
-            _permissions,
+            PermissionFlags,
             _reputation,
             _unrestricted,
             _reason
