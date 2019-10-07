@@ -359,8 +359,15 @@ namespace Nanoka.Controllers
                 return UnprocessableEntity(e.Message);
             }
 
-            using (stream)
-                await task.AddFileAsync(null, stream, mediaType);
+            try
+            {
+                using (stream)
+                    await task.AddFileAsync(null, stream, mediaType);
+            }
+            catch (InvalidOperationException e)
+            {
+                return BadRequest(e.Message);
+            }
 
             return task;
         }
