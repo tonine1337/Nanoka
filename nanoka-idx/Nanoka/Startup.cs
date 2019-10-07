@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -120,10 +119,9 @@ namespace Nanoka
                 s.OperationFilter<UserClaimsOperationFilter>();
                 s.OperationFilter<VerifyHumanOperationFilter>();
 
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                s.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Nanoka.xml"));
+                s.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Nanoka.Models.xml"));
 
-                s.IncludeXmlComments(xmlPath);
                 s.EnableAnnotations();
             });
 
