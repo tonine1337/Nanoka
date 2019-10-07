@@ -70,7 +70,7 @@ namespace Nanoka
                     .AddScoped<IVoteRepository>(s => s.GetService<INanokaDatabase>())
                     .AddScoped<IDeleteFileRepository>(s => s.GetService<INanokaDatabase>());
 
-            services.AddScoped<SnapshotManager>()
+            services.AddScoped<SnapshotHelper>()
                     .AddScoped<UserManager>()
                     .AddScoped<TokenManager>()
                     .AddScoped<VoteManager>();

@@ -17,12 +17,12 @@ namespace Nanoka
         readonly IMapper _mapper;
         readonly ILocker _locker;
         readonly PasswordHashHelper _hash;
-        readonly SnapshotManager _snapshot;
+        readonly SnapshotHelper _snapshot;
         readonly TokenManager _token;
         readonly IUserClaims _claims;
 
         public UserManager(IOptions<NanokaOptions> options, INanokaDatabase db, ILocker locker, IMapper mapper,
-                           PasswordHashHelper hash, SnapshotManager snapshot, TokenManager token, IUserClaims claims)
+                           PasswordHashHelper hash, SnapshotHelper snapshot, TokenManager token, IUserClaims claims)
         {
             _options  = options.Value;
             _db       = db;
