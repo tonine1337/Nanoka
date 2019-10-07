@@ -6,9 +6,9 @@ namespace Nanoka.Models
     {
         [EnumMember(Value = "doujinshi")] Doujinshi = 0,
         [EnumMember(Value = "manga")] Manga = 1,
-        [EnumMember(Value = "artist_cg")] ArtistCg = 2,
-        [EnumMember(Value = "game_cg")] GameCg = 3,
-        [EnumMember(Value = "image_set")] ImageSet = 4,
+        [EnumMember(Value = "artistCg")] ArtistCg = 2,
+        [EnumMember(Value = "gameCg")] GameCg = 3,
+        [EnumMember(Value = "imageSet")] ImageSet = 4,
         [EnumMember(Value = "novel")] LightNovel = 5
     }
 }
