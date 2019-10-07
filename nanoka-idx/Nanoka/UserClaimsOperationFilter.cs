@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Nanoka.Models;
@@ -11,6 +12,24 @@ namespace Nanoka
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
+            var allowAnonymous = context.ApiDescription.CustomAttributes().OfType<AllowAnonymousAttribute>().Any();
+
+            if (allowAnonymous)
+                operation.Security.Add(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Id   = "Authorization",
+                                Type = ReferenceType.SecurityScheme
+                            }
+                        },
+                        new string[0]
+                    }
+                });
+
             var attr = context.MethodInfo.GetCustomAttribute<UserClaimsAttribute>(true);
 
             if (attr == null)

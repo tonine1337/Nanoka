@@ -106,6 +106,17 @@ namespace Nanoka
                         }
                     });
 
+                s.AddSecurityDefinition(
+                    "Authorization",
+                    new OpenApiSecurityScheme
+                    {
+                        Name        = "Authorization",
+                        Type        = SecuritySchemeType.ApiKey,
+                        In          = ParameterLocation.Header,
+                        Scheme      = "Bearer",
+                        Description = "JWT bearer token for authorization."
+                    });
+
                 s.OperationFilter<UserClaimsOperationFilter>();
                 s.OperationFilter<VerifyHumanOperationFilter>();
 
