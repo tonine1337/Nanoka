@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -321,11 +322,25 @@ namespace Nanoka.Controllers
             => _uploads.GetTask<BookUpload>(id);
 
         [HttpPost("uploads/{id}/files")]
-        public async Task<UploadState> UploadFileAsync(string id, [FromForm(Name = "file")] IFormFile file)
+        public async Task<ActionResult<UploadState>> UploadFileAsync(string id, [FromForm(Name = "file")] IFormFile file)
         {
             var task = _uploads.GetTask<BookUpload>(id);
 
-            var (stream, mediaType) = await _image.LoadAsync(file);
+            Stream stream;
+            string mediaType;
+
+            try
+            {
+                (stream, mediaType) = await _image.LoadAsync(file);
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (FormatException e)
+            {
+                return UnprocessableEntity(e.Message);
+            }
 
             using (stream)
                 await task.AddFileAsync(null, stream, mediaType);
