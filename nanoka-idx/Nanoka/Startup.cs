@@ -73,7 +73,6 @@ namespace Nanoka
             services.AddScoped<SnapshotManager>()
                     .AddScoped<UserManager>()
                     .AddScoped<TokenManager>()
-                    .AddScoped<BookManager>()
                     .AddScoped<VoteManager>();
 
             // storage

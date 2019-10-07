@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Nanoka.Models;
 
@@ -140,6 +141,6 @@ namespace Nanoka
         }
 
         public static implicit operator UploadState(UploadTask<T> task) => task.GetState();
-        public static implicit operator Result<UploadState>(UploadTask<T> task) => task.GetState();
+        public static implicit operator ActionResult<UploadState>(UploadTask<T> task) => task.GetState();
     }
 }

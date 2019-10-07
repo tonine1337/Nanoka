@@ -127,7 +127,7 @@ namespace Nanoka
             return snapshots;
         }
 
-        public async Task<Snapshot<T>> GetAsync<T>(string id, string entityId, CancellationToken cancellationToken = default)
+        public async Task<Snapshot<T>> GetAsync<T>(string entityId, string id, CancellationToken cancellationToken = default)
         {
             var snapshot = await _db.GetAsync<T>(id, entityId, cancellationToken);
 
