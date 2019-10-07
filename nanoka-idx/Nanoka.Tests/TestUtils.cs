@@ -54,15 +54,14 @@ namespace Nanoka.Tests
 
         public static Stream DummyImage()
         {
-            using (var memory = new MemoryStream())
-            {
-                using (var image = new Image<Rgba32>(0, 0))
-                    image.SaveAsPng(memory);
+            var memory = new MemoryStream();
 
-                memory.Position = 0;
+            using (var image = new Image<Rgba32>(1, 1))
+                image.SaveAsPng(memory);
 
-                return memory;
-            }
+            memory.Position = 0;
+
+            return memory;
         }
     }
 }
