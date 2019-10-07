@@ -64,7 +64,7 @@ namespace Nanoka.Controllers
         /// <param name="id">Book ID.</param>
         /// <param name="model">New book information.</param>
         [HttpPut("{id}")]
-        [UserClaims(unrestricted: true)]
+        [UserClaims(Unrestricted = true)]
         [SwaggerResponse(200), SwaggerResponse(404)]
         public async Task<ActionResult<Book>> UpdateAsync(string id, BookBase model)
         {
@@ -89,7 +89,7 @@ namespace Nanoka.Controllers
         /// </summary>
         /// <param name="id">Book ID.</param>
         [HttpDelete("{id}")]
-        [UserClaims(unrestricted: true, reputation: 100, reason: true)]
+        [UserClaims(Unrestricted = true, Reputation = 100, Reason = true)]
         [VerifyHuman]
         public async Task<ActionResult> DeleteAsync(string id)
         {
@@ -134,7 +134,7 @@ namespace Nanoka.Controllers
         /// <param name="id">Book ID.</param>
         /// <param name="request">Reversion request.</param>
         [HttpPost("{id}/snapshots/revert")]
-        [UserClaims(unrestricted: true, reason: true)]
+        [UserClaims(Unrestricted = true, Reason = true)]
         public async Task<ActionResult<Book>> RevertAsync(string id, RevertEntityRequest request)
         {
             using (await _locker.EnterAsync(id))
@@ -277,7 +277,7 @@ namespace Nanoka.Controllers
         /// <param name="id">Book ID.</param>
         /// <param name="contentId">Content ID.</param>
         [HttpDelete("{id}/contents/{contentId}")]
-        [UserClaims(unrestricted: true, reputation: 100, reason: true)]
+        [UserClaims(Unrestricted = true, Reputation = 100, Reason = true)]
         [VerifyHuman]
         public async Task<ActionResult> DeleteContentAsync(string id, string contentId)
         {
@@ -356,7 +356,7 @@ namespace Nanoka.Controllers
         /// </summary>
         /// <param name="request">Creation request.</param>
         [HttpPost("uploads")]
-        [UserClaims(unrestricted: true)]
+        [UserClaims(Unrestricted = true)]
         public async Task<ActionResult<UploadState>> CreateUploadAsync(CreateNewBookRequest request)
         {
             try

@@ -127,7 +127,7 @@ namespace Nanoka.Controllers
         }
 
         [HttpPut("{id}")]
-        [UserClaims(unrestricted: true)]
+        [UserClaims(Unrestricted = true)]
         public async Task<ActionResult<User>> UpdateAsync(string id, UserBase model)
         {
             if (!IsUserUpdatable(id, out var result))
@@ -158,7 +158,7 @@ namespace Nanoka.Controllers
             });
 
         [HttpPost("{id}/snapshots/revert")]
-        [UserClaims(unrestricted: true, reason: true)]
+        [UserClaims(Unrestricted = true, Reason = true)]
         public async Task<ActionResult<User>> RevertAsync(string id, RevertEntityRequest request)
         {
             if (!IsUserUpdatable(id, out var result))
@@ -195,7 +195,7 @@ namespace Nanoka.Controllers
         }
 
         [HttpPost("{id}/restrictions")]
-        [UserClaims(unrestricted: true, permissions: UserPermissions.Moderator, reason: true)]
+        [UserClaims(Unrestricted = true, Permissions = UserPermissions.Moderator, Reason = true)]
         public async Task<ActionResult<UserRestriction>> AddRestrictionAsync(string id, RestrictUserRequest request)
         {
             if (request.Duration < TimeSpan.FromMinutes(10))
@@ -239,7 +239,7 @@ namespace Nanoka.Controllers
         }
 
         [HttpDelete("{id}/restrictions")]
-        [UserClaims(unrestricted: true, permissions: UserPermissions.Moderator, reason: true)]
+        [UserClaims(Unrestricted = true, Permissions = UserPermissions.Moderator, Reason = true)]
         public async Task<ActionResult<User>> DerestrictAsync(string id, [FromQuery] bool all)
         {
             if (!IsUserUpdatable(id, out var result))

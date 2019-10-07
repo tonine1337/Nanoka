@@ -14,20 +14,60 @@ namespace Nanoka
                                                            .Cast<UserPermissions>()
                                                            .ToArray();
 
-        public UserClaimsAttribute(UserPermissions permissions = UserPermissions.None,
-                                   double reputation = 0,
-                                   bool unrestricted = false,
-                                   bool reason = false)
-            : base(typeof(Filter))
+        UserPermissions[] _permissions = new UserPermissions[0];
+        double _reputation;
+        bool _unrestricted;
+        bool _reason;
+
+        public UserPermissions Permissions
         {
-            Arguments = new object[]
+            get => _permissions.Aggregate(UserPermissions.None, (x, y) => x | y);
+            set
             {
-                _permFlags.Where(f => permissions.HasFlag(f)).ToArray(),
-                reputation,
-                unrestricted,
-                reason
-            };
+                _permissions = _permFlags.Where(f => value.HasFlag(f)).ToArray();
+                SetArguments();
+            }
         }
+
+        public double Reputation
+        {
+            get => _reputation;
+            set
+            {
+                _reputation = value;
+                SetArguments();
+            }
+        }
+
+        public bool Unrestricted
+        {
+            get => _unrestricted;
+            set
+            {
+                _unrestricted = value;
+                SetArguments();
+            }
+        }
+
+        public bool Reason
+        {
+            get => _reason;
+            set
+            {
+                _reason = value;
+                SetArguments();
+            }
+        }
+
+        public UserClaimsAttribute() : base(typeof(Filter)) { }
+
+        void SetArguments() => Arguments = new object[]
+        {
+            _permissions,
+            _reputation,
+            _unrestricted,
+            _reason
+        };
 
         sealed class Filter : IAuthorizationFilter
         {
