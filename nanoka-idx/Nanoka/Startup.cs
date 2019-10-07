@@ -67,8 +67,9 @@ namespace Nanoka
                     .AddScoped<IBookRepository>(s => s.GetService<INanokaDatabase>())
                     .AddScoped<IImageRepository>(s => s.GetService<INanokaDatabase>())
                     .AddScoped<ISnapshotRepository>(s => s.GetService<INanokaDatabase>())
-                    .AddScoped<IVoteRepository>(s => s.GetService<INanokaDatabase>())
-                    .AddScoped<IDeleteFileRepository>(s => s.GetService<INanokaDatabase>());
+                    .AddScoped<IVoteRepository>(s => s.GetService<INanokaDatabase>());
+
+            services.AddScoped(s => s.GetService<INanokaDatabase>() as ISoftDeleteQueue ?? new SoftDeleteQueue());
 
             services.AddScoped<SnapshotHelper>()
                     .AddScoped<VoteHelper>()

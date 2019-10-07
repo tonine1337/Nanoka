@@ -4,14 +4,13 @@ using System.Threading.Tasks;
 
 namespace Nanoka.Database
 {
-    // ReSharper disable once PossibleInterfaceMemberAmbiguity
+    // ReSharper disable PossibleInterfaceMemberAmbiguity
     public interface INanokaDatabase
         : IUserRepository,
           IBookRepository,
           IImageRepository,
           ISnapshotRepository,
           IVoteRepository,
-          IDeleteFileRepository,
           IDisposable
     {
         Task MigrateAsync(CancellationToken cancellationToken = default);

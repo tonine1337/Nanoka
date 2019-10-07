@@ -134,8 +134,8 @@ namespace Nanoka.Controllers
 
                     await _books.UpdateAsync(book);
 
-                    if (_storage is ISupportsUndelete supportsUndelete)
-                        await supportsUndelete.UndeleteAsync(GetFileNames(book));
+                    if (_storage is ISoftDeleteStorage softDeleteStorage)
+                        await softDeleteStorage.RestoreAsync(GetFileNames(book));
                 }
 
                 await _snapshots.RevertedAsync(snapshot);

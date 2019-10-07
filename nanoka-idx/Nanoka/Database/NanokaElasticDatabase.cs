@@ -9,12 +9,13 @@ using Elasticsearch.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nanoka.Models;
+using Nanoka.Storage;
 using Nest;
 using Newtonsoft.Json;
 
 namespace Nanoka.Database
 {
-    public class NanokaElasticDatabase : INanokaDatabase
+    public class NanokaElasticDatabase : INanokaDatabase, ISoftDeleteQueue
     {
         readonly ElasticClient _client;
 
@@ -276,28 +277,28 @@ namespace Nanoka.Database
 
 #endregion
 
-#region DeleteFile
+#region Soft-delete Queue
 
-        async Task IDeleteFileRepository.AddAsync(string[] filenames, DateTime softDeleteTime, CancellationToken cancellationToken)
+        async Task ISoftDeleteQueue.EnqueueAsync(IEnumerable<string> names, DateTime deletedTime, CancellationToken cancellationToken)
         {
-            var files = filenames.ToArray(name => new DbDeleteFile
+            var files = names.ToArray(name => new DbDeleteFile
             {
                 Id             = name,
-                SoftDeleteTime = softDeleteTime
+                SoftDeleteTime = deletedTime
             });
 
             await IndexAsync(files, cancellationToken);
         }
 
-        async Task IDeleteFileRepository.RemoveAsync(string[] filenames, CancellationToken cancellationToken)
-            => await DeleteAsync<DbDeleteFile>(filenames, cancellationToken);
+        async Task ISoftDeleteQueue.DequeueAsync(IEnumerable<string> names, CancellationToken cancellationToken)
+            => await DeleteAsync<DbDeleteFile>(names.ToArray(), cancellationToken);
 
-        async Task<string[]> IDeleteFileRepository.GetAndRemoveAsync(DateTime maxSoftDeleteTime, CancellationToken cancellationToken)
+        async Task<string[]> ISoftDeleteQueue.DequeueAsync(DateTime maxDeletedTime, CancellationToken cancellationToken)
         {
             var result = await SearchAsync<DbDeleteFile, string>(
                 (0, 100),
                 q => q.Query(qq => qq.Bool(b => b.Filter(ff => ff.DateRange(r => r.Field(f => f.SoftDeleteTime)
-                                                                                  .LessThan(maxSoftDeleteTime)))))
+                                                                                  .LessThan(maxDeletedTime)))))
                       .Sort(s => s.Ascending(f => f.SoftDeleteTime)),
                 f => f.Id,
                 cancellationToken);
