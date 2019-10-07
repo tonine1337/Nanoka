@@ -109,10 +109,10 @@ namespace Nanoka.Tests
                 Assert.That(book2.Name, Is.EqualTo(book.Name));
                 Assert.That(book2.Contents.Length, Is.EqualTo(2));
 
-                var content2 = (await controller.GetContentAsync(book.Id, book2.Contents[2].Id)).Value;
+                var content2 = (await controller.GetContentAsync(book.Id, book2.Contents[1].Id)).Value;
 
                 Assert.That(content2, Is.Not.Null);
-                Assert.That(content2.Id, Is.EqualTo(book2.Contents[2].Id));
+                Assert.That(content2.Id, Is.EqualTo(book2.Contents[1].Id));
                 Assert.That(content2.PageCount, Is.EqualTo(3));
                 Assert.That(content2.IsColor, Is.True);
             }

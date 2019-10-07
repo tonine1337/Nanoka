@@ -405,12 +405,12 @@ namespace Nanoka.Controllers
                 }
 
                 if (task.Data.BookId != null)
-                    using (await _locker.EnterAsync(id))
+                    using (await _locker.EnterAsync(task.Data.BookId))
                     {
-                        var book = await _books.GetAsync(id);
+                        var book = await _books.GetAsync(task.Data.BookId);
 
                         if (book == null)
-                            return ResultUtilities.NotFound<Book>(id);
+                            return ResultUtilities.NotFound<Book>(task.Data.BookId);
 
                         var content = _mapper.Map<BookContent>(task.Data.Content);
 
