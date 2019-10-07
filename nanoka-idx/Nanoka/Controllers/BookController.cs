@@ -10,14 +10,12 @@ using Nanoka.Database;
 using Nanoka.Models;
 using Nanoka.Models.Requests;
 using Nanoka.Storage;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace Nanoka.Controllers
 {
     [ApiController]
     [Route("books")]
     [Authorize]
-    [SwaggerTag("Book database.")]
     public class BookController : ControllerBase
     {
         readonly IBookRepository _books;
@@ -47,7 +45,6 @@ namespace Nanoka.Controllers
         /// </summary>
         /// <param name="id">Book ID.</param>
         [HttpGet("{id}")]
-        [SwaggerResponse(200), SwaggerResponse(404)]
         public async Task<ActionResult<Book>> GetAsync(string id)
         {
             var book = await _books.GetAsync(id);
@@ -65,7 +62,6 @@ namespace Nanoka.Controllers
         /// <param name="model">New book information.</param>
         [HttpPut("{id}")]
         [UserClaims(Unrestricted = true)]
-        [SwaggerResponse(200), SwaggerResponse(404)]
         public async Task<ActionResult<Book>> UpdateAsync(string id, BookBase model)
         {
             using (await _locker.EnterAsync(id))
