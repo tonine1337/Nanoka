@@ -25,10 +25,10 @@ namespace Nanoka.Controllers
         readonly UploadManager _uploads;
         readonly SnapshotHelper _snapshots;
         readonly ImageProcessor _image;
-        readonly VoteManager _votes;
+        readonly VoteHelper _votes;
 
         public BookController(IBookRepository books, ILocker locker, IStorage storage, IMapper mapper,
-                              UploadManager uploads, SnapshotHelper snapshots, ImageProcessor image, VoteManager votes)
+                              UploadManager uploads, SnapshotHelper snapshots, ImageProcessor image, VoteHelper votes)
         {
             _books     = books;
             _locker    = locker;

@@ -7,15 +7,15 @@ using Nanoka.Models;
 
 namespace Nanoka
 {
-    public class VoteManager
+    public class VoteHelper
     {
-        readonly INanokaDatabase _db;
+        readonly IVoteRepository _votes;
         readonly IUserClaims _claims;
-        readonly ILogger<VoteManager> _logger;
+        readonly ILogger<VoteHelper> _logger;
 
-        public VoteManager(INanokaDatabase db, IUserClaims claims, ILogger<VoteManager> logger)
+        public VoteHelper(IVoteRepository votes, IUserClaims claims, ILogger<VoteHelper> logger)
         {
-            _db     = db;
+            _votes  = votes;
             _claims = claims;
             _logger = logger;
         }
@@ -25,7 +25,7 @@ namespace Nanoka
             where T : IHasId, IHasEntityType, IHasScore
         {
             // find existing vote
-            var vote = await _db.GetAsync(_claims.Id, entity.Type, entity.Id, cancellationToken);
+            var vote = await _votes.GetAsync(_claims.Id, entity.Type, entity.Id, cancellationToken);
 
             if (vote == null)
             {
@@ -47,7 +47,7 @@ namespace Nanoka
                 // user requested vote be removed completely
                 if (type == null)
                 {
-                    await _db.DeleteAsync(vote, cancellationToken);
+                    await _votes.DeleteAsync(vote, cancellationToken);
 
                     _logger.LogInformation("Unset vote of {0} score={1:F}", vote, entity.Score);
 
@@ -72,7 +72,7 @@ namespace Nanoka
             // offset with new weight
             entity.Score += vote.Weight;
 
-            await _db.UpdateAsync(vote, cancellationToken);
+            await _votes.UpdateAsync(vote, cancellationToken);
 
             _logger.LogInformation("Set vote of {0} score={1:F}", vote, entity.Score);
 
@@ -82,7 +82,7 @@ namespace Nanoka
         public async Task DeleteAsync<T>(T entity, CancellationToken cancellationToken = default)
             where T : IHasId, IHasEntityType
         {
-            var deleted = await _db.DeleteAsync(entity.Type, entity.Id, cancellationToken);
+            var deleted = await _votes.DeleteAsync(entity.Type, entity.Id, cancellationToken);
 
             _logger.LogInformation($"Deleted {deleted} votes of {entity.Type} {entity.Id}.");
         }
