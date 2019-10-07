@@ -71,9 +71,8 @@ namespace Nanoka
                     .AddScoped<IDeleteFileRepository>(s => s.GetService<INanokaDatabase>());
 
             services.AddScoped<SnapshotHelper>()
-                    .AddScoped<UserManager>()
-                    .AddScoped<TokenManager>()
-                    .AddScoped<VoteManager>();
+                    .AddScoped<VoteManager>()
+                    .AddScoped<TokenManager>();
 
             // storage
             services.AddSingleton<IStorage>(s => new StorageWrapper(s, _configuration.GetSection("Storage")))

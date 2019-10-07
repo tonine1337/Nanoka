@@ -12,5 +12,9 @@ namespace Nanoka.Models.Requests
         public string Password { get; set; }
     }
 
-    public class RegistrationResponse { }
+    public class RegistrationResponse
+    {
+        [JsonProperty("user")]
+        public User User { get; set; }
+    }
 }
