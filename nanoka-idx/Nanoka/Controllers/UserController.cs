@@ -74,7 +74,7 @@ namespace Nanoka.Controllers
             var user = await _users.GetByNameAsync(request.Username);
 
             if (!_hash.Test(request.Password, user?.Secret))
-                return Unauthorized($"Invalid login for user {request.Username}.");
+                return Unauthorized($"Invalid login for user '{request.Username}'.");
 
             // access token can live extremely long since we have an on-demand invalidation mechanism
             var expiry = DateTime.UtcNow.AddMonths(1);

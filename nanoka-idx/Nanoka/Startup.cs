@@ -37,7 +37,11 @@ namespace Nanoka
                     .Configure<RecaptchaOptions>(_configuration.GetSection("reCAPTCHA"));
 
             // mvc
-            services.AddMvc()
+            services.AddMvc(m =>
+                     {
+                         // this filter ensures all responses are consistently wrapped in JSON
+                         m.Filters.Add<PrimitiveResponseWrapperFilter>();
+                     })
                     .AddApplicationPart(GetType().Assembly)
                     .AddControllersAsServices()
                     .AddJsonOptions(j => NanokaJsonSerializer.Apply(j.SerializerSettings));
