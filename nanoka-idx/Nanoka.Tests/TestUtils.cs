@@ -1,11 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Internal;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Nanoka.Tests
 {
@@ -43,5 +48,20 @@ namespace Nanoka.Tests
                 { "Elastic:IndexPrefix", $"nanoka-test-{Snowflake.New}-" }
             }
         };
+
+        public static IFormFile AsFormFile(this Stream stream, string name = null)
+            => new FormFile(stream, 0, stream.Length, name, name);
+
+        public static Stream DummyImage()
+        {
+            var memory = new MemoryStream();
+
+            using (var image = new Image<Rgba32>(1, 1))
+                image.SaveAsPng(memory);
+
+            memory.Position = 0;
+
+            return memory;
+        }
     }
 }

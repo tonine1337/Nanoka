@@ -6,6 +6,6 @@ namespace Nanoka.Models
     {
         [EnumMember(Value = "relevance")] Relevance = 0,
         [EnumMember(Value = "score")] Score = 1,
-        [EnumMember(Value = "page_count")] PageCount = 2
+        [EnumMember(Value = "pageCount")] PageCount = 2
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Nanoka.Models;
 
@@ -71,7 +72,8 @@ namespace Nanoka
                 if (Files.Count == MaxFileCount)
                 {
                     file.Handle.Dispose();
-                    throw Result.BadRequest($"Maximum image upload limit reached for task {Id}.").Exception;
+
+                    throw new InvalidOperationException($"Maximum image upload limit reached for task {Id}.");
                 }
 
                 Files.Add(file);
@@ -140,6 +142,6 @@ namespace Nanoka
         }
 
         public static implicit operator UploadState(UploadTask<T> task) => task.GetState();
-        public static implicit operator Result<UploadState>(UploadTask<T> task) => task.GetState();
+        public static implicit operator ActionResult<UploadState>(UploadTask<T> task) => task.GetState();
     }
 }

@@ -11,7 +11,7 @@ namespace Nanoka.Storage
     /// <summary>
     /// A storage implementation that delegates calls to another storage implementation configured by <see cref="IConfiguration"/>.
     /// </summary>
-    public class StorageWrapper : IStorage, ISupportsUndelete
+    public class StorageWrapper : ISoftDeleteStorage
     {
         static readonly IReadOnlyDictionary<string, Type> _storageImpls =
             typeof(Startup).Assembly
@@ -38,7 +38,7 @@ namespace Nanoka.Storage
         public virtual Task<StorageFile> ReadAsync(string name, CancellationToken cancellationToken = default) => Implementation.ReadAsync(name, cancellationToken);
         public virtual Task<bool> WriteAsync(StorageFile file, CancellationToken cancellationToken = default) => Implementation.WriteAsync(file, cancellationToken);
         public virtual Task DeleteAsync(string[] names, CancellationToken cancellationToken = default) => Implementation.DeleteAsync(names, cancellationToken);
-        public virtual Task UndeleteAsync(string[] names, CancellationToken cancellationToken = default) => (Implementation as ISupportsUndelete)?.UndeleteAsync(names, cancellationToken) ?? Task.CompletedTask;
+        public virtual Task RestoreAsync(string[] names, CancellationToken cancellationToken = default) => (Implementation as ISoftDeleteStorage)?.RestoreAsync(names, cancellationToken) ?? Task.CompletedTask;
 
         public virtual void Dispose() => Implementation.Dispose();
     }

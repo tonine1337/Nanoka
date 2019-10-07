@@ -5,12 +5,12 @@ namespace Nanoka.Models
     /// <summary>
     /// Represents the contents of a book.
     /// </summary>
-    public class BookContent : BookContentBase
+    public class BookContent : BookContentBase, IHasId
     {
         [JsonProperty("id")]
         public string Id { get; set; }
 
-        [JsonProperty("page_count")]
+        [JsonProperty("pageCount")]
         public int PageCount { get; set; }
     }
 

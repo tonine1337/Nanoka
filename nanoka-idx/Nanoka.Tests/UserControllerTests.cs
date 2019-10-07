@@ -1,14 +1,17 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Nanoka.Controllers;
 using Nanoka.Database;
 using Nanoka.Models;
+using Nanoka.Models.Requests;
 using NUnit.Framework;
 
 namespace Nanoka.Tests
 {
     [TestFixture]
-    public class UserManagerTests
+    public class UserControllerTests
     {
         [Test]
         public async Task CreateAsync()
@@ -20,22 +23,31 @@ namespace Nanoka.Tests
             {
                 await services.GetService<INanokaDatabase>().MigrateAsync();
 
-                var users = scope.ServiceProvider.GetService<UserManager>();
+                var controller = scope.ServiceProvider.GetService<UserController>();
 
-                var user = await users.CreateAsync("testUser672", "securePassword1234");
+                var user = (await controller.RegisterAsync(new RegistrationRequest
+                {
+                    Username = "testUser672",
+                    Password = "securePassword1234"
+                })).Value.User;
 
                 Assert.That(user, Is.Not.Null);
 
                 var id = user.Id;
 
-                user = await users.TryAuthenticateAsync("testUser672", "securePassword1234");
+                var authResponse = (await controller.AuthentiateAsync(new AuthenticationRequest
+                {
+                    Username = "testUser672",
+                    Password = "securePassword1234"
+                })).Value;
 
-                Assert.That(id, Is.EqualTo(user.Id));
+                Assert.That(authResponse.AccessToken, Is.Not.Null);
+                Assert.That(authResponse.Expiry, Is.GreaterThan(DateTime.UtcNow));
 
-                user = await users.GetAsync(id);
+                user = (await controller.GetAsync(id)).Value;
 
-                Assert.That(id, Is.EqualTo(user.Id));
-
+                Assert.That(user, Is.Not.Null);
+                Assert.That(user.Id, Is.EqualTo(id));
                 Assert.That(user.Username, Is.EqualTo("testUser672"));
                 Assert.That(user.Secret, Is.Null);
                 Assert.That(user.Permissions, Is.EqualTo(UserPermissions.None));
@@ -43,7 +55,7 @@ namespace Nanoka.Tests
                 Assert.That(user.Restrictions, Is.Null.Or.Empty);
                 Assert.That(user.Reputation, Is.Zero);
 
-                var snapshots = await users.GetSnapshotsAsync(user.Id);
+                var snapshots = await controller.GetSnapshotsAsync(user.Id);
 
                 Assert.That(snapshots, Has.One.Items);
                 Assert.That(snapshots[0].Event, Is.EqualTo(SnapshotEvent.Creation));

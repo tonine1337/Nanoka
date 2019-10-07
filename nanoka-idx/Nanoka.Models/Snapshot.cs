@@ -20,7 +20,7 @@ namespace Nanoka.Models
         /// If <see cref="Event"/> is <see cref="SnapshotEvent.Rollback"/>,
         /// the ID of the snapshot that was reverted to.
         /// </summary>
-        [JsonProperty("rollback_id")]
+        [JsonProperty("rollbackId")]
         public string RollbackId { get; set; }
 
         [JsonProperty("time")]
@@ -35,7 +35,7 @@ namespace Nanoka.Models
         [JsonProperty("entity")]
         public NanokaEntity EntityType { get; set; }
 
-        [JsonProperty("entity_id")]
+        [JsonProperty("entityId")]
         public string EntityId { get; set; }
 
         [JsonProperty("event")]

@@ -21,11 +21,11 @@ namespace Nanoka
         public async Task<(Stream stream, string mediaType)> LoadAsync(IFormFile file, CancellationToken cancellationToken = default)
         {
             if (file == null)
-                throw Result.BadRequest("File not attached as multipart/form-data in request.").Exception;
+                throw new ArgumentNullException(nameof(file), "File not attached as multipart/form-data in request.");
 
             // size check
             if (file.Length >= _options.MaxImageUploadSize)
-                throw Result.UnprocessableEntity($"File '{file.FileName}' is too big (must be under {Extensions.GetBytesReadable(_options.MaxImageUploadSize)}).").Exception;
+                throw new ArgumentException($"File '{file.FileName}' is too big (must be under {Extensions.GetBytesReadable(_options.MaxImageUploadSize)}).", nameof(file));
 
             var memory = new MemoryStream((int) file.Length);
 
@@ -47,13 +47,13 @@ namespace Nanoka
                 }
                 catch (Exception e)
                 {
-                    throw Result.UnprocessableEntity($"File '{file.FileName}' is not a recognized image: {e.Message}").Exception;
+                    throw new FormatException($"File '{file.FileName}' is not a recognized image: {e.Message}");
                 }
 
                 using (image)
                 {
                     if (image.Frames.Count != 1)
-                        throw Result.UnprocessableEntity($"File '{file.FileName}' is not a static image.").Exception;
+                        throw new FormatException($"File '{file.FileName}' is not a static image.");
                 }
 
                 memory.Position = 0;
@@ -65,17 +65,6 @@ namespace Nanoka
                 memory.Dispose();
                 throw;
             }
-        }
-
-        // ReSharper disable once MemberCanBeMadeStatic.Global
-        public string DetectMediaType(Stream stream)
-        {
-            var format = Image.DetectFormat(stream);
-
-            if (format == null)
-                throw Result.UnprocessableEntity("Could not detect the format of this image.").Exception;
-
-            return format.DefaultMimeType;
         }
     }
 }

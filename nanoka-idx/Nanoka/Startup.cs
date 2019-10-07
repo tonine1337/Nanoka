@@ -37,7 +37,12 @@ namespace Nanoka
                     .Configure<RecaptchaOptions>(_configuration.GetSection("reCAPTCHA"));
 
             // mvc
-            services.AddMvc()
+            services.AddMvc(m =>
+                     {
+                         // this filter ensures all responses are consistently wrapped in JSON
+                         m.Filters.Add<PrimitiveResponseWrapperFilter>();
+                     })
+                    .AddApplicationPart(GetType().Assembly)
                     .AddControllersAsServices()
                     .AddJsonOptions(j => NanokaJsonSerializer.Apply(j.SerializerSettings));
 
@@ -63,11 +68,17 @@ namespace Nanoka
 
             // database
             services.AddSingleton<INanokaDatabase, NanokaElasticDatabase>()
-                    .AddScoped<SnapshotManager>()
-                    .AddScoped<UserManager>()
-                    .AddScoped<TokenManager>()
-                    .AddScoped<BookManager>()
-                    .AddScoped<VoteManager>();
+                    .AddScoped<IUserRepository>(s => s.GetService<INanokaDatabase>())
+                    .AddScoped<IBookRepository>(s => s.GetService<INanokaDatabase>())
+                    .AddScoped<IImageRepository>(s => s.GetService<INanokaDatabase>())
+                    .AddScoped<ISnapshotRepository>(s => s.GetService<INanokaDatabase>())
+                    .AddScoped<IVoteRepository>(s => s.GetService<INanokaDatabase>());
+
+            services.AddScoped(s => s.GetService<INanokaDatabase>() as ISoftDeleteQueue ?? new SoftDeleteQueue());
+
+            services.AddScoped<SnapshotHelper>()
+                    .AddScoped<VoteHelper>()
+                    .AddScoped<TokenManager>();
 
             // storage
             services.AddSingleton<IStorage>(s => new StorageWrapper(s, _configuration.GetSection("Storage")))

@@ -26,7 +26,7 @@ namespace Nanoka.Models
         [JsonProperty("rating")]
         public FilterQuery<MaterialRating> Rating { get; set; }
 
-        [JsonProperty("note_count")]
+        [JsonProperty("noteCount")]
         public RangeQuery<int> NoteCount { get; set; }
 
         public ImageQuery WithScore(RangeQuery<double> q) => Set(x => x.Score = q);

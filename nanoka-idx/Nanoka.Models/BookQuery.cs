@@ -20,7 +20,7 @@ namespace Nanoka.Models
         [JsonProperty("rating")]
         public FilterQuery<MaterialRating> Rating { get; set; }
 
-        [JsonProperty("page_count")]
+        [JsonProperty("pageCount")]
         public RangeQuery<int> PageCount { get; set; }
 
         [JsonProperty("language")]

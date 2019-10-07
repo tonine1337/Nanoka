@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Nanoka.Models;
 
 namespace Nanoka.Controllers
 {
@@ -10,12 +11,9 @@ namespace Nanoka.Controllers
     public class ErrorController : ControllerBase
     {
         [Route("error")]
-        public Result Handle()
+        public ResultModel<object> Handle()
         {
             var exception = HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
-
-            if (exception is ResultException resultException)
-                return resultException.Result;
 
             var builder = new StringBuilder()
                .Append("An internal server error caused this request to fail.");
@@ -27,11 +25,11 @@ namespace Nanoka.Controllers
                        .Append("Trace: ")
                        .Append(exception.StackTrace.Substring(0, exception.StackTrace.IndexOf('\n')).Trim());
 
-            return Result.InternalServerError(builder.ToString());
+            return new ResultModel<object>(HttpStatusCode.InternalServerError, builder.ToString(), null);
         }
 
         [Route("error/{status}")]
-        public Result Handle(HttpStatusCode status)
-            => Result.StatusCode(status, null);
+        public ResultModel<object> Handle(HttpStatusCode status)
+            => new ResultModel<object>(status, status.ToString(), null);
     }
 }

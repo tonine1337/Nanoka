@@ -8,17 +8,17 @@ using Nanoka.Models;
 
 namespace Nanoka
 {
-    public class SnapshotManager
+    public class SnapshotHelper
     {
-        readonly INanokaDatabase _db;
+        readonly ISnapshotRepository _snapshots;
         readonly IUserClaims _claims;
-        readonly ILogger<SnapshotManager> _logger;
+        readonly ILogger<SnapshotHelper> _logger;
 
-        public SnapshotManager(INanokaDatabase db, IUserClaims claims, ILogger<SnapshotManager> logger)
+        public SnapshotHelper(ISnapshotRepository snapshots, IUserClaims claims, ILogger<SnapshotHelper> logger)
         {
-            _db     = db;
-            _claims = claims;
-            _logger = logger;
+            _snapshots = snapshots;
+            _claims    = claims;
+            _logger    = logger;
         }
 
         SnapshotType SuitableType => _claims.HasPermissions(UserPermissions.Moderator) ? SnapshotType.Moderator : SnapshotType.User;
@@ -38,7 +38,7 @@ namespace Nanoka
                 Value       = value
             };
 
-            await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
+            await _snapshots.UpdateAsync(snapshot, cancellationToken);
 
             _logger.LogInformation("Created {0}", snapshot);
 
@@ -60,7 +60,7 @@ namespace Nanoka
                 Value       = value
             };
 
-            await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
+            await _snapshots.UpdateAsync(snapshot, cancellationToken);
 
             _logger.LogInformation("Modified {0}", snapshot);
 
@@ -81,7 +81,7 @@ namespace Nanoka
                 Reason      = reason ?? _claims.GetReason()
             };
 
-            await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
+            await _snapshots.UpdateAsync(snapshot, cancellationToken);
 
             _logger.LogInformation("Deleted {0}", snapshot);
 
@@ -104,7 +104,7 @@ namespace Nanoka
                 Value       = targetRollback.Value
             };
 
-            await _db.UpdateSnapshotAsync(snapshot, cancellationToken);
+            await _snapshots.UpdateAsync(snapshot, cancellationToken);
 
             _logger.LogInformation("Reverted {0}", snapshot);
 
@@ -119,22 +119,16 @@ namespace Nanoka
             var count   = Math.Clamp(end - start, 0, _snapshotMaxReturn);
             var reverse = bool.TryParse(_claims.QueryParams.GetValueOrDefault("reverse"), out var r) && r;
 
-            var snapshots = await _db.GetSnapshotsAsync<T>(entityId, start, count, reverse, cancellationToken);
-
-            if (snapshots.Length == 0)
-                throw Result.NotFound<T>(entityId).Exception;
-
-            return snapshots;
+            return await _snapshots.GetAsync<T>(entityId, start, count, reverse, cancellationToken);
         }
 
-        public async Task<Snapshot<T>> GetAsync<T>(string id, string entityId, CancellationToken cancellationToken = default)
+        public async Task<Snapshot<T>> GetAsync<T>(string entityId, string id, CancellationToken cancellationToken = default)
         {
-            var snapshot = await _db.GetSnapshotAsync<T>(id, entityId, cancellationToken);
+            var snapshot = await _snapshots.GetAsync<T>(id, cancellationToken);
 
-            if (snapshot == null)
-                throw Result.NotFound<Snapshot<T>>(entityId, id).Exception;
-
-            return snapshot;
+            return snapshot.EntityId == entityId
+                ? snapshot
+                : null;
         }
     }
 }

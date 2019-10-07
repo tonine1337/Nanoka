@@ -1,6 +1,12 @@
+using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Nanoka.Database;
 using Nanoka.Models;
 using Nanoka.Models.Requests;
 using Nanoka.Storage;
@@ -12,68 +18,246 @@ namespace Nanoka.Controllers
     [Authorize]
     public class BookController : ControllerBase
     {
-        readonly BookManager _bookManager;
+        readonly IBookRepository _books;
+        readonly ILocker _locker;
         readonly IStorage _storage;
+        readonly IMapper _mapper;
+        readonly UploadManager _uploads;
+        readonly SnapshotHelper _snapshots;
+        readonly ImageProcessor _image;
+        readonly VoteHelper _votes;
 
-        public BookController(BookManager bookManager, IStorage storage)
+        public BookController(IBookRepository books, ILocker locker, IStorage storage, IMapper mapper,
+                              UploadManager uploads, SnapshotHelper snapshots, ImageProcessor image, VoteHelper votes)
         {
-            _bookManager = bookManager;
-            _storage     = storage;
+            _books     = books;
+            _locker    = locker;
+            _storage   = storage;
+            _mapper    = mapper;
+            _uploads   = uploads;
+            _snapshots = snapshots;
+            _image     = image;
+            _votes     = votes;
         }
 
         [HttpGet("{id}")]
-        public async Task<Result<Book>> GetAsync(string id)
-            => await _bookManager.GetAsync(id);
+        public async Task<ActionResult<Book>> GetAsync(string id)
+        {
+            var book = await _books.GetAsync(id);
+
+            if (book == null)
+                return ResultUtilities.NotFound<Book>(id);
+
+            return book;
+        }
 
         [HttpPut("{id}")]
         [UserClaims(unrestricted: true)]
-        public async Task<Result<Book>> UpdateAsync(string id, BookBase book)
-            => await _bookManager.UpdateAsync(id, book);
+        public async Task<ActionResult<Book>> UpdateAsync(string id, BookBase model)
+        {
+            using (await _locker.EnterAsync(id))
+            {
+                var book = await _books.GetAsync(id);
+
+                if (book == null)
+                    return ResultUtilities.NotFound<Book>(id);
+
+                _mapper.Map(model, book);
+
+                await _books.UpdateAsync(book);
+                await _snapshots.ModifiedAsync(book);
+
+                return book;
+            }
+        }
 
         [HttpDelete("{id}")]
         [UserClaims(unrestricted: true, reputation: 100, reason: true)]
         [VerifyHuman]
-        public async Task<Result> DeleteAsync(string id)
+        public async Task<ActionResult> DeleteAsync(string id)
         {
-            await _bookManager.DeleteAsync(id);
-            return Result.Ok();
+            using (await _locker.EnterAsync(id))
+            {
+                var book = await _books.GetAsync(id);
+
+                if (book == null)
+                    return ResultUtilities.NotFound<Book>(id);
+
+                await _books.DeleteAsync(book);
+                await _snapshots.DeletedAsync(book);
+                await _storage.DeleteAsync(GetFileNames(book));
+            }
+
+            return Ok();
+        }
+
+        static string[] GetFileNames(Book book) => book.Contents?.ToArrayMany(c => GetFileNames(book, c)) ?? new string[0];
+
+        static string[] GetFileNames(IHasId book, BookContent content)
+        {
+            var names = new string[content.PageCount];
+
+            for (var i = 0; i < names.Length; i++)
+                names[i] = $"{book.Id}/{content.Id}/{i + 1}";
+
+            return names;
         }
 
         [HttpGet("{id}/snapshots")]
-        public async Task<Result<Snapshot<Book>[]>> GetSnapshotsAsync(string id)
-            => await _bookManager.GetSnapshotsAsync(id);
+        public async Task<Snapshot<Book>[]> GetSnapshotsAsync(string id)
+            => await _snapshots.GetAsync<Book>(id);
 
         [HttpPost("{id}/snapshots/revert")]
         [UserClaims(unrestricted: true, reason: true)]
-        public async Task<Result<Book>> RevertAsync(string id, RevertEntityRequest request)
-            => await _bookManager.RevertAsync(id, request.SnapshotId);
+        public async Task<ActionResult<Book>> RevertAsync(string id, RevertEntityRequest request)
+        {
+            using (await _locker.EnterAsync(id))
+            {
+                var snapshot = await _snapshots.GetAsync<Book>(id, request.SnapshotId);
+
+                if (snapshot == null)
+                    return ResultUtilities.NotFound<Snapshot>(id, request.SnapshotId);
+
+                var book = await _books.GetAsync(id);
+
+                if (book != null && snapshot.Value == null)
+                {
+                    await _books.DeleteAsync(book);
+                    await _storage.DeleteAsync(GetFileNames(book));
+
+                    book = null;
+                }
+
+                else if (snapshot.Value != null)
+                {
+                    book = snapshot.Value;
+
+                    await _books.UpdateAsync(book);
+
+                    if (_storage is ISoftDeleteStorage softDeleteStorage)
+                        await softDeleteStorage.RestoreAsync(GetFileNames(book));
+                }
+
+                await _snapshots.RevertedAsync(snapshot);
+
+                return book;
+            }
+        }
 
         [HttpPut("{id}/vote")]
-        public async Task<Vote> SetVoteAsync(string id, VoteBase vote)
-            => await _bookManager.VoteAsync(id, vote.Type);
+        public async Task<ActionResult<Vote>> SetVoteAsync(string id, VoteBase model)
+        {
+            using (await _locker.EnterAsync(id))
+            {
+                var book = await _books.GetAsync(id);
+
+                if (book == null)
+                    return ResultUtilities.NotFound<Book>(id);
+
+                var vote = await _votes.SetAsync(book, model.Type);
+
+                // score is updated
+                await _books.UpdateAsync(book);
+
+                return vote;
+            }
+        }
 
         [HttpDelete("{id}/vote")]
-        public async Task<Result> UnsetVoteAsync(string id)
+        public async Task<ActionResult> UnsetVoteAsync(string id)
         {
-            await _bookManager.VoteAsync(id, null);
-            return Result.Ok();
+            using (await _locker.EnterAsync(id))
+            {
+                var book = await _books.GetAsync(id);
+
+                if (book == null)
+                    return ResultUtilities.NotFound<Book>(id);
+
+                await _votes.SetAsync(book, null);
+
+                // score is updated
+                await _books.UpdateAsync(book);
+
+                return Ok();
+            }
         }
 
         [HttpGet("{id}/contents/{contentId}")]
-        public async Task<Result<BookContent>> GetContentAsync(string id, string contentId)
-            => (await _bookManager.GetContentAsync(id, contentId)).content;
+        public async Task<ActionResult<BookContent>> GetContentAsync(string id, string contentId)
+        {
+            var book = await _books.GetAsync(id);
+
+            if (book == null)
+                return ResultUtilities.NotFound<Book>(id);
+
+            var content = book.Contents.FirstOrDefault(c => c.Id == contentId);
+
+            if (content == null)
+                return ResultUtilities.NotFound<BookContent>(id, contentId);
+
+            return content;
+        }
 
         [HttpPut("{id}/contents/{contentId}")]
-        public async Task<Result<BookContent>> UpdateContentAsync(string id, string contentId, BookContentBase content)
-            => await _bookManager.UpdateContentAsync(id, contentId, content);
+        public async Task<ActionResult<BookContent>> UpdateContentAsync(string id, string contentId, BookContentBase model)
+        {
+            using (await _locker.EnterAsync(id))
+            {
+                var book = await _books.GetAsync(id);
+
+                if (book == null)
+                    return ResultUtilities.NotFound<Book>(id);
+
+                var content = book.Contents.FirstOrDefault(c => c.Id == contentId);
+
+                if (content == null)
+                    return ResultUtilities.NotFound<BookContent>(id, contentId);
+
+                _mapper.Map(model, content);
+
+                await _books.UpdateAsync(book);
+                await _snapshots.ModifiedAsync(book);
+
+                return content;
+            }
+        }
 
         [HttpDelete("{id}/contents/{contentId}")]
         [UserClaims(unrestricted: true, reputation: 100, reason: true)]
         [VerifyHuman]
-        public async Task<Result> DeleteContentAsync(string id, string contentId)
+        public async Task<ActionResult> DeleteContentAsync(string id, string contentId)
         {
-            await _bookManager.RemoveContentAsync(id, contentId);
-            return Result.Ok();
+            using (await _locker.EnterAsync(id))
+            {
+                var book = await _books.GetAsync(id);
+
+                if (book == null)
+                    return ResultUtilities.NotFound<Book>(id);
+
+                var content = book.Contents.FirstOrDefault(c => c.Id == contentId);
+
+                if (content == null)
+                    return ResultUtilities.NotFound<BookContent>(id, contentId);
+
+                if (book.Contents.Length == 1)
+                {
+                    // delete the entire book
+                    await _books.DeleteAsync(book);
+                    await _snapshots.DeletedAsync(book);
+                }
+                else
+                {
+                    // remove the content
+                    book.Contents = book.Contents.Where(c => c != content).ToArray();
+
+                    await _books.UpdateAsync(book);
+                    await _snapshots.ModifiedAsync(book);
+                }
+
+                await _storage.DeleteAsync(GetFileNames(book, content));
+
+                return Ok();
+            }
         }
 
         [HttpGet("{id}/contents/{contentId}/images/{index}")]
@@ -83,13 +267,187 @@ namespace Nanoka.Controllers
             var file = await _storage.ReadAsync($"{id}/{contentId}/{index}");
 
             if (file == null)
-                return Result.NotFound<StorageFile>(id, contentId, index);
+                return ResultUtilities.NotFound<StorageFile>(id, contentId, index);
 
-            return new FileStreamResult(file.Stream, file.MediaType);
+            var stream    = file.Stream;
+            var mediaType = file.MediaType;
+
+            return new FileStreamResult(stream, mediaType);
         }
 
         [HttpPost("search")]
-        public async Task<Result<SearchResult<Book>>> SearchAsync(BookQuery query)
-            => await _bookManager.SearchAsync(query);
+        public async Task<SearchResult<Book>> SearchAsync(BookQuery query)
+            => await _books.SearchAsync(query);
+
+        sealed class BookUpload
+        {
+            public string BookId;
+
+            public BookBase Book;
+            public BookContentBase Content;
+        }
+
+        [HttpPost("uploads")]
+        [UserClaims(unrestricted: true)]
+        public async Task<ActionResult<UploadState>> CreateUploadAsync(CreateNewBookRequest request)
+        {
+            try
+            {
+                // creating an entirely new book
+                if (request.Book != null)
+                    return _uploads.CreateTask(new BookUpload
+                    {
+                        Book    = request.Book,
+                        Content = request.Content
+                    });
+
+                // adding contents to an existing book
+                if (request.BookId != null)
+                {
+                    var book = await _books.GetAsync(request.BookId);
+
+                    if (book == null)
+                        return ResultUtilities.NotFound<Book>(request.BookId);
+
+                    return _uploads.CreateTask(new BookUpload
+                    {
+                        BookId  = book.Id,
+                        Content = request.Content
+                    });
+                }
+            }
+            catch (InvalidOperationException e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            throw new ArgumentException("Invalid upload state.");
+        }
+
+        [HttpGet("uploads/{id}")]
+        public ActionResult<UploadState> GetUpload(string id)
+        {
+            var task = _uploads.GetTask<BookUpload>(id);
+
+            if (task == null)
+                return ResultUtilities.NotFound<UploadTask>(id);
+
+            return task;
+        }
+
+        [HttpPost("uploads/{id}/files")]
+        public async Task<ActionResult<UploadState>> UploadFileAsync(string id, [FromForm(Name = "file")] IFormFile file)
+        {
+            var task = _uploads.GetTask<BookUpload>(id);
+
+            if (task == null)
+                return ResultUtilities.NotFound<UploadTask>(id);
+
+            Stream stream;
+            string mediaType;
+
+            try
+            {
+                (stream, mediaType) = await _image.LoadAsync(file);
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (FormatException e)
+            {
+                return UnprocessableEntity(e.Message);
+            }
+
+            try
+            {
+                using (stream)
+                    await task.AddFileAsync(null, stream, mediaType);
+            }
+            catch (InvalidOperationException e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            return task;
+        }
+
+        [HttpDelete("uploads/{id}")]
+        public async Task<ActionResult<Book>> DeleteUploadAsync(string id, [FromQuery] bool commit)
+        {
+            using (var task = _uploads.RemoveTask<BookUpload>(id))
+            {
+                if (task == null)
+                    return ResultUtilities.NotFound<UploadTask>(id);
+
+                if (!commit)
+                    return Ok();
+
+                if (task.FileCount == 0)
+                    return BadRequest("No files were uploaded to be committed.");
+
+                if (task.Data.Book != null)
+                {
+                    var book    = _mapper.Map<Book>(task.Data.Book);
+                    var content = _mapper.Map<BookContent>(task.Data.Content);
+
+                    content.Id        = Snowflake.New;
+                    content.PageCount = task.FileCount;
+
+                    book.Contents = new[] { content };
+
+                    await _books.UpdateAsync(book);
+                    await _snapshots.CreatedAsync(book);
+
+                    await UploadContentAsync(book, content, task);
+
+                    return book;
+                }
+
+                if (task.Data.BookId != null)
+                    using (await _locker.EnterAsync(task.Data.BookId))
+                    {
+                        var book = await _books.GetAsync(task.Data.BookId);
+
+                        if (book == null)
+                            return ResultUtilities.NotFound<Book>(task.Data.BookId);
+
+                        var content = _mapper.Map<BookContent>(task.Data.Content);
+
+                        content.Id        = Snowflake.New;
+                        content.PageCount = task.FileCount;
+
+                        book.Contents = book.Contents.Append(content).ToArray();
+
+                        await _books.UpdateAsync(book);
+                        await _snapshots.ModifiedAsync(book);
+
+                        await UploadContentAsync(book, content, task);
+
+                        return book;
+                    }
+
+                throw new InvalidOperationException("Invalid upload state.");
+            }
+        }
+
+        async Task UploadContentAsync(IHasId book, BookContent content, UploadTask task)
+        {
+            var names = GetFileNames(book, content);
+
+            var array = task.EnumerateFiles().ToArray();
+
+            for (var i = 0; i < array.Length; i++)
+            {
+                var (_, s, m) = array[i];
+
+                await _storage.WriteAsync(new StorageFile
+                {
+                    Name      = names[i],
+                    Stream    = s,
+                    MediaType = m
+                });
+            }
+        }
     }
 }

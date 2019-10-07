@@ -26,7 +26,7 @@ namespace Nanoka
             lock (_tasks)
             {
                 if (_tasks.Values.Count(t => t.UploaderId == _claims.Id) == _options.UploadTaskLimitPerUser)
-                    throw Result.TooManyRequests($"May not create more than {_options.UploadTaskLimitPerUser} active upload tasks.").Exception;
+                    throw new InvalidOperationException($"May not create more than {_options.UploadTaskLimitPerUser} active upload tasks.");
 
                 var task = new UploadTask<T>(data)
                 {
@@ -50,7 +50,7 @@ namespace Nanoka
                     task.UploaderId == _claims.Id)
                     return genericTask;
 
-                throw Result.NotFound<UploadTask>(id).Exception;
+                return null;
             }
         }
 
@@ -63,7 +63,8 @@ namespace Nanoka
             {
                 var task = GetTask<T>(id);
 
-                _tasks.Remove(task.Id);
+                if (task != null)
+                    _tasks.Remove(task.Id);
 
                 return task;
             }

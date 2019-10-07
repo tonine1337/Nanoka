@@ -9,12 +9,13 @@ using Elasticsearch.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nanoka.Models;
+using Nanoka.Storage;
 using Nest;
 using Newtonsoft.Json;
 
 namespace Nanoka.Database
 {
-    public class NanokaElasticDatabase : INanokaDatabase
+    public class NanokaElasticDatabase : INanokaDatabase, ISoftDeleteQueue
     {
         readonly ElasticClient _client;
 
@@ -76,7 +77,7 @@ namespace Nanoka.Database
                         Permissions = UserPermissions.Administrator
                     };
 
-                    await UpdateUserAsync(user, cancellationToken);
+                    await ((IUserRepository) this).UpdateAsync(user, cancellationToken);
 
                     _logger.LogWarning($"Administrator user created. USERNAME:{_defaultAdminUsername} --- PASSWORD:{_defaultAdminPassword}");
                 }
@@ -120,10 +121,10 @@ namespace Nanoka.Database
 
 #region User
 
-        public async Task<User> GetUserByIdAsync(string id, CancellationToken cancellationToken = default)
+        async Task<User> IUserRepository.GetByIdAsync(string id, CancellationToken cancellationToken)
             => (await GetAsync<DbUser>(id, cancellationToken))?.ToUser();
 
-        public async Task<User> GetUserByNameAsync(string username, CancellationToken cancellationToken = default)
+        async Task<User> IUserRepository.GetByNameAsync(string username, CancellationToken cancellationToken)
         {
             var result = await SearchAsync<DbUser, User>(
                 (0, 1),
@@ -138,26 +139,26 @@ namespace Nanoka.Database
             return result.Items.FirstOrDefault();
         }
 
-        public async Task UpdateUserAsync(User user, CancellationToken cancellationToken = default)
+        async Task IUserRepository.UpdateAsync(User user, CancellationToken cancellationToken)
             => user.Id = await IndexAsync(DbUser.FromUser(user), cancellationToken);
 
-        public Task DeleteUserAsync(User user, CancellationToken cancellationToken = default)
+        Task IUserRepository.DeleteAsync(User user, CancellationToken cancellationToken)
             => DeleteAsync<DbUser>(user.Id, cancellationToken);
 
 #endregion
 
 #region Book
 
-        public async Task<Book> GetBookAsync(string id, CancellationToken cancellationToken = default)
+        async Task<Book> IBookRepository.GetAsync(string id, CancellationToken cancellationToken)
             => (await GetAsync<DbBook>(id, cancellationToken))?.ToBook();
 
-        public async Task UpdateBookAsync(Book book, CancellationToken cancellationToken = default)
+        async Task IBookRepository.UpdateAsync(Book book, CancellationToken cancellationToken)
             => book.Id = await IndexAsync(DbBook.FromBook(book), cancellationToken);
 
-        public Task DeleteBookAsync(Book book, CancellationToken cancellationToken = default)
+        Task IBookRepository.DeleteAsync(Book book, CancellationToken cancellationToken)
             => DeleteAsync<DbBook>(book.Id, cancellationToken);
 
-        public async Task<SearchResult<Book>> SearchBooksAsync(BookQuery query, CancellationToken cancellationToken = default)
+        async Task<SearchResult<Book>> IBookRepository.SearchAsync(BookQuery query, CancellationToken cancellationToken)
         {
             var results = await SearchAsync<DbBook, Book>(
                 (query.Offset, query.Limit),
@@ -213,29 +214,23 @@ namespace Nanoka.Database
 
 #region Image
 
-        public async Task<Image> GetImageAsync(string id, CancellationToken cancellationToken = default)
+        async Task<Image> IImageRepository.GetAsync(string id, CancellationToken cancellationToken)
             => (await GetAsync<DbImage>(id, cancellationToken))?.ToImage();
 
-        public async Task UpdateImageAsync(Image image, CancellationToken cancellationToken = default)
+        async Task IImageRepository.UpdateAsync(Image image, CancellationToken cancellationToken)
             => image.Id = await IndexAsync(DbImage.FromImage(image), cancellationToken);
 
-        public Task DeleteImageAsync(Image image, CancellationToken cancellationToken = default)
+        Task IImageRepository.DeleteAsync(Image image, CancellationToken cancellationToken)
             => DeleteAsync<DbImage>(image.Id, cancellationToken);
 
 #endregion
 
 #region Snapshot
 
-        public async Task<Snapshot<T>> GetSnapshotAsync<T>(string id, string entityId, CancellationToken cancellationToken = default)
-        {
-            var snapshot = (await GetAsync<DbSnapshot>(id, cancellationToken))?.ToSnapshot<T>(_serializer);
+        async Task<Snapshot<T>> ISnapshotRepository.GetAsync<T>(string id, CancellationToken cancellationToken)
+            => (await GetAsync<DbSnapshot>(id, cancellationToken))?.ToSnapshot<T>(_serializer);
 
-            return snapshot?.EntityId == entityId
-                ? snapshot
-                : null;
-        }
-
-        public async Task<Snapshot<T>[]> GetSnapshotsAsync<T>(string entityId, int start, int count, bool chronological, CancellationToken cancellationToken = default)
+        async Task<Snapshot<T>[]> ISnapshotRepository.GetAsync<T>(string entityId, int start, int count, bool chronological, CancellationToken cancellationToken)
         {
             var result = await SearchAsync<DbSnapshot, Snapshot<T>>(
                 (start, count),
@@ -252,23 +247,23 @@ namespace Nanoka.Database
             return result.Items;
         }
 
-        public async Task UpdateSnapshotAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken = default)
+        async Task ISnapshotRepository.UpdateAsync<T>(Snapshot<T> snapshot, CancellationToken cancellationToken)
             => snapshot.Id = await IndexAsync(DbSnapshot.FromSnapshot(snapshot, _serializer), cancellationToken);
 
 #endregion
 
 #region Vote
 
-        public async Task<Vote> GetVoteAsync(string userId, NanokaEntity entity, string entityId, CancellationToken cancellationToken = default)
+        async Task<Vote> IVoteRepository.GetAsync(string userId, NanokaEntity entity, string entityId, CancellationToken cancellationToken)
             => (await GetAsync<DbVote>(DbVote.CreateId(userId, entity, entityId), cancellationToken))?.ToVote();
 
-        public async Task UpdateVoteAsync(Vote vote, CancellationToken cancellationToken = default)
+        async Task IVoteRepository.UpdateAsync(Vote vote, CancellationToken cancellationToken)
             => await IndexAsync(DbVote.FromVote(vote), cancellationToken);
 
-        public async Task DeleteVoteAsync(Vote vote, CancellationToken cancellationToken = default)
+        async Task IVoteRepository.DeleteAsync(Vote vote, CancellationToken cancellationToken)
             => await DeleteAsync<DbVote>(DbVote.CreateId(vote.UserId, vote.EntityType, vote.EntityId), cancellationToken);
 
-        public async Task<int> DeleteVotesAsync(NanokaEntity entity, string entityId, CancellationToken cancellationToken = default)
+        async Task<int> IVoteRepository.DeleteAsync(NanokaEntity entity, string entityId, CancellationToken cancellationToken)
         {
             var deleted = await DeleteAsync<DbVote>(
                 q => q.Query(qq => qq.Bool(b => b.Filter(f => f.Term(t => t.Field(v => v.EntityType)
@@ -282,28 +277,28 @@ namespace Nanoka.Database
 
 #endregion
 
-#region DeleteFile
+#region Soft-delete Queue
 
-        public async Task AddDeleteFilesAsync(string[] filenames, DateTime softDeleteTime, CancellationToken cancellationToken = default)
+        async Task ISoftDeleteQueue.EnqueueAsync(IEnumerable<string> names, DateTime deletedTime, CancellationToken cancellationToken)
         {
-            var files = filenames.ToArray(name => new DbDeleteFile
+            var files = names.ToArray(name => new DbDeleteFile
             {
                 Id             = name,
-                SoftDeleteTime = softDeleteTime
+                SoftDeleteTime = deletedTime
             });
 
             await IndexAsync(files, cancellationToken);
         }
 
-        public async Task RemoveDeleteFileAsync(string[] filenames, CancellationToken cancellationToken = default)
-            => await DeleteAsync<DbDeleteFile>(filenames, cancellationToken);
+        async Task ISoftDeleteQueue.DequeueAsync(IEnumerable<string> names, CancellationToken cancellationToken)
+            => await DeleteAsync<DbDeleteFile>(names.ToArray(), cancellationToken);
 
-        public async Task<string[]> GetAndRemoveDeleteFilesAsync(DateTime maxSoftDeleteTime, CancellationToken cancellationToken = default)
+        async Task<string[]> ISoftDeleteQueue.DequeueAsync(DateTime maxDeletedTime, CancellationToken cancellationToken)
         {
             var result = await SearchAsync<DbDeleteFile, string>(
                 (0, 100),
                 q => q.Query(qq => qq.Bool(b => b.Filter(ff => ff.DateRange(r => r.Field(f => f.SoftDeleteTime)
-                                                                                  .LessThan(maxSoftDeleteTime)))))
+                                                                                  .LessThan(maxDeletedTime)))))
                       .Sort(s => s.Ascending(f => f.SoftDeleteTime)),
                 f => f.Id,
                 cancellationToken);
@@ -316,7 +311,7 @@ namespace Nanoka.Database
 
 #endregion
 
-#region Client calls
+#region Internal
 
         async Task<TDocument> GetAsync<TDocument>(DocumentPath<TDocument> id, CancellationToken cancellationToken)
             where TDocument : class

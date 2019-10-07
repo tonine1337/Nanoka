@@ -1,3 +1,4 @@
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -18,7 +19,10 @@ namespace Nanoka
                 if (await validator.TryValidateAsync(context.HttpContext.Request.Query["recaptcha"], context.HttpContext.RequestAborted))
                     return;
 
-                context.Result = Result.BadRequest("Could not verify reCAPTCHA token.");
+                context.Result = new ObjectResult("Could not verify reCAPTCHA token.")
+                {
+                    StatusCode = (int) HttpStatusCode.BadRequest
+                };
             }
         }
     }

@@ -14,7 +14,7 @@ namespace Nanoka.Models
         [JsonProperty("uploader")]
         public string UploaderId { get; set; }
 
-        [JsonProperty("file_count")]
+        [JsonProperty("fileCount")]
         public int FileCount { get; set; }
     }
 }
