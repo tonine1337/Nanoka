@@ -123,6 +123,12 @@ namespace Nanoka
         }
 
         public async Task<Snapshot<T>> GetAsync<T>(string entityId, string id, CancellationToken cancellationToken = default)
-            => await _snapshots.GetAsync<T>(id, entityId, cancellationToken);
+        {
+            var snapshot = await _snapshots.GetAsync<T>(id, cancellationToken);
+
+            return snapshot.EntityId == entityId
+                ? snapshot
+                : null;
+        }
     }
 }

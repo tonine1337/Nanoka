@@ -6,7 +6,7 @@ namespace Nanoka.Database
 {
     public interface ISnapshotRepository
     {
-        Task<Snapshot<T>> GetAsync<T>(string id, string entityId, CancellationToken cancellationToken = default);
+        Task<Snapshot<T>> GetAsync<T>(string id, CancellationToken cancellationToken = default);
 
         Task<Snapshot<T>[]> GetAsync<T>(string entityId, int start, int count, bool chronological, CancellationToken cancellationToken = default);
 

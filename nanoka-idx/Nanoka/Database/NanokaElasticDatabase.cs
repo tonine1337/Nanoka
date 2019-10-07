@@ -226,14 +226,8 @@ namespace Nanoka.Database
 
 #region Snapshot
 
-        async Task<Snapshot<T>> ISnapshotRepository.GetAsync<T>(string id, string entityId, CancellationToken cancellationToken)
-        {
-            var snapshot = (await GetAsync<DbSnapshot>(id, cancellationToken))?.ToSnapshot<T>(_serializer);
-
-            return snapshot?.EntityId == entityId
-                ? snapshot
-                : null;
-        }
+        async Task<Snapshot<T>> ISnapshotRepository.GetAsync<T>(string id, CancellationToken cancellationToken)
+            => (await GetAsync<DbSnapshot>(id, cancellationToken))?.ToSnapshot<T>(_serializer);
 
         async Task<Snapshot<T>[]> ISnapshotRepository.GetAsync<T>(string entityId, int start, int count, bool chronological, CancellationToken cancellationToken)
         {
