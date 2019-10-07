@@ -38,6 +38,7 @@ namespace Nanoka
 
             // mvc
             services.AddMvc()
+                    .AddApplicationPart(GetType().Assembly)
                     .AddControllersAsServices()
                     .AddJsonOptions(j => NanokaJsonSerializer.Apply(j.SerializerSettings));
 
