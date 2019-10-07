@@ -1,6 +1,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Nanoka
 {
@@ -13,12 +14,19 @@ namespace Nanoka
             _next = next;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public async Task InvokeAsync(HttpContext context, TokenManager token)
         {
-            if (!await token.IsValidAsync(context.RequestAborted))
-                throw Result.StatusCode(HttpStatusCode.Unauthorized, "Token was invalidated.").Exception;
+            if (await token.IsValidAsync(context.RequestAborted))
+            {
+                await _next(context);
+                return;
+            }
 
-            await _next(context);
+            await context.ExecuteResultAsync(new ObjectResult("Token was invalidated.")
+            {
+                StatusCode = (int) HttpStatusCode.Unauthorized
+            });
         }
     }
 }

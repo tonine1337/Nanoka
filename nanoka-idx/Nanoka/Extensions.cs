@@ -6,6 +6,11 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
@@ -14,6 +19,23 @@ namespace Nanoka
 {
     public static class Extensions
     {
+        // https://kristian.hellang.com/using-mvc-result-executors-in-middleware/
+        static readonly RouteData _emptyRouteData = new RouteData();
+        static readonly ActionDescriptor _emptyActionDescriptor = new ActionDescriptor();
+
+        public static Task ExecuteResultAsync<TResult>(this HttpContext context, TResult result) where TResult : IActionResult
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (result == null) throw new ArgumentNullException(nameof(result));
+
+            var executor = context.RequestServices.GetRequiredService<IActionResultExecutor<TResult>>();
+
+            var routeData     = context.GetRouteData() ?? _emptyRouteData;
+            var actionContext = new ActionContext(context, routeData, _emptyActionDescriptor);
+
+            return executor.ExecuteAsync(actionContext, result);
+        }
+
         /// <summary>
         /// This is NOT cryptographically secure!!
         /// </summary>
