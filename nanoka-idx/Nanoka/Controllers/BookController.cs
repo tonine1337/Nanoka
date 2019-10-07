@@ -291,40 +291,57 @@ namespace Nanoka.Controllers
         [UserClaims(unrestricted: true)]
         public async Task<ActionResult<UploadState>> CreateUploadAsync(CreateNewBookRequest request)
         {
-            // creating an entirely new book
-            if (request.Book != null)
-                return _uploads.CreateTask(new BookUpload
-                {
-                    Book    = request.Book,
-                    Content = request.Content
-                });
-
-            // adding contents to an existing book
-            if (request.BookId != null)
+            try
             {
-                var book = await _books.GetAsync(request.BookId);
+                // creating an entirely new book
+                if (request.Book != null)
+                    return _uploads.CreateTask(new BookUpload
+                    {
+                        Book    = request.Book,
+                        Content = request.Content
+                    });
 
-                if (book == null)
-                    return ResultUtilities.NotFound<Book>(request.BookId);
-
-                return _uploads.CreateTask(new BookUpload
+                // adding contents to an existing book
+                if (request.BookId != null)
                 {
-                    BookId  = book.Id,
-                    Content = request.Content
-                });
+                    var book = await _books.GetAsync(request.BookId);
+
+                    if (book == null)
+                        return ResultUtilities.NotFound<Book>(request.BookId);
+
+                    return _uploads.CreateTask(new BookUpload
+                    {
+                        BookId  = book.Id,
+                        Content = request.Content
+                    });
+                }
+            }
+            catch (InvalidOperationException e)
+            {
+                return BadRequest(e.Message);
             }
 
             throw new ArgumentException("Invalid upload state.");
         }
 
         [HttpGet("uploads/{id}")]
-        public UploadState GetUpload(string id)
-            => _uploads.GetTask<BookUpload>(id);
+        public ActionResult<UploadState> GetUpload(string id)
+        {
+            var task = _uploads.GetTask<BookUpload>(id);
+
+            if (task == null)
+                return ResultUtilities.NotFound<UploadTask>(id);
+
+            return task;
+        }
 
         [HttpPost("uploads/{id}/files")]
         public async Task<ActionResult<UploadState>> UploadFileAsync(string id, [FromForm(Name = "file")] IFormFile file)
         {
             var task = _uploads.GetTask<BookUpload>(id);
+
+            if (task == null)
+                return ResultUtilities.NotFound<UploadTask>(id);
 
             Stream stream;
             string mediaType;
@@ -353,6 +370,9 @@ namespace Nanoka.Controllers
         {
             using (var task = _uploads.RemoveTask<BookUpload>(id))
             {
+                if (task == null)
+                    return ResultUtilities.NotFound<UploadTask>(id);
+
                 if (!commit)
                     return Ok();
 
