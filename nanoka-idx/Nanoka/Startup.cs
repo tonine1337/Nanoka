@@ -110,6 +110,7 @@ namespace Nanoka
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 
                 s.IncludeXmlComments(xmlPath);
+                s.EnableAnnotations();
             });
 
             // other utilities
