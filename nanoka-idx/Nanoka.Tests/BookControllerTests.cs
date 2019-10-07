@@ -188,7 +188,7 @@ namespace Nanoka.Tests
 
                 await controller.DeleteAsync(book.Id);
 
-                Assert.That((await controller.GetAsync(book.Id)).Result, Is.TypeOf<NotFoundResult>());
+                Assert.That((await controller.GetAsync(book.Id)).Result, Is.TypeOf<NotFoundObjectResult>());
 
                 snapshots = await controller.GetSnapshotsAsync(book.Id);
 
@@ -209,7 +209,7 @@ namespace Nanoka.Tests
                 revertedBook = (await controller.RevertAsync(book.Id, new RevertEntityRequest { SnapshotId = snapshots[3].Id })).Value;
 
                 Assert.That(revertedBook, Is.Null);
-                Assert.That((await controller.GetAsync(book.Id)).Result, Is.TypeOf<NotFoundResult>());
+                Assert.That((await controller.GetAsync(book.Id)).Result, Is.TypeOf<NotFoundObjectResult>());
             }
         }
 
