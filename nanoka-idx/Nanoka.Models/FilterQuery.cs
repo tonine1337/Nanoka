@@ -7,9 +7,15 @@ namespace Nanoka.Models
 {
     public struct FilterQuery<T> : ISearchQuery
     {
+        /// <summary>
+        /// Values to match.
+        /// </summary>
         [JsonProperty("value")]
         public T[] Values { get; set; }
 
+        /// <summary>
+        /// Match mode.
+        /// </summary>
         [JsonProperty("mode")]
         public QueryMatchMode Mode { get; set; }
 

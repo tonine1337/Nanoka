@@ -7,7 +7,7 @@ namespace Nanoka.Models
     public enum UserPermissions
     {
         /// <summary>
-        /// User has no special permission.
+        /// User has no special permissions.
         /// </summary>
         [EnumMember(Value = "none")] None = 0,
 
@@ -19,7 +19,7 @@ namespace Nanoka.Models
 
         /// <summary>
         /// User is a moderator.
-        /// It can manage other user accounts.
+        /// They can manage other user accounts.
         /// </summary>
         [EnumMember(Value = "mod")] Moderator = 1 << 1
     }

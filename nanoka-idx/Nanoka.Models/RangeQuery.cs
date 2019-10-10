@@ -8,12 +8,22 @@ namespace Nanoka.Models
     /// </remarks>
     public struct RangeQuery<T> : ISearchQuery where T : struct
     {
+        /// <summary>
+        /// Minimum value to match.
+        /// </summary>
         [JsonProperty("min")]
         public T? Minimum { get; set; }
 
+        /// <summary>
+        /// Maximum value to match.
+        /// </summary>
         [JsonProperty("max")]
         public T? Maximum { get; set; }
 
+        /// <summary>
+        /// Whether the match is inclusive or exclusive.
+        /// Match is inclusive by default.
+        /// </summary>
         [JsonProperty("exclusive")]
         public bool Exclusive { get; set; }
 

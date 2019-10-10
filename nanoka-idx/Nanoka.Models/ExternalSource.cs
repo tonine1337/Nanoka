@@ -6,9 +6,15 @@ namespace Nanoka.Models
 {
     public struct ExternalSource : IEquatable<ExternalSource>
     {
+        /// <summary>
+        /// Website domain name without containing scheme or path.
+        /// </summary>
         [JsonProperty("website"), Required]
         public string Website { get; set; }
 
+        /// <summary>
+        /// Identifier used by the website.
+        /// </summary>
         [JsonProperty("identifier"), Required]
         public string Identifier { get; set; }
 

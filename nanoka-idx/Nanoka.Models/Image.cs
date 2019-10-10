@@ -10,18 +10,33 @@ namespace Nanoka.Models
     /// </summary>
     public class Image : ImageBase, IHasId, IHasScore
     {
+        /// <summary>
+        /// Image ID.
+        /// </summary>
         [JsonProperty("id")]
         public string Id { get; set; }
 
+        /// <summary>
+        /// Score value.
+        /// </summary>
         [JsonProperty("score")]
         public double Score { get; set; }
 
+        /// <summary>
+        /// Image width in pixels.
+        /// </summary>
         [JsonProperty("width")]
         public int Width { get; set; }
 
+        /// <summary>
+        /// Image height in pixels.
+        /// </summary>
         [JsonProperty("height")]
         public int Height { get; set; }
 
+        /// <summary>
+        /// Image format.
+        /// </summary>
         [JsonProperty("type")]
         public ImageMediaType MediaType { get; set; }
     }
@@ -30,15 +45,27 @@ namespace Nanoka.Models
     {
         public const int MinimumTagCount = 5;
 
+        /// <summary>
+        /// Tags added to this image.
+        /// </summary>
         [JsonProperty("tags"), Required]
         public Dictionary<ImageTag, string[]> Tags { get; set; }
 
+        /// <summary>
+        /// Sources from where this image was downloaded from.
+        /// </summary>
         [JsonProperty("source")]
         public ExternalSource[] Sources { get; set; }
 
+        /// <summary>
+        /// Content rating.
+        /// </summary>
         [JsonProperty("rating")]
         public MaterialRating Rating { get; set; }
 
+        /// <summary>
+        /// Notes added to this image.
+        /// </summary>
         [JsonProperty("notes")]
         public ImageNote[] Notes { get; set; }
 

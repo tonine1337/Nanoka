@@ -6,7 +6,6 @@ namespace Nanoka.Models
     {
         /// <summary>
         /// The snapshot was created when an entity was created.
-        /// In this case, <see cref="Snapshot{T}.Value"/> is null.
         /// </summary>
         [EnumMember(Value = "create")] Creation = 0,
 
@@ -17,6 +16,7 @@ namespace Nanoka.Models
 
         /// <summary>
         /// The snapshot was created when an entity was deleted.
+        /// In this case, <see cref="Snapshot{T}.Value"/> is null.
         /// </summary>
         [EnumMember(Value = "delete")] Deletion = 2,
 
