@@ -415,8 +415,9 @@ namespace Nanoka.Controllers
         /// <param name="id">Upload ID.</param>
         /// <param name="file">The file to upload, which must be a valid image.</param>
         [HttpPost("uploads/{id}/images")]
-        [SwaggerOperation(OperationId = "uploadBookImage")]
-        public async Task<ActionResult<UploadState>> UploadFileAsync(string id, [FromForm(Name = "file")] IFormFile file)
+        [Consumes("application/octet-stream", "image/jpeg", "image/png", "image/gif", "image/bmp")]
+        [SwaggerOperation(OperationId = "uploadBookImage"), SwaggerOperationFilter(typeof(FileUploadOperationFilter))]
+        public async Task<ActionResult<UploadState>> UploadFileAsync(string id, [FromForm] IFormFile file)
         {
             var task = _uploads.GetTask<BookUpload>(id);
 
