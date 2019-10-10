@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,10 +8,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Nanoka.Database;
 using Nanoka.Models;
 using Nanoka.Storage;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace Nanoka
 {
@@ -95,21 +94,31 @@ namespace Nanoka
             {
                 s.SwaggerDoc(
                     "v1",
-                    new Info
+                    new OpenApiInfo
                     {
-                        Title   = "Nanoka API",
-                        Version = "v1",
-                        License = new License
-                        {
-                            Name = "MIT",
-                            Url  = "https://opensource.org/licenses/MIT"
-                        }
+                        Title       = "Nanoka API",
+                        Version     = "v1",
+                        Description = "Nanoka HTTP API Documentation v1"
                     });
 
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                s.AddSecurityDefinition(
+                    "Authorization",
+                    new OpenApiSecurityScheme
+                    {
+                        Name        = "Authorization",
+                        Type        = SecuritySchemeType.ApiKey,
+                        In          = ParameterLocation.Header,
+                        Scheme      = "Bearer",
+                        Description = "JWT bearer token for authorization."
+                    });
 
-                s.IncludeXmlComments(xmlPath);
+                s.OperationFilter<UserClaimsOperationFilter>();
+                s.OperationFilter<VerifyHumanOperationFilter>();
+
+                s.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Nanoka.xml"));
+                s.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Nanoka.Models.xml"));
+
+                s.EnableAnnotations();
             });
 
             // other utilities

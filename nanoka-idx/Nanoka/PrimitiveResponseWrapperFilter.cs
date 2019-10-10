@@ -16,7 +16,7 @@ namespace Nanoka
                 {
                     var status = (HttpStatusCode) result.StatusCode;
 
-                    context.Result = new ObjectResult(new ResultModel<object>(status, status.ToString(), null))
+                    context.Result = new ObjectResult(new Result<object>(status, status.ToString(), null))
                     {
                         StatusCode = (int) status
                     };
@@ -33,7 +33,7 @@ namespace Nanoka
                     // ensure something is returned
                     if (type == null)
                     {
-                        context.Result = new ObjectResult(new ResultModel<object>(status, status.ToString(), null))
+                        context.Result = new ObjectResult(new Result<object>(status, status.ToString(), null))
                         {
                             StatusCode = (int) status
                         };
@@ -44,7 +44,7 @@ namespace Nanoka
                     {
                         var message = (string) result.Value;
 
-                        context.Result = new ObjectResult(new ResultModel<object>(status, message, null))
+                        context.Result = new ObjectResult(new Result<object>(status, message, null))
                         {
                             StatusCode = (int) status
                         };
@@ -55,7 +55,7 @@ namespace Nanoka
                     // wrap primitive type responses
                     else if (type.IsPrimitive || type.IsValueType)
                     {
-                        context.Result = new ObjectResult(new ResultModel<object>(status, status.ToString(), result.Value))
+                        context.Result = new ObjectResult(new Result<object>(status, status.ToString(), result.Value))
                         {
                             StatusCode = (int) status
                         };

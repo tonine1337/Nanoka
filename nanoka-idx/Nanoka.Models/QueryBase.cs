@@ -6,9 +6,15 @@ namespace Nanoka.Models
 {
     public abstract class QueryBase<TThis> where TThis : QueryBase<TThis>
     {
+        /// <summary>
+        /// Number of items to skip before returning.
+        /// </summary>
         [JsonProperty("offset"), Range(0, int.MaxValue)]
         public int Offset { get; set; }
 
+        /// <summary>
+        /// Number of items to return before stopping.
+        /// </summary>
         [JsonProperty("limit"), Range(0, int.MaxValue)]
         public int Limit { get; set; }
 
@@ -31,6 +37,9 @@ namespace Nanoka.Models
     public abstract class QueryBase<TThis, TSort> : QueryBase<TThis> where TThis : QueryBase<TThis, TSort>
                                                                      where TSort : Enum
     {
+        /// <summary>
+        /// Sorting to apply when returning results.
+        /// </summary>
         [JsonProperty("_sort")]
         public TSort[] Sorting { get; set; }
 

@@ -40,6 +40,10 @@ namespace Nanoka.Controllers
             _votes     = votes;
         }
 
+        /// <summary>
+        /// Retrieves book information.
+        /// </summary>
+        /// <param name="id">Book ID.</param>
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetAsync(string id)
         {
@@ -51,8 +55,13 @@ namespace Nanoka.Controllers
             return book;
         }
 
+        /// <summary>
+        /// Updates book information.
+        /// </summary>
+        /// <param name="id">Book ID.</param>
+        /// <param name="model">New book information.</param>
         [HttpPut("{id}")]
-        [UserClaims(unrestricted: true)]
+        [UserClaims(Unrestricted = true)]
         public async Task<ActionResult<Book>> UpdateAsync(string id, BookBase model)
         {
             using (await _locker.EnterAsync(id))
@@ -71,8 +80,12 @@ namespace Nanoka.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a book.
+        /// </summary>
+        /// <param name="id">Book ID.</param>
         [HttpDelete("{id}")]
-        [UserClaims(unrestricted: true, reputation: 100, reason: true)]
+        [UserClaims(Unrestricted = true, Reputation = 100, Reason = true)]
         [VerifyHuman]
         public async Task<ActionResult> DeleteAsync(string id)
         {
@@ -103,12 +116,21 @@ namespace Nanoka.Controllers
             return names;
         }
 
+        /// <summary>
+        /// Retrieves snapshots of book information.
+        /// </summary>
+        /// <param name="id">Book ID.</param>
         [HttpGet("{id}/snapshots")]
         public async Task<Snapshot<Book>[]> GetSnapshotsAsync(string id)
             => await _snapshots.GetAsync<Book>(id);
 
+        /// <summary>
+        /// Reverts book information to a previous snapshot.
+        /// </summary>
+        /// <param name="id">Book ID.</param>
+        /// <param name="request">Reversion request.</param>
         [HttpPost("{id}/snapshots/revert")]
-        [UserClaims(unrestricted: true, reason: true)]
+        [UserClaims(Unrestricted = true, Reason = true)]
         public async Task<ActionResult<Book>> RevertAsync(string id, RevertEntityRequest request)
         {
             using (await _locker.EnterAsync(id))
@@ -144,6 +166,11 @@ namespace Nanoka.Controllers
             }
         }
 
+        /// <summary>
+        /// Sets a vote on a book, overwriting one if already set.
+        /// </summary>
+        /// <param name="id">Book ID.</param>
+        /// <param name="model">Vote information.</param>
         [HttpPut("{id}/vote")]
         public async Task<ActionResult<Vote>> SetVoteAsync(string id, VoteBase model)
         {
@@ -163,6 +190,10 @@ namespace Nanoka.Controllers
             }
         }
 
+        /// <summary>
+        /// Removes vote from a book, if set.
+        /// </summary>
+        /// <param name="id">Book ID.</param>
         [HttpDelete("{id}/vote")]
         public async Task<ActionResult> UnsetVoteAsync(string id)
         {
@@ -182,6 +213,11 @@ namespace Nanoka.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves book content information.
+        /// </summary>
+        /// <param name="id">Book ID.</param>
+        /// <param name="contentId">Content ID.</param>
         [HttpGet("{id}/contents/{contentId}")]
         public async Task<ActionResult<BookContent>> GetContentAsync(string id, string contentId)
         {
@@ -198,6 +234,12 @@ namespace Nanoka.Controllers
             return content;
         }
 
+        /// <summary>
+        /// Updates book content information.
+        /// </summary>
+        /// <param name="id">Book ID.</param>
+        /// <param name="contentId">Content ID.</param>
+        /// <param name="model">New content information.</param>
         [HttpPut("{id}/contents/{contentId}")]
         public async Task<ActionResult<BookContent>> UpdateContentAsync(string id, string contentId, BookContentBase model)
         {
@@ -222,8 +264,16 @@ namespace Nanoka.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a content of a book.
+        /// </summary>
+        /// <remarks>
+        /// If the content being deleted is the only content left in the book, the entire book will be deleted.
+        /// </remarks>
+        /// <param name="id">Book ID.</param>
+        /// <param name="contentId">Content ID.</param>
         [HttpDelete("{id}/contents/{contentId}")]
-        [UserClaims(unrestricted: true, reputation: 100, reason: true)]
+        [UserClaims(Unrestricted = true, Reputation = 100, Reason = true)]
         [VerifyHuman]
         public async Task<ActionResult> DeleteContentAsync(string id, string contentId)
         {
@@ -260,6 +310,12 @@ namespace Nanoka.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets an image in a book content.
+        /// </summary>
+        /// <param name="id">Book ID.</param>
+        /// <param name="contentId">Content ID.</param>
+        /// <param name="index">Page index, starting from one.</param>
         [HttpGet("{id}/contents/{contentId}/images/{index}")]
         [AllowAnonymous]
         public async Task<ActionResult> GetImageAsync(string id, string contentId, int index)
@@ -275,6 +331,10 @@ namespace Nanoka.Controllers
             return new FileStreamResult(stream, mediaType);
         }
 
+        /// <summary>
+        /// Searches for books matching the specified query.
+        /// </summary>
+        /// <param name="query">Book information query.</param>
         [HttpPost("search")]
         public async Task<SearchResult<Book>> SearchAsync(BookQuery query)
             => await _books.SearchAsync(query);
@@ -287,8 +347,12 @@ namespace Nanoka.Controllers
             public BookContentBase Content;
         }
 
+        /// <summary>
+        /// Creates a book content upload task.
+        /// </summary>
+        /// <param name="request">Creation request.</param>
         [HttpPost("uploads")]
-        [UserClaims(unrestricted: true)]
+        [UserClaims(Unrestricted = true)]
         public async Task<ActionResult<UploadState>> CreateUploadAsync(CreateNewBookRequest request)
         {
             try
@@ -324,6 +388,10 @@ namespace Nanoka.Controllers
             throw new ArgumentException("Invalid upload state.");
         }
 
+        /// <summary>
+        /// Retrieves upload task information.
+        /// </summary>
+        /// <param name="id">Upload ID.</param>
         [HttpGet("uploads/{id}")]
         public ActionResult<UploadState> GetUpload(string id)
         {
@@ -335,7 +403,12 @@ namespace Nanoka.Controllers
             return task;
         }
 
-        [HttpPost("uploads/{id}/files")]
+        /// <summary>
+        /// Adds a new image to an upload task.
+        /// </summary>
+        /// <param name="id">Upload ID.</param>
+        /// <param name="file">The file to upload, which must be a valid image.</param>
+        [HttpPost("uploads/{id}/images")]
         public async Task<ActionResult<UploadState>> UploadFileAsync(string id, [FromForm(Name = "file")] IFormFile file)
         {
             var task = _uploads.GetTask<BookUpload>(id);
@@ -372,6 +445,11 @@ namespace Nanoka.Controllers
             return task;
         }
 
+        /// <summary>
+        /// Finishes an upload task.
+        /// </summary>
+        /// <param name="id">Upload ID.</param>
+        /// <param name="commit">Whether to save the upload or discard everything.</param>
         [HttpDelete("uploads/{id}")]
         public async Task<ActionResult<Book>> DeleteUploadAsync(string id, [FromQuery] bool commit)
         {

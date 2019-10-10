@@ -10,12 +10,21 @@ namespace Nanoka.Models
     /// </summary>
     public class Book : BookBase, IHasId, IHasScore
     {
+        /// <summary>
+        /// Book ID.
+        /// </summary>
         [JsonProperty("id")]
         public string Id { get; set; }
 
+        /// <summary>
+        /// Score value.
+        /// </summary>
         [JsonProperty("score")]
         public double Score { get; set; }
 
+        /// <summary>
+        /// Contents in this book.
+        /// </summary>
         [JsonProperty("contents")]
         public BookContent[] Contents { get; set; }
     }
@@ -25,17 +34,29 @@ namespace Nanoka.Models
         public const int MinimumTagCount = 5;
 
         /// <summary>
-        /// First element should be the fully localized primary name.
+        /// Book names.
         /// </summary>
+        /// <remarks>
+        /// First element should be fully localized primary name.
+        /// </remarks>
         [JsonProperty("names"), Required, MinLength(1)]
         public string[] Name { get; set; }
 
+        /// <summary>
+        /// Tags added to this book.
+        /// </summary>
         [JsonProperty("tags"), Required]
         public Dictionary<BookTag, string[]> Tags { get; set; }
 
+        /// <summary>
+        /// Book category.
+        /// </summary>
         [JsonProperty("category")]
         public BookCategory Category { get; set; }
 
+        /// <summary>
+        /// Content rating.
+        /// </summary>
         [JsonProperty("rating")]
         public MaterialRating Rating { get; set; }
 

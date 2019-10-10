@@ -6,9 +6,15 @@ namespace Nanoka.Models
 {
     public struct TextQuery : ISearchQuery
     {
+        /// <summary>
+        /// Values to match.
+        /// </summary>
         [JsonProperty("value")]
         public string[] Values { get; set; }
 
+        /// <summary>
+        /// Match mode.
+        /// </summary>
         [JsonProperty("mode")]
         public QueryMatchMode Mode { get; set; }
 

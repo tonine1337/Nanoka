@@ -67,9 +67,13 @@ namespace Nanoka.Controllers
             return false;
         }
 
+        /// <summary>
+        /// Authenticates using username and password.
+        /// </summary>
+        /// <param name="request">Authentication request.</param>
         [HttpPost("auth")]
         [AllowAnonymous]
-        public async Task<ActionResult<AuthenticationResponse>> AuthentiateAsync(AuthenticationRequest request)
+        public async Task<ActionResult<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request)
         {
             var user = await _users.GetByNameAsync(request.Username);
 
@@ -87,6 +91,10 @@ namespace Nanoka.Controllers
             };
         }
 
+        /// <summary>
+        /// Creates a new user.
+        /// </summary>
+        /// <param name="request">Creation request.</param>
         [HttpPost("register")]
         [AllowAnonymous]
         [VerifyHuman]
@@ -115,6 +123,10 @@ namespace Nanoka.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves user information.
+        /// </summary>
+        /// <param name="id">User ID.</param>
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetAsync(string id)
         {
@@ -126,8 +138,13 @@ namespace Nanoka.Controllers
             return EraseConfidential(user);
         }
 
+        /// <summary>
+        /// Updates user information.
+        /// </summary>
+        /// <param name="id">User ID.</param>
+        /// <param name="model">New user information.</param>
         [HttpPut("{id}")]
-        [UserClaims(unrestricted: true)]
+        [UserClaims(Unrestricted = true)]
         public async Task<ActionResult<User>> UpdateAsync(string id, UserBase model)
         {
             if (!IsUserUpdatable(id, out var result))
@@ -149,6 +166,10 @@ namespace Nanoka.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves snapshots of user information.
+        /// </summary>
+        /// <param name="id">User ID.</param>
         [HttpGet("{id}/snapshots")]
         public async Task<Snapshot<User>[]> GetSnapshotsAsync(string id)
             => (await _snapshot.GetAsync<User>(id)).ToArray(s =>
@@ -157,8 +178,16 @@ namespace Nanoka.Controllers
                 return s;
             });
 
+        /// <summary>
+        /// Reverts user information to a previous snapshot.
+        /// </summary>
+        /// <remarks>
+        /// Username and password will not be reverted.
+        /// </remarks>
+        /// <param name="id">User ID.</param>
+        /// <param name="request">Reversion request.</param>
         [HttpPost("{id}/snapshots/revert")]
-        [UserClaims(unrestricted: true, reason: true)]
+        [UserClaims(Unrestricted = true, Reason = true)]
         public async Task<ActionResult<User>> RevertAsync(string id, RevertEntityRequest request)
         {
             if (!IsUserUpdatable(id, out var result))
@@ -182,6 +211,13 @@ namespace Nanoka.Controllers
 
                 else if (snapshot.Value != null)
                 {
+                    if (user != null)
+                    {
+                        // do not revert username and password
+                        snapshot.Value.Username = user.Username;
+                        snapshot.Value.Secret   = user.Secret;
+                    }
+
                     user = snapshot.Value;
 
                     await _users.UpdateAsync(user);
@@ -194,8 +230,13 @@ namespace Nanoka.Controllers
             }
         }
 
+        /// <summary>
+        /// Adds a restriction to a user.
+        /// </summary>
+        /// <param name="id">User ID.</param>
+        /// <param name="request">Restriction request.</param>
         [HttpPost("{id}/restrictions")]
-        [UserClaims(unrestricted: true, permissions: UserPermissions.Moderator, reason: true)]
+        [UserClaims(Unrestricted = true, Permissions = UserPermissions.Moderator, Reason = true)]
         public async Task<ActionResult<UserRestriction>> AddRestrictionAsync(string id, RestrictUserRequest request)
         {
             if (request.Duration < TimeSpan.FromMinutes(10))
@@ -238,8 +279,13 @@ namespace Nanoka.Controllers
             }
         }
 
+        /// <summary>
+        /// Ends all currently active restrictions for a user.
+        /// </summary>
+        /// <param name="id">User ID.</param>
+        /// <param name="all">Whether to remove future restrictions</param>
         [HttpDelete("{id}/restrictions")]
-        [UserClaims(unrestricted: true, permissions: UserPermissions.Moderator, reason: true)]
+        [UserClaims(Unrestricted = true, Permissions = UserPermissions.Moderator, Reason = true)]
         public async Task<ActionResult<User>> DerestrictAsync(string id, [FromQuery] bool all)
         {
             if (!IsUserUpdatable(id, out var result))
