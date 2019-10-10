@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +15,7 @@ namespace Nanoka
         {
             var allowAnonymous = context.ApiDescription.CustomAttributes().OfType<AllowAnonymousAttribute>().Any();
 
-            if (allowAnonymous)
+            if (!allowAnonymous)
                 operation.Security.Add(new OpenApiSecurityRequirement
                 {
                     {
@@ -22,11 +23,11 @@ namespace Nanoka
                         {
                             Reference = new OpenApiReference
                             {
-                                Id   = "Authorization",
+                                Id   = "Bearer",
                                 Type = ReferenceType.SecurityScheme
                             }
                         },
-                        new string[0]
+                        new List<string>()
                     }
                 });
 

@@ -101,15 +101,17 @@ namespace Nanoka
                         Description = "Nanoka HTTP API Documentation v1"
                     });
 
+                // https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/1171#issuecomment-501342088
                 s.AddSecurityDefinition(
-                    "Authorization",
+                    "Bearer",
                     new OpenApiSecurityScheme
                     {
-                        Name        = "Authorization",
-                        Type        = SecuritySchemeType.ApiKey,
-                        In          = ParameterLocation.Header,
-                        Scheme      = "Bearer",
-                        Description = "JWT bearer token for authorization."
+                        Name         = "Authorization",
+                        Type         = SecuritySchemeType.Http,
+                        In           = ParameterLocation.Header,
+                        Scheme       = "bearer",
+                        Description  = "JWT Authorization header using the Bearer scheme.",
+                        BearerFormat = "JWT"
                     });
 
                 s.OperationFilter<UserClaimsOperationFilter>();
