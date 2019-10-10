@@ -96,13 +96,9 @@ namespace Nanoka
                     "v1",
                     new OpenApiInfo
                     {
-                        Title   = "Nanoka API",
-                        Version = "v1",
-                        License = new OpenApiLicense
-                        {
-                            Name = "MIT",
-                            Url  = new Uri("https://opensource.org/licenses/MIT")
-                        }
+                        Title       = "Nanoka API",
+                        Version     = "v1",
+                        Description = "Nanoka HTTP API Documentation v1"
                     });
 
                 s.AddSecurityDefinition(
