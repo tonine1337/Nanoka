@@ -35,7 +35,7 @@ namespace Nanoka.Tests
 
                 var id = user.Id;
 
-                var authResponse = (await controller.AuthentiateAsync(new AuthenticationRequest
+                var authResponse = (await controller.AuthenticateAsync(new AuthenticationRequest
                 {
                     Username = "testUser672",
                     Password = "securePassword1234"
