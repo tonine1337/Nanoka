@@ -55,7 +55,12 @@ namespace Nanoka
                 In              = ParameterLocation.Query,
                 Required        = attr.Reason,
                 AllowEmptyValue = false,
-                Description     = "Reason for performing this action."
+                Description     = "Reason for performing this action.",
+                Schema = new OpenApiSchema
+                {
+                    Type      = "string",
+                    MinLength = UserClaimsAttribute.MinReasonLength
+                }
             });
         }
     }

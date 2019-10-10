@@ -10,6 +10,8 @@ namespace Nanoka
 {
     public class UserClaimsAttribute : TypeFilterAttribute
     {
+        public const int MinReasonLength = 4;
+
         static readonly UserPermissions[] _permFlags = Enum.GetValues(typeof(UserPermissions))
                                                            .Cast<UserPermissions>()
                                                            .Where(p => p != UserPermissions.None)
@@ -146,7 +148,7 @@ namespace Nanoka
                 // require reason for potentially damaging actions
                 var reason = claims.GetReason();
 
-                if (_reason && (string.IsNullOrEmpty(reason) || reason.Length <= 3))
+                if (_reason && (string.IsNullOrEmpty(reason) || reason.Length < MinReasonLength))
                 {
                     context.Result = new ObjectResult("Valid reason must be provided for this action.")
                     {
