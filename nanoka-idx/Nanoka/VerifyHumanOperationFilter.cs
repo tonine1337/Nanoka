@@ -19,7 +19,11 @@ namespace Nanoka
                 In              = ParameterLocation.Query,
                 Required        = true,
                 AllowEmptyValue = false,
-                Description     = "reCAPTCHA token."
+                Description     = "reCAPTCHA token.",
+                Schema = new OpenApiSchema
+                {
+                    Type = "string"
+                }
             });
         }
     }

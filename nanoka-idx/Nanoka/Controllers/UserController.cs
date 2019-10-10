@@ -9,12 +9,11 @@ using Microsoft.Extensions.Options;
 using Nanoka.Database;
 using Nanoka.Models;
 using Nanoka.Models.Requests;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Nanoka.Controllers
 {
-    [ApiController]
-    [Route("users")]
-    [Authorize]
+    [ApiController, Route("users"), Authorize]
     public class UserController : ControllerBase
     {
         readonly NanokaOptions _options;
@@ -72,7 +71,7 @@ namespace Nanoka.Controllers
         /// </summary>
         /// <param name="request">Authentication request.</param>
         [HttpPost("auth")]
-        [AllowAnonymous]
+        [AllowAnonymous, SwaggerOperation(OperationId = "authenticateUser")]
         public async Task<ActionResult<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request)
         {
             var user = await _users.GetByNameAsync(request.Username);
@@ -96,8 +95,7 @@ namespace Nanoka.Controllers
         /// </summary>
         /// <param name="request">Creation request.</param>
         [HttpPost("register")]
-        [AllowAnonymous]
-        [VerifyHuman]
+        [AllowAnonymous, VerifyHuman, SwaggerOperation(OperationId = "createUser")]
         public async Task<ActionResult<RegistrationResponse>> RegisterAsync(RegistrationRequest request)
         {
             using (await _locker.EnterAsync(request.Username))
@@ -128,6 +126,7 @@ namespace Nanoka.Controllers
         /// </summary>
         /// <param name="id">User ID.</param>
         [HttpGet("{id}")]
+        [SwaggerOperation(OperationId = "getUser")]
         public async Task<ActionResult<User>> GetAsync(string id)
         {
             var user = await _users.GetByIdAsync(id);
@@ -144,7 +143,7 @@ namespace Nanoka.Controllers
         /// <param name="id">User ID.</param>
         /// <param name="model">New user information.</param>
         [HttpPut("{id}")]
-        [UserClaims(Unrestricted = true)]
+        [UserClaims(Unrestricted = true), SwaggerOperation(OperationId = "updateUser")]
         public async Task<ActionResult<User>> UpdateAsync(string id, UserBase model)
         {
             if (!IsUserUpdatable(id, out var result))
@@ -171,6 +170,7 @@ namespace Nanoka.Controllers
         /// </summary>
         /// <param name="id">User ID.</param>
         [HttpGet("{id}/snapshots")]
+        [SwaggerOperation(OperationId = "getUserSnapshots")]
         public async Task<Snapshot<User>[]> GetSnapshotsAsync(string id)
             => (await _snapshot.GetAsync<User>(id)).ToArray(s =>
             {
@@ -184,7 +184,7 @@ namespace Nanoka.Controllers
         /// <param name="id">User ID.</param>
         /// <param name="request">Restriction request.</param>
         [HttpPost("{id}/restrictions")]
-        [UserClaims(Unrestricted = true, Permissions = UserPermissions.Moderator, Reason = true)]
+        [UserClaims(Unrestricted = true, Permissions = UserPermissions.Moderator, Reason = true), SwaggerOperation(OperationId = "addUserRestriction")]
         public async Task<ActionResult<UserRestriction>> AddRestrictionAsync(string id, RestrictUserRequest request)
         {
             if (request.Duration < TimeSpan.FromMinutes(10))
@@ -233,7 +233,7 @@ namespace Nanoka.Controllers
         /// <param name="id">User ID.</param>
         /// <param name="all">Whether to remove future restrictions</param>
         [HttpDelete("{id}/restrictions")]
-        [UserClaims(Unrestricted = true, Permissions = UserPermissions.Moderator, Reason = true)]
+        [UserClaims(Unrestricted = true, Permissions = UserPermissions.Moderator, Reason = true), SwaggerOperation(OperationId = "clearUserRestrictions")]
         public async Task<ActionResult<User>> DerestrictAsync(string id, [FromQuery] bool all)
         {
             if (!IsUserUpdatable(id, out var result))

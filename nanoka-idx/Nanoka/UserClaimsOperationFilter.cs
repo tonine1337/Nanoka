@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +15,7 @@ namespace Nanoka
         {
             var allowAnonymous = context.ApiDescription.CustomAttributes().OfType<AllowAnonymousAttribute>().Any();
 
-            if (allowAnonymous)
+            if (!allowAnonymous)
                 operation.Security.Add(new OpenApiSecurityRequirement
                 {
                     {
@@ -22,11 +23,11 @@ namespace Nanoka
                         {
                             Reference = new OpenApiReference
                             {
-                                Id   = "Authorization",
+                                Id   = "Bearer",
                                 Type = ReferenceType.SecurityScheme
                             }
                         },
-                        new string[0]
+                        new List<string>()
                     }
                 });
 
@@ -40,13 +41,13 @@ namespace Nanoka
                 var array = new OpenApiArray();
                 array.AddRange(attr.PermissionFlags.Select(p => new OpenApiString(p.ToString())));
 
-                operation.Extensions["permissions"] = array;
+                operation.Extensions["x-permissions"] = array;
             }
 
             if (attr.Reputation > 0)
-                operation.Extensions["reputation"] = new OpenApiDouble(attr.Reputation);
+                operation.Extensions["x-reputation"] = new OpenApiDouble(attr.Reputation);
 
-            operation.Extensions["unrestricted"] = new OpenApiBoolean(attr.Unrestricted);
+            operation.Extensions["x-unrestricted"] = new OpenApiBoolean(attr.Unrestricted);
 
             operation.Parameters.Add(new OpenApiParameter
             {
@@ -54,7 +55,12 @@ namespace Nanoka
                 In              = ParameterLocation.Query,
                 Required        = attr.Reason,
                 AllowEmptyValue = false,
-                Description     = "Reason for performing this action."
+                Description     = "Reason for performing this action.",
+                Schema = new OpenApiSchema
+                {
+                    Type      = "string",
+                    MinLength = UserClaimsAttribute.MinReasonLength
+                }
             });
         }
     }
