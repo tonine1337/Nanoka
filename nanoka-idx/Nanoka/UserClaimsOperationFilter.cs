@@ -41,15 +41,13 @@ namespace Nanoka
                 var array = new OpenApiArray();
                 array.AddRange(attr.PermissionFlags.Select(p => new OpenApiString(p.ToString())));
 
-                operation.Extensions["permissions"] = array;
+                operation.Extensions["x-permissions"] = array;
             }
-/*
 
             if (attr.Reputation > 0)
-                operation.Extensions["reputation"] = new OpenApiDouble(attr.Reputation);
+                operation.Extensions["x-reputation"] = new OpenApiDouble(attr.Reputation);
 
-            operation.Extensions["unrestricted"] = new OpenApiBoolean(attr.Unrestricted);
-*/
+            operation.Extensions["x-unrestricted"] = new OpenApiBoolean(attr.Unrestricted);
 
             operation.Parameters.Add(new OpenApiParameter
             {
