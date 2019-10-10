@@ -179,58 +179,6 @@ namespace Nanoka.Controllers
             });
 
         /// <summary>
-        /// Reverts user information to a previous snapshot.
-        /// </summary>
-        /// <remarks>
-        /// Username and password will not be reverted.
-        /// </remarks>
-        /// <param name="id">User ID.</param>
-        /// <param name="request">Reversion request.</param>
-        [HttpPost("{id}/snapshots/revert")]
-        [UserClaims(Unrestricted = true, Reason = true)]
-        public async Task<ActionResult<User>> RevertAsync(string id, RevertEntityRequest request)
-        {
-            if (!IsUserUpdatable(id, out var result))
-                return result;
-
-            using (await _locker.EnterAsync(id))
-            {
-                var snapshot = await _snapshot.GetAsync<User>(id, request.SnapshotId);
-
-                if (snapshot == null)
-                    return ResultUtilities.NotFound<Snapshot>(id, request.SnapshotId);
-
-                var user = await _users.GetByIdAsync(id);
-
-                if (user != null && snapshot.Value == null)
-                {
-                    await _users.DeleteAsync(user);
-
-                    user = null;
-                }
-
-                else if (snapshot.Value != null)
-                {
-                    if (user != null)
-                    {
-                        // do not revert username and password
-                        snapshot.Value.Username = user.Username;
-                        snapshot.Value.Secret   = user.Secret;
-                    }
-
-                    user = snapshot.Value;
-
-                    await _users.UpdateAsync(user);
-                }
-
-                await _snapshot.RevertedAsync(snapshot);
-                await _tokens.InvalidateAsync(id);
-
-                return EraseConfidential(user);
-            }
-        }
-
-        /// <summary>
         /// Adds a restriction to a user.
         /// </summary>
         /// <param name="id">User ID.</param>
