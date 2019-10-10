@@ -197,7 +197,7 @@ namespace Nanoka.Controllers
         /// </summary>
         /// <param name="id">Book ID.</param>
         [HttpDelete("{id}/vote")]
-        [SwaggerOperation(OperationId = "clearBookVote")]
+        [SwaggerOperation(OperationId = "resetBookVote")]
         public async Task<ActionResult> UnsetVoteAsync(string id)
         {
             using (await _locker.EnterAsync(id))
