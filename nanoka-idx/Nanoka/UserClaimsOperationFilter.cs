@@ -43,11 +43,13 @@ namespace Nanoka
 
                 operation.Extensions["permissions"] = array;
             }
+/*
 
             if (attr.Reputation > 0)
                 operation.Extensions["reputation"] = new OpenApiDouble(attr.Reputation);
 
             operation.Extensions["unrestricted"] = new OpenApiBoolean(attr.Unrestricted);
+*/
 
             operation.Parameters.Add(new OpenApiParameter
             {
