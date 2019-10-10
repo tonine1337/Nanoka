@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Nanoka.Models
 {
-    public class ResultModel<T> where T : class
+    public class Result<T> where T : class
     {
         /// <summary>
         /// Whether this result represents an error.
@@ -29,7 +29,7 @@ namespace Nanoka.Models
         [JsonProperty("value")]
         public T Value { get; }
 
-        public ResultModel(HttpStatusCode status, string message, T value)
+        public Result(HttpStatusCode status, string message, T value)
         {
             Value = value;
 

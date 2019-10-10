@@ -11,7 +11,7 @@ namespace Nanoka.Controllers
     public class ErrorController : ControllerBase
     {
         [Route("error")]
-        public ResultModel<object> Handle()
+        public Result<object> Handle()
         {
             var exception = HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
 
@@ -25,11 +25,11 @@ namespace Nanoka.Controllers
                        .Append("Trace: ")
                        .Append(exception.StackTrace.Substring(0, exception.StackTrace.IndexOf('\n')).Trim());
 
-            return new ResultModel<object>(HttpStatusCode.InternalServerError, builder.ToString(), null);
+            return new Result<object>(HttpStatusCode.InternalServerError, builder.ToString(), null);
         }
 
         [Route("error/{status}")]
-        public ResultModel<object> Handle(HttpStatusCode status)
-            => new ResultModel<object>(status, status.ToString(), null);
+        public Result<object> Handle(HttpStatusCode status)
+            => new Result<object>(status, status.ToString(), null);
     }
 }
